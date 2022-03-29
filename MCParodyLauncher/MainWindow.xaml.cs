@@ -36,6 +36,8 @@ namespace MCParodyLauncher
     {
         private string rootPath;
         private string versionFile;
+        private string installerExe;
+        private string updater;
         private string mc2;
         private string mc3;
         private string mc3zip;
@@ -129,6 +131,8 @@ namespace MCParodyLauncher
 
             rootPath = Directory.GetCurrentDirectory();
             versionFile = Path.Combine(rootPath, "version.txt");
+            installerExe = Path.Combine(rootPath, "installer", "MCParodyLauncherSetup.exe");
+            updater = Path.Combine(rootPath, "updater.exe");
             mc2 = Path.Combine(rootPath, "games", "Minecraft 2", "Minecraft2.exe");
             mc3 = Path.Combine(rootPath, "games", "Minecraft 3", "Game.exe");
             mc3zip = Path.Combine(rootPath, "mc3.zip");
@@ -136,6 +140,15 @@ namespace MCParodyLauncher
             mc4 = Path.Combine(rootPath, "games", "Minecraft 4", "Minecraft4.exe");
             mc4zip = Path.Combine(rootPath, "mc4.zip");
             mc4dir = Path.Combine(rootPath, "games", "Minecraft 4");
+
+            if (File.Exists(installerExe))
+            {
+                File.Delete(installerExe);
+            }
+            if (Directory.Exists("installer"))
+            {
+                Directory.Delete("installer");
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -219,13 +232,23 @@ namespace MCParodyLauncher
 
             try
             {
-                WebClient webClient = new WebClient();
-
                 MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("An update for the launcher has been found! Would you like to download it?", "Launcher Update", System.Windows.MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
-                    Process.Start("https://killoofficial.wixsite.com/decentgames/launcher");
-                    Close();
+                    if (File.Exists(updater))
+                    {
+                        Process.Start(updater);
+                        Close();
+                    }
+                    else
+                    {
+                        MessageBoxResult noUpdater = System.Windows.MessageBox.Show("The updater was not found, would you like to open the download link?", "Launcher Update", System.Windows.MessageBoxButton.YesNo);
+                        if (noUpdater == MessageBoxResult.Yes)
+                        {
+                            Process.Start("https://killoofficial.wixsite.com/decentgames/launcher");
+                            Close();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
