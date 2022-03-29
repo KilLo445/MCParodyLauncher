@@ -1,0 +1,50 @@
+﻿<Window x:Class="MCParodyLauncher.Minecraft2"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MCParodyLauncher"
+        mc:Ignorable="d"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        ContentRendered="Window_ContentRendered"
+        Title="Minecraft 2-4 The Trilogy Definitive Edition Launcher" Height="576" Width="900">
+    <Grid>
+        <Image Name="BG" Source="img/bg/bg2.png" Stretch="UniformToFill" HorizontalAlignment="Center"/>
+        <TextBlock Name="VersionText" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Foreground="White" Margin="0, 0, 5, 0"/>
+        <Button Name="MC2" Content="Original" Click="MC2_Click" MouseRightButtonDown="MC2_MouseRightButtonDown" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="-250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{x:Null}">
+            <Button.Foreground>
+                <SolidColorBrush Color="White"/>
+            </Button.Foreground>
+            <Button.Background>
+                <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
+            </Button.Background>
+        </Button>
+        <Button Name="MC2_Disabled" Content="Original" Click="MC2_Disabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="-250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
+            <Button.Foreground>
+                <SolidColorBrush Color="White"/>
+            </Button.Foreground>
+            <Button.Background>
+                <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
+            </Button.Background>
+        </Button>
+        <Image HorizontalAlignment="Center" Height="80" Margin="37,25,37,0" VerticalAlignment="Top" Width="818" Source="img/mc2.png"/>
+        <Button x:Name="MC2Remake" Content="Remake" Click="MC2Remake_Click" MouseRightButtonDown="MC2Remake_MouseRightButtonDown" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{x:Null}" Foreground="White">
+            <Button.Background>
+                <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="GoBack" Content="Go Back" Click="GoBack_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="0,0,0,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" BorderBrush="{x:Null}" Foreground="White">
+            <Button.Background>
+                <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
+            </Button.Background>
+        </Button>
+        <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" Margin="0,415,0,115" VerticalAlignment="Center" Width="450" Visibility="Hidden"/>
+        <Button x:Name="MC2RemakeDisabled" Content="Remake" Click="MC2RemakeDisabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{x:Null}" Foreground="White" Visibility="Hidden" Cursor="No">
+            <Button.Background>
+                <ImageBrush ImageSource="/img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
+            </Button.Background>
+        </Button>
+    </Grid>
+
+</Window>
