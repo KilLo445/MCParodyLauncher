@@ -11,3 +11,5 @@ It originally started as a joke, but I wanted to start learning code anyway, so 
 [decentgames](https://killoofficial.wixsite.com/decentgames)  
   
 [Itch.io](https://decentgamestudio.itch.io/mc)  
+
+[Updater Source](https://github.com/KilLo445/minecraft-parody-launcher-updater)
