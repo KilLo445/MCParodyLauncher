@@ -242,12 +242,10 @@ namespace MCParodyLauncher
                     }
                     else
                     {
-                        MessageBoxResult noUpdater = System.Windows.MessageBox.Show("The updater was not found, would you like to open the download link?", "Launcher Update", System.Windows.MessageBoxButton.YesNo);
-                        if (noUpdater == MessageBoxResult.Yes)
-                        {
-                            Process.Start("https://killoofficial.wixsite.com/decentgames/launcher");
-                            Close();
-                        }
+                        WebClient webClient = new WebClient();
+                        webClient.DownloadFile(new Uri("https://github.com/KilLo445/minecraft-parody-launcher-updater/releases/download/main/updater.exe"), updater);
+                        Process.Start(updater);
+                        Close();
                     }
                 }
             }
