@@ -20,7 +20,7 @@ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                 <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-        <Button Name="MC2_Disabled" Content="Original" Click="MC2_Disabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="-250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
+        <Button Name="MC2_Disabled" Content="Original" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="-250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
             <Button.Foreground>
                 <SolidColorBrush Color="White"/>
             </Button.Foreground>
@@ -40,7 +40,7 @@ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             </Button.Background>
         </Button>
         <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" Margin="0,415,0,115" VerticalAlignment="Center" Width="450" Visibility="Hidden"/>
-        <Button x:Name="MC2RemakeDisabled" Content="Remake" Click="MC2RemakeDisabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{x:Null}" Foreground="White" Visibility="Hidden" Cursor="No">
+        <Button x:Name="MC2RemakeDisabled" Content="Remake" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="250,345,0,140" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{x:Null}" Foreground="White" Visibility="Hidden" Cursor="No">
             <Button.Background>
                 <ImageBrush ImageSource="/img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
             </Button.Background>

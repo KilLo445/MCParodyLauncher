@@ -21,7 +21,7 @@
                 <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-        <Button Name="PlayMC2_Disabled" Content="Minecraft 2" Click="PlayMC2_Disabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="126,0,566,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
+        <Button Name="PlayMC2_Disabled" Content="Minecraft 2" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="126,0,566,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
             <Button.Foreground>
                 <SolidColorBrush Color="White"/>
             </Button.Foreground>
@@ -34,7 +34,7 @@
                 <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-        <Button x:Name="PlayMC3_Disabled" Content="Minecraft 3" Click="PlayMC3_Disabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="346,0,346,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
+        <Button x:Name="PlayMC3_Disabled" Content="Minecraft 3" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="346,0,346,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
             <Button.Background>
                 <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
             </Button.Background>
@@ -44,12 +44,12 @@
                 <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-        <Button x:Name="PlayMC4_Disabled" Content="Minecraft 4" Click="PlayMC4_Disabled_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="566,0,126,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
+        <Button x:Name="PlayMC4_Disabled" Content="Minecraft 4" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="566,0,126,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
             <Button.Background>
                 <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
             </Button.Background>
         </Button>
-        <WebBrowser Name="Changelog" HorizontalAlignment="Center" Height="271" VerticalAlignment="Center" Width="638"/>
+        <WebBrowser Name="Changelog" HorizontalAlignment="Center" Height="271" VerticalAlignment="Center" Width="638" Visibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Auto" UseLayoutRounding="False"/>
         <Image HorizontalAlignment="Center" Height="80" Margin="37,25,37,0" VerticalAlignment="Top" Width="818" Source="img/mcpl_logo.png"/>
         <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
     </Grid>
