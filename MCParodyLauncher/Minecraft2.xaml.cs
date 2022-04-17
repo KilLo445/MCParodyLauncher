@@ -37,7 +37,6 @@ namespace MCParodyLauncher
         private string mc2zip;
         private string mc2;
         private string mc2dir;
-        private string mc2dl;
         private string mc2r;
         private string mc2rzip;
         private string mc2rdir;
@@ -124,7 +123,7 @@ namespace MCParodyLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersionMC2 = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1jBtlhtYR2VLteceOpwT6HIe6ls-LeDUl"));
+                    Version onlineVersionMC2 = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2/version.txt"));
 
                     if (onlineVersionMC2.IsDifferentThan(localVersionMC2))
                     {
@@ -187,7 +186,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/1S6PRHnKPSIbfbmVw4qVRIaDPWL4aZ2x6?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc2zip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
                         }
                         catch (Exception ex)
                         {
@@ -227,7 +226,7 @@ namespace MCParodyLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersionMC2R = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=11tSuijamSPTM9E8XoI5Lfv9apPJa0PU1"));
+                    Version onlineVersionMC2R = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/version.txt"));
 
                     if (onlineVersionMC2R.IsDifferentThan(localVersionMC2R))
                     {
@@ -290,7 +289,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/1RJ7NWSTpIxs-vtbR_UfPkTG73tvatEoX?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc2rzip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
                         }
                         catch (Exception ex)
                         {
@@ -413,7 +412,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/1S6PRHnKPSIbfbmVw4qVRIaDPWL4aZ2x6?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc2zip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
                         }
                         catch (Exception ex)
                         {
@@ -471,7 +470,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/1RJ7NWSTpIxs-vtbR_UfPkTG73tvatEoX?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc2rzip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
                         }
                         catch (Exception ex)
                         {

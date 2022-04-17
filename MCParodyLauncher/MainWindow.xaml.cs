@@ -39,8 +39,11 @@ namespace MCParodyLauncher
     public partial class MainWindow : Window
     {
         private string rootPath;
+        private string tempPath;
+        private string mcplTempPath;
         private string versionFile;
         private string installerExe;
+        private string installerPath;
         private string updater;
         private string gamesPath;
         private string mc2;
@@ -143,8 +146,11 @@ namespace MCParodyLauncher
             InitializeComponent();
 
             rootPath = Directory.GetCurrentDirectory();
+            tempPath = Path.GetTempPath();
+            mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
             versionFile = Path.Combine(rootPath, "version.txt");
-            installerExe = Path.Combine(rootPath, "installer", "MCParodyLauncherSetup.exe");
+            installerExe = Path.Combine(mcplTempPath, "installer", "MCParodyLauncherSetup.exe");
+            installerPath = Path.Combine(mcplTempPath, "installer");
             updater = Path.Combine(rootPath, "updater.exe");
             gamesPath = Path.Combine(rootPath, "games");
             mc2 = Path.Combine(rootPath, "games", "Minecraft 2", "Minecraft2.exe");
@@ -161,9 +167,13 @@ namespace MCParodyLauncher
             {
                 File.Delete(installerExe);
             }
-            if (Directory.Exists("installer"))
+            if (Directory.Exists(installerPath))
             {
-                Directory.Delete("installer");
+                Directory.Delete(installerPath);
+            }
+            if (Directory.Exists(mcplTempPath))
+            {
+                Directory.Delete(mcplTempPath);
             }
         }
 
@@ -219,7 +229,7 @@ namespace MCParodyLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1rxN417kyFzZoGmRN1arAx9prpX2pAZPY"));
+                    Version onlineVersion = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Launcher/version.txt"));
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
@@ -259,7 +269,7 @@ namespace MCParodyLauncher
                     else
                     {
                         WebClient webClient = new WebClient();
-                        webClient.DownloadFile(new Uri("https://github.com/KilLo445/minecraft-parody-launcher-updater/releases/download/main/updater.exe"), updater);
+                        webClient.DownloadFile(new Uri("https://github.com/KilLo445/MCParodyLauncher-Updater/releases/download/main/updater.exe"), updater);
                         Process.Start(updater);
                         Close();
                     }
@@ -282,7 +292,7 @@ namespace MCParodyLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersionMC3 = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1O0wu065VA7rEYrkYkXmOwsWAjWXhvtrS"));
+                    Version onlineVersionMC3 = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/version.txt"));
 
                     if (onlineVersionMC3.IsDifferentThan(localVersionMC3))
                     {
@@ -345,7 +355,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/13smtOPH8EnJK34i1BBLaKnDs7NlmsNsv?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc3zip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
                         }
                         catch (Exception ex)
                         {
@@ -429,7 +439,7 @@ namespace MCParodyLauncher
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.googleapis.com/drive/v3/files/13smtOPH8EnJK34i1BBLaKnDs7NlmsNsv?alt=media&key=AIzaSyBJx33vWmxvAXAdgwnIZLGIz7xWzyHZffQ"), mc3zip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
                         }
                         catch (Exception ex)
                         {
