@@ -156,25 +156,14 @@ namespace MCParodyLauncher
             mc2 = Path.Combine(rootPath, "games", "Minecraft 2", "Minecraft2.exe");
             mc3 = Path.Combine(rootPath, "games", "Minecraft 3", "Game.exe");
             mc3ver = Path.Combine(rootPath, "games", "Minecraft 3", "version.txt");
-            mc3zip = Path.Combine(rootPath, "mc3.zip");
+            mc3zip = Path.Combine(mcplTempPath, "mc3.zip");
             mc3dir = Path.Combine(rootPath, "games", "Minecraft 3");
             mc4 = Path.Combine(rootPath, "games", "Minecraft 4", "Minecraft4.exe");
             mc4ver = Path.Combine(rootPath, "games", "Minecraft 4", "version.txt");
-            mc4zip = Path.Combine(rootPath, "mc4.zip");
+            mc4zip = Path.Combine(mcplTempPath, "mc4.zip");
             mc4dir = Path.Combine(rootPath, "games", "Minecraft 4");
 
-            if (File.Exists(installerExe))
-            {
-                File.Delete(installerExe);
-            }
-            if (Directory.Exists(installerPath))
-            {
-                Directory.Delete(installerPath);
-            }
-            if (Directory.Exists(mcplTempPath))
-            {
-                Directory.Delete(mcplTempPath);
-            }
+            DelTemp();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -211,8 +200,19 @@ namespace MCParodyLauncher
                     e.Cancel = true;
                 }
             }
+            DelTemp();
         }
-
+        private void CreateTemp()
+        {
+            Directory.CreateDirectory(mcplTempPath);
+        }
+        private void DelTemp()
+        {
+            if (Directory.Exists(mcplTempPath))
+            {
+                Directory.Delete(mcplTempPath, true);
+            }
+        }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             DLProgress.Value = e.ProgressPercentage;
@@ -282,6 +282,15 @@ namespace MCParodyLauncher
                 MessageBox.Show($"Error: {ex}");
             }
         }
+        
+        private void StartMC3()
+        {
+            Process mc3game = Process.Start(mc3);
+            this.Hide();
+            mc3game.WaitForExit();
+            this.Show();
+        }
+
         private void CheckForUpdatesMC3()
         {
             StatusMC3 = MC3Status.checkUpdate;
@@ -300,11 +309,7 @@ namespace MCParodyLauncher
                     }
                     else
                     {
-                        ProcessStartInfo startInfo = new ProcessStartInfo(mc3);
-                        startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 3");
-                        Process.Start(startInfo);
-
-                        Close();
+                        StartMC3();
                     }
                 }
                 catch (Exception ex)
@@ -326,6 +331,8 @@ namespace MCParodyLauncher
                 if (messageBoxResultMC3Update == MessageBoxResult.Yes)
                 {
                     StatusMC3 = MC3Status.update;
+
+                    CreateTemp();
 
                     try
                     {
@@ -372,11 +379,7 @@ namespace MCParodyLauncher
                 }
                 else
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo(mc3);
-                    startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 3");
-                    Process.Start(startInfo);
-
-                    Close();
+                    StartMC3();
                 }
             }
             catch (Exception ex)
@@ -412,6 +415,7 @@ namespace MCParodyLauncher
                     MessageBoxResult mc3SpaceBox = System.Windows.MessageBox.Show("Minecraft 3 requires 318 MB of storage, do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
                     if (mc3SpaceBox == MessageBoxResult.Yes)
                     {
+                        CreateTemp();
                         Directory.CreateDirectory("games");
                         Directory.CreateDirectory(mc3dir);
 

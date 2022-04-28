@@ -31,6 +31,8 @@ namespace MCParodyLauncher
     public partial class Minecraft2 : Window
     {
         private string rootPath;
+        private string tempPath;
+        private string mcplTempPath;
         private string gamesPath;
         private string mc2ver;
         private string mc2rver;
@@ -102,15 +104,28 @@ namespace MCParodyLauncher
             InitializeComponent();
 
             rootPath = Directory.GetCurrentDirectory();
+            tempPath = Path.GetTempPath();
+            mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
             gamesPath = Path.Combine(rootPath, "games");
             mc2ver = Path.Combine(rootPath, "games", "Minecraft 2", "version.txt");
             mc2rver = Path.Combine(rootPath, "games", "Minecraft 2 Remake", "version.txt");
-            mc2zip = Path.Combine(rootPath, "mc2.zip");
+            mc2zip = Path.Combine(mcplTempPath, "mc2.zip");
             mc2 = Path.Combine(rootPath, "games", "Minecraft 2", "Minecraft2.exe");
             mc2dir = Path.Combine(rootPath, "games", "Minecraft 2");
             mc2r = Path.Combine(rootPath, "games", "Minecraft 2 Remake", "Minecraft2Remake.exe");
-            mc2rzip = Path.Combine(rootPath, "mc2r.zip");
+            mc2rzip = Path.Combine(mcplTempPath, "mc2r.zip");
             mc2rdir = Path.Combine(rootPath, "games", "Minecraft 2 Remake");
+        }
+        private void CreateTemp()
+        {
+            Directory.CreateDirectory(mcplTempPath);
+        }
+        private void DelTemp()
+        {
+            if (Directory.Exists(mcplTempPath))
+            {
+                Directory.Delete(mcplTempPath, true);
+            }
         }
 
         private void CheckForUpdatesMC2()
@@ -131,11 +146,7 @@ namespace MCParodyLauncher
                     }
                     else
                     {
-                        ProcessStartInfo startInfo = new ProcessStartInfo(mc2);
-                        startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 2");
-                        Process.Start(startInfo);
-
-                        Close();
+                        StartMC2();
                     }
                 }
                 catch (Exception ex)
@@ -157,6 +168,8 @@ namespace MCParodyLauncher
                 if (messageBoxResultMC2Update == MessageBoxResult.Yes)
                 {
                     Status = MC2Status.update;
+
+                    CreateTemp();
 
                     try
                     {
@@ -202,11 +215,7 @@ namespace MCParodyLauncher
                 }
                 else
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo(mc2);
-                    startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 2");
-                    Process.Start(startInfo);
-
-                    Close();
+                    StartMC2();
                 }
             }
             catch (Exception ex)
@@ -234,11 +243,7 @@ namespace MCParodyLauncher
                     }
                     else
                     {
-                        ProcessStartInfo startInfo = new ProcessStartInfo(mc2r);
-                        startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 2 Remake");
-                        Process.Start(startInfo);
-
-                        Close();
+                        StartMC2R();
                     }
                 }
                 catch (Exception ex)
@@ -260,6 +265,8 @@ namespace MCParodyLauncher
                 if (messageBoxResultMC2RUpdate == MessageBoxResult.Yes)
                 {
                     StatusR = MC2RStatus.update;
+
+                    CreateTemp();
 
                     try
                     {
@@ -305,11 +312,7 @@ namespace MCParodyLauncher
                 }
                 else
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo(mc2r);
-                    startInfo.WorkingDirectory = Path.Combine(rootPath, "games", "Minecraft 2 Remake");
-                    Process.Start(startInfo);
-
-                    Close();
+                    StartMC2R();
                 }
             }
             catch (Exception ex)
@@ -318,6 +321,20 @@ namespace MCParodyLauncher
                 Status = MC2Status.failed;
                 MessageBox.Show($"Error: {ex}");
             }
+        }
+        private void StartMC2()
+        {
+            Process mc2game = Process.Start(mc2);
+            this.Hide();
+            mc2game.WaitForExit();
+            this.Show();
+        }
+        private void StartMC2R()
+        {
+            Process mc2rgame = Process.Start(mc2r);
+            this.Hide();
+            mc2rgame.WaitForExit();
+            this.Show();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -370,10 +387,13 @@ namespace MCParodyLauncher
                     e.Cancel = true;
                 }
             }
+            DelTemp();
         }
 
         private void MC2_Click(object sender, RoutedEventArgs e)
         {
+            MessageBox.Show("Minecraft 2 has not been updated in a long time, and it will never be updated again, I highly recommend playing Minecraft 2 Remake. Minecraft 2 may be broken in some ways, or have bugs, Minecraft 2 Remake is all around a better experience, and it takes up less space on your computer.", "Minecraft 2");
+
             if (File.Exists(mc2) && Status == MC2Status.ready)
             {
                 CheckForUpdatesMC2();
@@ -385,6 +405,7 @@ namespace MCParodyLauncher
                     MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Minecraft 2 requires 675 MB of storage, do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
                     if (messageBoxResult == MessageBoxResult.Yes)
                     {
+                        CreateTemp();
                         Directory.CreateDirectory("games");
                         Directory.CreateDirectory(mc2dir);
 
@@ -443,6 +464,7 @@ namespace MCParodyLauncher
                     MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
                     if (messageBoxResult2 == MessageBoxResult.Yes)
                     {
+                        CreateTemp();
                         Directory.CreateDirectory("games");
                         Directory.CreateDirectory(mc2rdir);
 
