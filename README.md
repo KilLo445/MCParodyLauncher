@@ -12,4 +12,7 @@ It originally started as a joke, but I wanted to start learning code anyway, so 
   
 [Itch.io](https://decentgamestudio.itch.io/mc)  
 
-[Updater Source](https://github.com/KilLo445/MCParodyLauncher-Updater)
+[Updater Source](https://github.com/KilLo445/MCParodyLauncher-Updater)  
+  
+## Old Versions  
+All old versions are currently private, I do have an archive of most of them, so I may make them public at some point.
