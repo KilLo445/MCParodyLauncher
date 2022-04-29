@@ -163,6 +163,7 @@ namespace MCParodyLauncher
             mc4zip = Path.Combine(mcplTempPath, "mc4.zip");
             mc4dir = Path.Combine(rootPath, "games", "Minecraft 4");
 
+            MoveOldTemp();
             DelTemp();
         }
 
@@ -185,15 +186,7 @@ namespace MCParodyLauncher
                 MessageBoxResult mc4DLCancelConfirmation = System.Windows.MessageBox.Show("Minecraft 4 is currently downloading, if you close the launcher the download will fail, do you want to continue?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
                 if (mc4DLCancelConfirmation == MessageBoxResult.Yes)
                 {
-                    try
-                    {
-                        File.Delete(mc4zip);
-                    }
-                    catch (Exception ex)
-                    {
-                        SystemSounds.Exclamation.Play();
-                        MessageBox.Show($"Error deleting zip: {ex}");
-                    }
+
                 }
                 else
                 {
@@ -212,6 +205,29 @@ namespace MCParodyLauncher
             {
                 Directory.Delete(mcplTempPath, true);
             }
+        }
+        private void MoveOldTemp()
+        {
+            if (File.Exists("mc2.zip"))
+            {
+                File.Move("mc2.zip", mcplTempPath);
+            }
+            if (File.Exists("mc2r.zip"))
+            {
+                File.Move("mc2r.zip", mcplTempPath);
+            }
+            if (File.Exists("mc3.zip"))
+            {
+                File.Move("mc3.zip", mcplTempPath);
+            }
+            if (Directory.Exists("installer"))
+            {
+                Directory.Move("installer", mcplTempPath);
+            }
+        }
+        private void OpenWeb()
+        {
+            Process.Start("https://killoofficial.wixsite.com/decentgames/launcher");
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -599,6 +615,11 @@ namespace MCParodyLauncher
             {
 
             }
+        }
+
+        private void Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenWeb();
         }
     }
 }

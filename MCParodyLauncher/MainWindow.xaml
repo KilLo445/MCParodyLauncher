@@ -50,7 +50,7 @@
             </Button.Background>
         </Button>
         <WebBrowser Name="Changelog" HorizontalAlignment="Center" Height="271" VerticalAlignment="Center" Width="638" Visibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Auto" UseLayoutRounding="False"/>
-        <Image HorizontalAlignment="Center" Height="80" Margin="37,25,37,0" VerticalAlignment="Top" Width="818" Source="img/mcpl_logo.png"/>
+        <Image Name="Logo" HorizontalAlignment="Center" Height="80" Margin="37,25,37,0" VerticalAlignment="Top" Width="818" Source="img/mcpl_logo.png" MouseLeftButtonDown="Logo_MouseLeftButtonDown"/>
         <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
     </Grid>
 </Window>
