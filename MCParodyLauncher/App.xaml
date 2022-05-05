@@ -2,8 +2,29 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:MCParodyLauncher"
+             xmlns:viewModel="clr-namespace:MCParodyLauncher.MVVM.ViewModel"
+             xmlns:view="clr-namespace:MCParodyLauncher.MVVM.View"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/MenuButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/ModernButtonTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <DataTemplate DataType="{x:Type viewModel:HomeViewModel}">
+                <view:HomeView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:Minecraft2ViewModel}">
+                <view:Minecraft2View/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:Minecraft3ViewModel}">
+                <view:Minecraft3View/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:Minecraft4ViewModel}">
+                <view:Minecraft4View/>
+            </DataTemplate>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

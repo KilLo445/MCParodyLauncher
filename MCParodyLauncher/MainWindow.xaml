@@ -4,53 +4,54 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MCParodyLauncher"
+        xmlns:viewModel="clr-namespace:MCParodyLauncher.MVVM.ViewModel"
         mc:Ignorable="d"
+        WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="CanMinimize"
+        ResizeMode="NoResize"
         ContentRendered="Window_ContentRendered"
-        Title="Minecraft 2-4 The Trilogy Definitive Edition Launcher" Height="576" Width="900">
-    <Grid>
-        <Image Name="BG" Source="img/bg/bg1.png" Stretch="UniformToFill" HorizontalAlignment="Center"/>
-        <TextBlock Name="VersionText" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Foreground="White" Margin="0, 0, 5, 0"/>
-        <TextBlock Name="UpdateText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="20" Foreground="White" Margin="0, 0, 5, 0"/>
-        <Button Name="PlayMC2" Content="Minecraft 2" Click="PlayMC2_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="126,0,566,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible" BorderBrush="{x:Null}">
-            <Button.Foreground>
-                <SolidColorBrush Color="White"/>
-            </Button.Foreground>
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <Button Name="PlayMC2_Disabled" Content="Minecraft 2" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="126,0,566,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Cursor="No">
-            <Button.Foreground>
-                <SolidColorBrush Color="White"/>
-            </Button.Foreground>
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="PlayMC3" Content="Minecraft 3" Click="PlayMC3_Click" MouseRightButtonDown="PlayMC3_MouseRightButtonDown" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="346,0,346,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible" BorderBrush="{x:Null}" Foreground="White">
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="PlayMC3_Disabled" Content="Minecraft 3" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="346,0,346,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="PlayMC4" Content="Minecraft 4" Click="PlayMC4_Click" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="566,0,126,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="PlayMC4_Disabled" Content="Minecraft 4" Height="60" Width="200" MinWidth="150" FontSize="28" FontWeight="Bold" Margin="566,0,126,40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Hidden" BorderBrush="{x:Null}" Foreground="White" Cursor="No">
-            <Button.Background>
-                <ImageBrush ImageSource="img/button/buttonBGdirt-disabled.png" Stretch="UniformToFill"/>
-            </Button.Background>
-        </Button>
-        <WebBrowser Name="Changelog" HorizontalAlignment="Center" Height="271" VerticalAlignment="Center" Width="638" Visibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Auto" UseLayoutRounding="False"/>
-        <Image Name="Logo" HorizontalAlignment="Center" Height="80" Margin="37,25,37,0" VerticalAlignment="Top" Width="818" Source="img/mcpl_logo.png" MouseLeftButtonDown="Logo_MouseLeftButtonDown"/>
-        <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
-    </Grid>
+        Background="Transparent"
+        AllowsTransparency="False"
+        MouseDown="Window_MouseDown"
+        Title="Minecraft Parody Launcher" Height="600" Width="920">
+
+    <Window.DataContext>
+        <viewModel:MainViewModel/>
+    </Window.DataContext>
+
+    <Border>
+        <Border.Background>
+            <LinearGradientBrush>
+                <GradientStop Color="#1c1c1c" Offset="0.0"/>
+                <GradientStop Color="#242424" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="75"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+
+            <TextBlock Visibility="Visible" Text="MCParodyLauncher" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+            <Image Source="img/mcpl_logo.png" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" Width="190"/>
+
+            <StackPanel Grid.Row="1">
+                <RadioButton Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
+                <RadioButton Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
+                <RadioButton Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
+                <RadioButton Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
+                <TextBlock Name="VersionText" Text="Launcher v0.3.0" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+            </StackPanel>
+
+            <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
+            <TextBlock Grid.Column="1" Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Foreground="White" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Margin="0,0,5,0" Grid.RowSpan="2"/>
+        </Grid>
+    </Border>
 </Window>

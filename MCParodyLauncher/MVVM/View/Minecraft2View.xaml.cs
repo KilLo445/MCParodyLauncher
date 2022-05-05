@@ -6,8 +6,9 @@ using System.IO.Compression;
 using System.Net;
 using System.Windows;
 using System.Media;
+using System.Windows.Controls;
 
-namespace MCParodyLauncher
+namespace MCParodyLauncher.MVVM.View
 {
     enum MC2Status
     {
@@ -27,8 +28,7 @@ namespace MCParodyLauncher
         downloading,
         update
     }
-
-    public partial class Minecraft2 : Window
+    public partial class Minecraft2View : UserControl
     {
         private string rootPath;
         private string tempPath;
@@ -55,19 +55,19 @@ namespace MCParodyLauncher
                 switch (_status)
                 {
                     case MC2Status.ready:
-                        MC2.Content = "Original";
+                        PlayMC2.Content = "Original";
                         break;
                     case MC2Status.failed:
-                        MC2.Content = "Error";
+                        PlayMC2.Content = "Error";
                         break;
                     case MC2Status.downloading:
-                        MC2.Content = "Downloading";
+                        PlayMC2.Content = "Downloading";
                         break;
                     case MC2Status.unzip:
-                        MC2.Content = "Extracting";
+                        PlayMC2.Content = "Extracting";
                         break;
                     case MC2Status.update:
-                        MC2.Content = "Updating";
+                        PlayMC2.Content = "Updating";
                         break;
                 }
             }
@@ -81,25 +81,25 @@ namespace MCParodyLauncher
                 switch (_statusr)
                 {
                     case MC2RStatus.ready:
-                        MC2Remake.Content = "Remake";
+                        PlayMC2R.Content = "Remake";
                         break;
                     case MC2RStatus.failed:
-                        MC2Remake.Content = "Error";
+                        PlayMC2R.Content = "Error";
                         break;
                     case MC2RStatus.downloading:
-                        MC2Remake.Content = "Downloading";
+                        PlayMC2R.Content = "Downloading";
                         break;
                     case MC2RStatus.unzip:
-                        MC2Remake.Content = "Extracting";
+                        PlayMC2R.Content = "Extracting";
                         break;
                     case MC2RStatus.update:
-                        MC2Remake.Content = "Updating";
+                        PlayMC2R.Content = "Updating";
                         break;
                 }
             }
         }
 
-        public Minecraft2()
+        public Minecraft2View()
         {
             InitializeComponent();
 
@@ -126,6 +126,18 @@ namespace MCParodyLauncher
             {
                 Directory.Delete(mcplTempPath, true);
             }
+        }
+        private void StartMC2()
+        {
+            Process.Start(mc2);
+        }
+        private void StartMC2R()
+        {
+            Process.Start(mc2r);
+        }
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            DLProgress.Value = e.ProgressPercentage;
         }
 
         private void CheckForUpdatesMC2()
@@ -190,9 +202,6 @@ namespace MCParodyLauncher
                             }
                         }
                         DLProgress.Visibility = Visibility.Visible;
-                        GoBack.Visibility = Visibility.Hidden;
-                        MC2Remake.Visibility = Visibility.Hidden;
-                        MC2RemakeDisabled.Visibility = Visibility.Visible;
                         try
                         {
                             WebClient webClient = new WebClient();
@@ -287,9 +296,6 @@ namespace MCParodyLauncher
                             }
                         }
                         DLProgress.Visibility = Visibility.Visible;
-                        GoBack.Visibility = Visibility.Hidden;
-                        MC2.Visibility = Visibility.Hidden;
-                        MC2_Disabled.Visibility = Visibility.Visible;
                         try
                         {
                             WebClient webClient = new WebClient();
@@ -322,188 +328,6 @@ namespace MCParodyLauncher
                 MessageBox.Show($"Error: {ex}");
             }
         }
-        private void StartMC2()
-        {
-            Process mc2game = Process.Start(mc2);
-            this.Hide();
-            mc2game.WaitForExit();
-            this.Show();
-        }
-        private void StartMC2R()
-        {
-            Process mc2rgame = Process.Start(mc2r);
-            this.Hide();
-            mc2rgame.WaitForExit();
-            this.Show();
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            if (Status == MC2Status.downloading)
-            {
-                MessageBoxResult cancelMC2DL = System.Windows.MessageBox.Show("Minecraft 2 is currently downloading, are you sure to want to cancel it?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
-                if (cancelMC2DL == MessageBoxResult.Yes)
-                {
-
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
-            }
-            if (StatusR == MC2RStatus.downloading)
-            {
-                MessageBoxResult cancelMC2RDL = System.Windows.MessageBox.Show("Minecraft 2 Remake is currently downloading, are you sure to want to cancel it?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-                if (cancelMC2RDL == MessageBoxResult.Yes)
-                {
-
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
-            }
-            if (Status == MC2Status.update)
-            {
-                MessageBoxResult cancelMCUpdate = System.Windows.MessageBox.Show("Minecraft 2 is currently updating, are you sure to want to cancel it?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
-                if (cancelMCUpdate == MessageBoxResult.Yes)
-                {
-
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
-            }
-            if (StatusR == MC2RStatus.update)
-            {
-                MessageBoxResult cancelMC2RUpdate = System.Windows.MessageBox.Show("Minecraft 2 Remake is currently updating, are you sure to want to cancel it?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-                if (cancelMC2RUpdate == MessageBoxResult.Yes)
-                {
-
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
-            }
-            DelTemp();
-        }
-
-        private void MC2_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Minecraft 2 has not been updated in a long time, and it will never be updated again, I highly recommend playing Minecraft 2 Remake. Minecraft 2 may be broken in some ways, or have bugs, Minecraft 2 Remake is all around a better experience, and it takes up less space on your computer.", "Minecraft 2");
-
-            if (File.Exists(mc2) && Status == MC2Status.ready)
-            {
-                CheckForUpdatesMC2();
-            }
-            else
-            {
-                if (Status != MC2Status.downloading)
-                {
-                    MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Minecraft 2 requires 675 MB of storage, do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
-                    if (messageBoxResult == MessageBoxResult.Yes)
-                    {
-                        CreateTemp();
-                        Directory.CreateDirectory("games");
-                        Directory.CreateDirectory(mc2dir);
-
-                        if (File.Exists(mc2zip))
-                        {
-                            try
-                            {
-                                File.Delete(mc2zip);
-                            }
-                            catch (Exception ex)
-                            {
-                                Status = MC2Status.failed;
-                                MessageBox.Show($"Error deleting zip: {ex}");
-                            }
-                        }
-                        DLProgress.Visibility = Visibility.Visible;
-                        GoBack.Visibility = Visibility.Hidden;
-                        MC2Remake.Visibility = Visibility.Hidden;
-                        MC2RemakeDisabled.Visibility = Visibility.Visible;
-                        try
-                        {
-                            WebClient webClient = new WebClient();
-
-                            Status = MC2Status.downloading;
-
-                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
-                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
-                        }
-                        catch (Exception ex)
-                        {
-                            Status = MC2Status.failed;
-                            MessageBox.Show($"Error downloading Minecraft 2: {ex}");
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            DLProgress.Value = e.ProgressPercentage;
-        }
-
-
-        private void MC2Remake_Click(object sender, RoutedEventArgs e)
-        {
-            if (File.Exists(mc2r))
-            {
-                CheckForUpdatesMC2R();
-            }
-            else
-            {
-                if (StatusR != MC2RStatus.downloading)
-                {
-                    MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-                    if (messageBoxResult2 == MessageBoxResult.Yes)
-                    {
-                        CreateTemp();
-                        Directory.CreateDirectory("games");
-                        Directory.CreateDirectory(mc2rdir);
-
-                        if (File.Exists(mc2rzip))
-                        {
-                            try
-                            {
-                                File.Delete(mc2rzip);
-                            }
-                            catch (Exception ex)
-                            {
-                                StatusR = MC2RStatus.failed;
-                                MessageBox.Show($"Error deleting zip: {ex}");
-                            }
-                        }
-                        DLProgress.Visibility = Visibility.Visible;
-                        GoBack.Visibility = Visibility.Hidden;
-                        MC2.Visibility = Visibility.Hidden;
-                        MC2_Disabled.Visibility = Visibility.Visible;
-                        try
-                        {
-                            WebClient webClient = new WebClient();
-
-                            StatusR = MC2RStatus.downloading;
-
-                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
-                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
-                        }
-                        catch (Exception ex)
-                        {
-                            StatusR = MC2RStatus.failed;
-                            MessageBox.Show($"Error downloading Minecraft 2 Remake: {ex}");
-                        }
-                    }
-                }
-            }
-        }
-
         private void DownloadMC2CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
             Status = MC2Status.unzip;
@@ -512,12 +336,9 @@ namespace MCParodyLauncher
             {
                 ZipFile.ExtractToDirectory(mc2zip, mc2dir);
                 File.Delete(mc2zip);
-                
+
                 Status = MC2Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                MC2Remake.Visibility = Visibility.Visible;
-                MC2RemakeDisabled.Visibility = Visibility.Hidden;
-                GoBack.Visibility = Visibility.Visible;
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Download complete!", "Minecraft 2");
             }
@@ -538,9 +359,6 @@ namespace MCParodyLauncher
 
                 StatusR = MC2RStatus.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                MC2.Visibility = Visibility.Visible;
-                MC2_Disabled.Visibility = Visibility.Hidden;
-                GoBack.Visibility = Visibility.Visible;
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Download complete!", "Minecraft 2 Remake");
             }
@@ -561,9 +379,6 @@ namespace MCParodyLauncher
 
                 Status = MC2Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                MC2Remake.Visibility = Visibility.Visible;
-                MC2RemakeDisabled.Visibility = Visibility.Hidden;
-                GoBack.Visibility = Visibility.Visible;
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Update complete!", "Minecraft 2");
             }
@@ -584,9 +399,6 @@ namespace MCParodyLauncher
 
                 StatusR = MC2RStatus.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                MC2.Visibility = Visibility.Visible;
-                MC2_Disabled.Visibility = Visibility.Hidden;
-                GoBack.Visibility = Visibility.Visible;
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Update complete!", "Minecraft 2 Remake");
             }
@@ -597,19 +409,117 @@ namespace MCParodyLauncher
             }
         }
 
-        private void Window_ContentRendered(object sender, EventArgs e)
+        private void PlayMC2_Click(object sender, RoutedEventArgs e)
         {
+            if (StatusR == MC2RStatus.downloading)
+            {
+                MessageBox.Show("Please wait until your download finishes before starting another one.", "MCParodyLauncher");
+            }
+            else
+            {
+                MessageBox.Show("Minecraft 2 has not been updated in a long time, and it will never be updated again, I highly recommend playing Minecraft 2 Remake. Minecraft 2 may be broken in some ways, or have bugs, Minecraft 2 Remake is all around a better experience, and it takes up less space on your computer.", "Minecraft 2");
 
+                if (File.Exists(mc2) && Status == MC2Status.ready)
+                {
+                    CheckForUpdatesMC2();
+                }
+                else
+                {
+                    if (Status != MC2Status.downloading)
+                    {
+                        MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Minecraft 2 requires 675 MB of storage, do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
+                        if (messageBoxResult == MessageBoxResult.Yes)
+                        {
+                            DownloadWarning();
+                            CreateTemp();
+                            Directory.CreateDirectory("games");
+                            Directory.CreateDirectory(mc2dir);
+
+                            if (File.Exists(mc2zip))
+                            {
+                                try
+                                {
+                                    File.Delete(mc2zip);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Status = MC2Status.failed;
+                                    MessageBox.Show($"Error deleting zip: {ex}");
+                                }
+                            }
+                            DLProgress.Visibility = Visibility.Visible;
+                            try
+                            {
+                                WebClient webClient = new WebClient();
+
+                                Status = MC2Status.downloading;
+
+                                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
+                                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
+                            }
+                            catch (Exception ex)
+                            {
+                                Status = MC2Status.failed;
+                                MessageBox.Show($"Error downloading Minecraft 2: {ex}");
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        private void GoBack_Click(object sender, RoutedEventArgs e)
+        private void PlayMC2R_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mwindow = new MainWindow();
-            mwindow.Show();
-            this.Close();
-        }
+            if (File.Exists(mc2r))
+            {
+                CheckForUpdatesMC2R();
+            }
+            else
+            {
+                if (StatusR != MC2RStatus.downloading)
+                {
+                    MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
+                    if (messageBoxResult2 == MessageBoxResult.Yes)
+                    {
+                        DownloadWarning();
+                        CreateTemp();
+                        Directory.CreateDirectory("games");
+                        Directory.CreateDirectory(mc2rdir);
 
-        private void MC2_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+                        if (File.Exists(mc2rzip))
+                        {
+                            try
+                            {
+                                File.Delete(mc2rzip);
+                            }
+                            catch (Exception ex)
+                            {
+                                StatusR = MC2RStatus.failed;
+                                MessageBox.Show($"Error deleting zip: {ex}");
+                            }
+                        }
+                        DLProgress.Visibility = Visibility.Visible;
+                        try
+                        {
+                            WebClient webClient = new WebClient();
+
+                            StatusR = MC2RStatus.downloading;
+
+                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
+                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
+                        }
+                        catch (Exception ex)
+                        {
+                            StatusR = MC2RStatus.failed;
+                            MessageBox.Show($"Error downloading Minecraft 2 Remake: {ex}");
+                        }
+                    }
+                }
+            }
+        }
+        private void PlayMC2_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (File.Exists(mc2))
             {
@@ -644,7 +554,7 @@ namespace MCParodyLauncher
             }
         }
 
-        private void MC2Remake_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void PlayMC2R_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (File.Exists(mc2r))
             {
@@ -677,6 +587,10 @@ namespace MCParodyLauncher
             {
 
             }
+        }
+        private void DownloadWarning()
+        {
+            MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
         }
         struct Version
         {
@@ -735,6 +649,11 @@ namespace MCParodyLauncher
             {
                 return $"{major}.{minor}.{subMinor}";
             }
+        }
+
+        private void MC2Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Process.Start("https://killo445.itch.io/minecraft-2");
         }
     }
 }
