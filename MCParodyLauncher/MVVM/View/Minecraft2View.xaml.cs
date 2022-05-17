@@ -543,14 +543,6 @@ namespace MCParodyLauncher.MVVM.View
                         MessageBox.Show($"Error deleting Minecraft 2: {ex}");
                     }
                 }
-                else
-                {
-
-                }
-            }
-            else
-            {
-
             }
         }
 
@@ -578,14 +570,6 @@ namespace MCParodyLauncher.MVVM.View
                         MessageBox.Show($"Error deleting Minecraft 2 Remake: {ex}");
                     }
                 }
-                else
-                {
-
-                }
-            }
-            else
-            {
-
             }
         }
         private void DownloadWarning()

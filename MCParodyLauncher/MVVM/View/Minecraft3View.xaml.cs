@@ -319,14 +319,6 @@ namespace MCParodyLauncher.MVVM.View
                         MessageBox.Show($"Error deleting Minecraft 3: {ex}");
                     }
                 }
-                else
-                {
-
-                }
-            }
-            else
-            {
-
             }
         }
         private void DownloadWarning()

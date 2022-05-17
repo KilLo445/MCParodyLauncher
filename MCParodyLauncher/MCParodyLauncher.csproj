@@ -151,14 +151,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Resource Include="Fonts\Poppins-Bold.ttf" />
-    <Resource Include="Fonts\Poppins-BoldItalic.ttf" />
-    <Resource Include="Fonts\Poppins-ExtraBold.ttf" />
-    <Resource Include="Fonts\Poppins-ExtraBoldItalic.ttf" />
-    <Resource Include="Fonts\Poppins-ExtraLight.ttf" />
-    <Resource Include="Fonts\Poppins-ExtraLightItalic.ttf" />
-    <Resource Include="Fonts\Poppins-Italic.ttf" />
     <Resource Include="Fonts\Poppins-Light.ttf" />
-    <Resource Include="Fonts\Poppins-LightItalic.ttf" />
     <Resource Include="Fonts\Poppins-Regular.ttf" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -195,9 +188,7 @@
   <ItemGroup>
     <Resource Include="img\mc2.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MVVM\Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="img\mc3.png" />
     <Resource Include="img\mc4.png" />

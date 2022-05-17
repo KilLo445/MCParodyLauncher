@@ -23,12 +23,9 @@ namespace MCParodyLauncher
         private string tempPath;
         private string mcplTempPath;
         private string versionFile;
-        private string installerExe;
         private string installerPath;
+        private string installerExe;
         private string updater;
-        private string mc2;
-        private string mc2r;
-        private string mc3;
 
         private LauncherStatus _status;
 
@@ -40,12 +37,9 @@ namespace MCParodyLauncher
             tempPath = Path.GetTempPath();
             mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
             versionFile = Path.Combine(rootPath, "version.txt");
-            installerExe = Path.Combine(mcplTempPath, "installer", "MCParodyLauncherSetup.exe");
             installerPath = Path.Combine(mcplTempPath, "installer");
+            installerExe = Path.Combine(mcplTempPath, "installer", "MCParodyLauncherSetup.exe");
             updater = Path.Combine(rootPath, "updater.exe");
-            mc2 = Path.Combine(rootPath, "games", "Minecraft 2", "Minecraft2.exe");
-            mc2r = Path.Combine(rootPath, "games", "Minecraft 2 Remake", "Minecraft2Remake.exe");
-            mc3 = Path.Combine(rootPath, "games", "Minecraft 3", "Game.exe");
 
             MoveOldTemp();
             DelTemp();
@@ -55,15 +49,15 @@ namespace MCParodyLauncher
         {
             DelTemp();
         }
-        private void CreateTemp()
-        {
-            Directory.CreateDirectory(mcplTempPath);
-        }
         private void DelTemp()
         {
             if (Directory.Exists(mcplTempPath))
             {
                 Directory.Delete(mcplTempPath, true);
+            }
+            if (Directory.Exists("installer"))
+            {
+                Directory.Delete("installer", true);
             }
         }
         private void MoveOldTemp()
@@ -79,10 +73,6 @@ namespace MCParodyLauncher
             if (File.Exists("mc3.zip"))
             {
                 File.Move("mc3.zip", mcplTempPath);
-            }
-            if (Directory.Exists("installer"))
-            {
-                Directory.Move("installer", mcplTempPath);
             }
         }
 
@@ -100,10 +90,6 @@ namespace MCParodyLauncher
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
                         InstallUpdate(true, onlineVersion);
-                    }
-                    else
-                    {
-
                     }
                 }
                 catch (Exception ex)
@@ -221,6 +207,11 @@ namespace MCParodyLauncher
             {
                 DragMove();
             }
+        }
+
+        private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
         }
     }
 }

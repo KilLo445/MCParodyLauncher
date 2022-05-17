@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         ContentRendered="Window_ContentRendered"
         Background="Transparent"
         AllowsTransparency="False"
@@ -38,7 +38,6 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-
             <TextBlock Visibility="Visible" Text="MCParodyLauncher" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
             <Image Source="img/mcpl_logo.png" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" Width="190"/>
 
@@ -47,11 +46,12 @@
                 <RadioButton Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
                 <RadioButton Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
                 <RadioButton Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
-                <TextBlock Name="VersionText" Text="Launcher v0.3.0" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+                <TextBlock Name="VersionText" Text="Launcher v0.3.2" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
             </StackPanel>
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
-            <TextBlock Grid.Column="1" Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Foreground="White" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Margin="0,0,5,0" Grid.RowSpan="2"/>
+            <TextBlock Grid.Column="1" Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Foreground="White" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Margin="0,0,8,0" Grid.RowSpan="2"/>
+            <TextBlock Grid.Column="1" Name="MinimizeButton" Text="-" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Foreground="White" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Margin="0,1,30,0" Grid.RowSpan="2"/>
         </Grid>
     </Border>
 </Window>
