@@ -8,26 +8,13 @@ using System.Media;
 
 namespace MCParodyLauncher
 {
-    enum LauncherStatus
-    {
-        ready,
-        checkUpdate,
-        updateFound,
-        failed,
-        checkFailed
-    }
-
     public partial class MainWindow : Window
     {
         private string rootPath;
         private string tempPath;
         private string mcplTempPath;
         private string versionFile;
-        private string installerPath;
-        private string installerExe;
         private string updater;
-
-        private LauncherStatus _status;
 
         public MainWindow()
         {
@@ -37,11 +24,8 @@ namespace MCParodyLauncher
             tempPath = Path.GetTempPath();
             mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
             versionFile = Path.Combine(rootPath, "version.txt");
-            installerPath = Path.Combine(mcplTempPath, "installer");
-            installerExe = Path.Combine(mcplTempPath, "installer", "MCParodyLauncherSetup.exe");
             updater = Path.Combine(rootPath, "updater.exe");
 
-            MoveOldTemp();
             DelTemp();
         }
 
@@ -59,23 +43,19 @@ namespace MCParodyLauncher
             {
                 Directory.Delete("installer", true);
             }
-        }
-        private void MoveOldTemp()
-        {
             if (File.Exists("mc2.zip"))
             {
-                File.Move("mc2.zip", mcplTempPath);
+                File.Delete("mc2.zip");
             }
             if (File.Exists("mc2r.zip"))
             {
-                File.Move("mc2r.zip", mcplTempPath);
+                File.Delete("mc2r.zip");
             }
             if (File.Exists("mc3.zip"))
             {
-                File.Move("mc3.zip", mcplTempPath);
+                File.Delete("mc3.zip");
             }
         }
-
         private void CheckForUpdates()
         {
             if (File.Exists(versionFile))
