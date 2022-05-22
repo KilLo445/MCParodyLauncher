@@ -46,7 +46,7 @@
                 <RadioButton Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
                 <RadioButton Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
                 <RadioButton Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
-                <TextBlock Name="VersionText" Text="Launcher v0.3.2" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+                <TextBlock Name="VersionText" Text="Launcher v0.3.3" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
             </StackPanel>
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
