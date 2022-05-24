@@ -15,6 +15,7 @@ namespace MCParodyLauncher
         private string mcplTempPath;
         private string versionFile;
         private string updater;
+        bool updateAvailable;
 
         public MainWindow()
         {
@@ -69,7 +70,12 @@ namespace MCParodyLauncher
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
+                        updateAvailable = true;
                         InstallUpdate(true, onlineVersion);
+                    }
+                    else
+                    {
+                        updateAvailable = false;
                     }
                 }
                 catch (Exception ex)
@@ -79,6 +85,7 @@ namespace MCParodyLauncher
             }
             else
             {
+                updateAvailable = true;
                 InstallUpdate(false, Version.zero);
             }
         }
@@ -88,7 +95,7 @@ namespace MCParodyLauncher
 
             try
             {
-                MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("An update for the launcher has been found! Would you like to download it?", "Launcher Update", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Information);
+                MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("An update for the launcher has been found! Would you like to download it?", "Launcher Update", System.Windows.MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
                     if (File.Exists(updater))
@@ -131,6 +138,28 @@ namespace MCParodyLauncher
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+        private void VersionText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            MessageBoxResult checkUpdateLMB = MessageBox.Show("Do you want to check for updates?", "Launcher Update", MessageBoxButton.YesNo);
+            if (checkUpdateLMB == MessageBoxResult.Yes)
+            {
+                CheckForUpdates();
+
+                if (updateAvailable == false)
+                {
+                    MessageBox.Show("No update is available.", "Launcher Update");
+                }
+            }
+        }
+
+        private void VersionText_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            MessageBoxResult checkUpdateRMB = MessageBox.Show("Do you want launch the updater and check for updates?", "Launcher Update", MessageBoxButton.YesNo);
+            if (checkUpdateRMB == MessageBoxResult.Yes)
+            {
+                Process.Start(updater);
+            }
         }
 
         struct Version
