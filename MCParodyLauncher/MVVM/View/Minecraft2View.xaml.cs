@@ -158,6 +158,7 @@ namespace MCParodyLauncher.MVVM.View
                     }
                     else
                     {
+                        Status = MC2Status.ready;
                         StartMC2();
                     }
                 }
@@ -252,6 +253,7 @@ namespace MCParodyLauncher.MVVM.View
                     }
                     else
                     {
+                        StatusR = MC2RStatus.ready;
                         StartMC2R();
                     }
                 }
@@ -471,49 +473,56 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC2R_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(mc2r))
+            if (Status == MC2Status.downloading)
             {
-                CheckForUpdatesMC2R();
+                MessageBox.Show("Please wait until your download finishes before starting another one.", "MCParodyLauncher");
             }
             else
             {
-                if (StatusR != MC2RStatus.downloading)
+                if (File.Exists(mc2r) && StatusR == MC2RStatus.ready)
                 {
-                    MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-                    if (messageBoxResult2 == MessageBoxResult.Yes)
+                    CheckForUpdatesMC2R();
+                }
+                else
+                {
+                    if (StatusR != MC2RStatus.downloading)
                     {
-                        DownloadWarning();
-                        CreateTemp();
-                        Directory.CreateDirectory("games");
-                        Directory.CreateDirectory(mc2rdir);
-
-                        if (File.Exists(mc2rzip))
+                        MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
+                        if (messageBoxResult2 == MessageBoxResult.Yes)
                         {
+                            DownloadWarning();
+                            CreateTemp();
+                            Directory.CreateDirectory("games");
+                            Directory.CreateDirectory(mc2rdir);
+
+                            if (File.Exists(mc2rzip))
+                            {
+                                try
+                                {
+                                    File.Delete(mc2rzip);
+                                }
+                                catch (Exception ex)
+                                {
+                                    StatusR = MC2RStatus.failed;
+                                    MessageBox.Show($"Error deleting zip: {ex}");
+                                }
+                            }
+                            DLProgress.Visibility = Visibility.Visible;
                             try
                             {
-                                File.Delete(mc2rzip);
+                                WebClient webClient = new WebClient();
+
+                                StatusR = MC2RStatus.downloading;
+
+                                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
+                                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
                             }
                             catch (Exception ex)
                             {
                                 StatusR = MC2RStatus.failed;
-                                MessageBox.Show($"Error deleting zip: {ex}");
+                                MessageBox.Show($"Error downloading Minecraft 2 Remake: {ex}");
                             }
-                        }
-                        DLProgress.Visibility = Visibility.Visible;
-                        try
-                        {
-                            WebClient webClient = new WebClient();
-
-                            StatusR = MC2RStatus.downloading;
-
-                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
-                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
-                        }
-                        catch (Exception ex)
-                        {
-                            StatusR = MC2RStatus.failed;
-                            MessageBox.Show($"Error downloading Minecraft 2 Remake: {ex}");
                         }
                     }
                 }

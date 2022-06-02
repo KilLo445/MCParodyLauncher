@@ -121,6 +121,7 @@ namespace MCParodyLauncher.MVVM.View
                     }
                     else
                     {
+                        StatusMC3 = MC3Status.ready;
                         StartMC3();
                     }
                 }
@@ -202,7 +203,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC3_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(mc3))
+            if (File.Exists(mc3) && StatusMC3 == MC3Status.ready)
             {
                 CheckForUpdatesMC3();
             }
