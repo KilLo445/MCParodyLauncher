@@ -4,7 +4,8 @@ Minecraft Parody Launcher (a.k.a Minecraft 2-4 The Trilogy Definitive Edition La
   
 It originally started as a joke, but I wanted to start learning code anyway, so here we are.  
   
-## [Download Launcher](https://github.com/KilLo445/MCParodyLauncher/releases/latest)  
+## [Download Latest Release](https://github.com/KilLo445/MCParodyLauncher/releases/download/main/MinecraftParodyLauncher.zip)  
+  
 ### [Website](https://killoofficial.wixsite.com/decentgames/launcher)
   
 [KilLo](https://killoofficial.wixsite.com/main)  
