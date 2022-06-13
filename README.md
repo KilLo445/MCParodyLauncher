@@ -6,6 +6,8 @@ It originally started as a joke, but I wanted to start learning code anyway, so 
   
 ## [Download Latest Release](https://github.com/KilLo445/MCParodyLauncher/releases/download/main/MinecraftParodyLauncher.zip)  
   
+### [Latest Release Page](https://github.com/KilLo445/MCParodyLauncher/releases/latest)
+  
 ### [Website](https://killoofficial.wixsite.com/decentgames/launcher)
   
 [KilLo](https://killoofficial.wixsite.com/main)  
