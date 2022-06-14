@@ -51,7 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>img\Minecraft.ico</ApplicationIcon>
+    <ApplicationIcon>Images\Minecraft.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -76,6 +76,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="LauncherUpdate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -86,6 +90,9 @@
     </Compile>
     <Compile Include="Core\ObservableObject.cs" />
     <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="LauncherUpdate.xaml.cs">
+      <DependentUpon>LauncherUpdate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -106,11 +113,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Theme\CloseButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Theme\MenuButtonTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Theme\ModernButtonTheme.xaml">
+    <Page Include="Theme\ButtonTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\MinimizeButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -162,7 +177,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\Minecraft.ico" />
+    <Resource Include="Images\Minecraft.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
@@ -177,21 +192,21 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\button\buttonBGdirt.png" />
+    <Resource Include="Images\button\buttonBGdirt.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\button\buttonBGdirt-disabled.png" />
+    <Resource Include="Images\button\buttonBGdirt-disabled.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\mcpl_logo.png" />
+    <Resource Include="Images\mcpl_logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\mc2.png" />
+    <Resource Include="Images\mc2.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Resource Include="img\mc3.png" />
-    <Resource Include="img\mc4.png" />
+    <Resource Include="Images\mc3.png" />
+    <Resource Include="Images\mc4.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

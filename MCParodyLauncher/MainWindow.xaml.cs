@@ -10,6 +10,8 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
+        string launcherVersion = "0.3.6";
+
         private string rootPath;
         private string tempPath;
         private string mcplTempPath;
@@ -27,7 +29,10 @@ namespace MCParodyLauncher
             versionFile = Path.Combine(rootPath, "version.txt");
             updater = Path.Combine(rootPath, "updater.exe");
 
+            VersionText.Text = $"Launcher v{launcherVersion}";
+
             DelTemp();
+            CreateVerFile();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -56,6 +61,14 @@ namespace MCParodyLauncher
             {
                 File.Delete("mc3.zip");
             }
+        }
+        private void CreateVerFile()
+        {
+            if (!File.Exists(versionFile))
+            {
+                File.Create(versionFile);
+            }
+            File.WriteAllText(versionFile, launcherVersion);
         }
         private void CheckForUpdates()
         {
@@ -95,22 +108,8 @@ namespace MCParodyLauncher
 
             try
             {
-                MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("An update for the launcher has been found! Would you like to download it?", "Launcher Update", System.Windows.MessageBoxButton.YesNo);
-                if (messageBoxResult == MessageBoxResult.Yes)
-                {
-                    if (File.Exists(updater))
-                    {
-                        Process.Start(updater);
-                        Close();
-                    }
-                    else
-                    {
-                        WebClient webClient = new WebClient();
-                        webClient.DownloadFile(new Uri("https://github.com/KilLo445/MCParodyLauncher-Updater/releases/download/main/updater.exe"), updater);
-                        Process.Start(updater);
-                        Close();
-                    }
-                }
+                LauncherUpdate updateWindow = new LauncherUpdate();
+                updateWindow.Show();
             }
             catch (Exception ex)
             {
@@ -132,7 +131,7 @@ namespace MCParodyLauncher
         }
         private void CloseButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Close();
+            Application.Current.Shutdown();
         }
 
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
