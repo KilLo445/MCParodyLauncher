@@ -10,7 +10,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "0.3.6";
+        string launcherVersion = "0.3.7";
 
         private string rootPath;
         private string tempPath;
@@ -32,7 +32,7 @@ namespace MCParodyLauncher
             VersionText.Text = $"Launcher v{launcherVersion}";
 
             DelTemp();
-            CreateVerFile();
+            DumpVersion();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -62,7 +62,7 @@ namespace MCParodyLauncher
                 File.Delete("mc3.zip");
             }
         }
-        private void CreateVerFile()
+        private void DumpVersion()
         {
             if (!File.Exists(versionFile))
             {
@@ -72,6 +72,8 @@ namespace MCParodyLauncher
         }
         private void CheckForUpdates()
         {
+            DumpVersion();
+
             if (File.Exists(versionFile))
             {
                 Version localVersion = new Version(File.ReadAllText(versionFile));
@@ -91,9 +93,9 @@ namespace MCParodyLauncher
                         updateAvailable = false;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MessageBox.Show($"Error checking for updates: {ex}");
+                    MessageBox.Show("Error checking for updates, are you connected to the internet?", "Error");
                 }
             }
             else
@@ -105,7 +107,6 @@ namespace MCParodyLauncher
 
         private void InstallUpdate(bool isUpdate, Version _onlineVersion)
         {
-
             try
             {
                 LauncherUpdate updateWindow = new LauncherUpdate();

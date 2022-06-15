@@ -9,9 +9,6 @@ namespace MCParodyLauncher
     public partial class LauncherUpdate : Window
     {
         private string rootPath;
-        private string tempPath;
-        private string mcplTemp;
-        private string updateVer;
         private string updater;
 
         public LauncherUpdate()
@@ -19,9 +16,6 @@ namespace MCParodyLauncher
             InitializeComponent();
 
             rootPath = Directory.GetCurrentDirectory();
-            tempPath = Path.GetTempPath();
-            mcplTemp = Path.Combine(tempPath, "MCParodyLauncher");
-            updateVer = Path.Combine(mcplTemp, "UpdateVersion.txt"); 
             updater = Path.Combine(rootPath, "updater.exe");
 
             GetVersion();
@@ -29,12 +23,8 @@ namespace MCParodyLauncher
 
         private void GetVersion()
         {
-            Directory.CreateDirectory(mcplTemp);
-
             WebClient webClient = new WebClient();
-            webClient.DownloadFile(new Uri("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Launcher/version.txt"), updateVer);
-
-            updateVer = File.ReadAllText(updateVer);
+            string updateVer = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Launcher/version.txt");
 
             UpdateVersion.Text = $"Update: v{updateVer}";
         }
@@ -62,11 +52,6 @@ namespace MCParodyLauncher
         private void NoButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void Window_ContentRendered(object sender, EventArgs e)
-        {
-
         }
     }
 }
