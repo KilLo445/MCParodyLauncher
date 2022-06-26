@@ -432,10 +432,6 @@ namespace MCParodyLauncher.MVVM.View
                         WebClient webClient = new WebClient();
                         string mc2Size = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2/size.txt");
 
-                        string testFile;
-                        testFile = Path.Combine(rootPath, "test.txt");
-                        File.WriteAllText(testFile, mc2Size);
-
                         MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Minecraft 2 requires {mc2Size}Do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
                         if (messageBoxResult == MessageBoxResult.Yes)
                         {
