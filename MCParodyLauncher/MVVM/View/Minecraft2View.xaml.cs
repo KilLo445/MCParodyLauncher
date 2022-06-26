@@ -429,7 +429,14 @@ namespace MCParodyLauncher.MVVM.View
                 {
                     if (Status != MC2Status.downloading)
                     {
-                        MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Minecraft 2 requires 675 MB of storage, do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
+                        WebClient webClient = new WebClient();
+                        string mc2Size = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2/size.txt");
+
+                        string testFile;
+                        testFile = Path.Combine(rootPath, "test.txt");
+                        File.WriteAllText(testFile, mc2Size);
+
+                        MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show($"Minecraft 2 requires {mc2Size}Do you want to continue?", "Minecraft 2", System.Windows.MessageBoxButton.YesNo);
                         if (messageBoxResult == MessageBoxResult.Yes)
                         {
                             DownloadWarning();
@@ -452,8 +459,6 @@ namespace MCParodyLauncher.MVVM.View
                             DLProgress.Visibility = Visibility.Visible;
                             try
                             {
-                                WebClient webClient = new WebClient();
-
                                 Status = MC2Status.downloading;
 
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
@@ -487,7 +492,10 @@ namespace MCParodyLauncher.MVVM.View
                 {
                     if (StatusR != MC2RStatus.downloading)
                     {
-                        MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show("Minecraft 2 Remake requires 425 MB of storage, do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
+                        WebClient webClient = new WebClient();
+                        string mc2RSize = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/size.txt");
+
+                        MessageBoxResult messageBoxResult2 = System.Windows.MessageBox.Show($"Minecraft 2 Remake requires {mc2RSize}Do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
                         if (messageBoxResult2 == MessageBoxResult.Yes)
                         {
                             DownloadWarning();
@@ -510,8 +518,6 @@ namespace MCParodyLauncher.MVVM.View
                             DLProgress.Visibility = Visibility.Visible;
                             try
                             {
-                                WebClient webClient = new WebClient();
-
                                 StatusR = MC2RStatus.downloading;
 
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);

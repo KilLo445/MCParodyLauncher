@@ -211,7 +211,10 @@ namespace MCParodyLauncher.MVVM.View
             {
                 if (StatusMC3 != MC3Status.downloading)
                 {
-                    MessageBoxResult mc3SpaceBox = System.Windows.MessageBox.Show("Minecraft 3 requires 318 MB of storage, do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                    WebClient webClient = new WebClient();
+                    string mc3Size = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/size.txt");
+
+                    MessageBoxResult mc3SpaceBox = System.Windows.MessageBox.Show($"Minecraft 3 requires {mc3Size}Do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
                     if (mc3SpaceBox == MessageBoxResult.Yes)
                     {
                         DownloadWarning();
@@ -235,8 +238,6 @@ namespace MCParodyLauncher.MVVM.View
                         DLProgress.Visibility = Visibility.Visible;
                         try
                         {
-                            WebClient webClient = new WebClient();
-
                             StatusMC3 = MC3Status.downloading;
 
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
