@@ -9,7 +9,6 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        ContentRendered="Window_ContentRendered"
         Background="Transparent"
         AllowsTransparency="False"
         MouseDown="Window_MouseDown"

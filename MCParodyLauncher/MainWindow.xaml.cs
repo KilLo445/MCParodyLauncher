@@ -5,19 +5,25 @@ using System.IO;
 using System.Net;
 using System.Windows;
 using System.Media;
+using System.Windows.Input;
+using System.Security.Policy;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "0.3.8";
+        string launcherVersion = "0.3.9";
 
+        // Paths and Files
         private string rootPath;
         private string tempPath;
         private string mcplTempPath;
         private string versionFile;
         private string updater;
+
+        // Bools
         bool updateAvailable;
+        public static bool offlineMode;
 
         public MainWindow()
         {
@@ -31,14 +37,17 @@ namespace MCParodyLauncher
 
             VersionText.Text = $"Launcher v{launcherVersion}";
 
+            OfflineMode();
+            CheckForUpdates();
+
             DelTemp();
-            DumpVersion();
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             DelTemp();
         }
+
         private void DelTemp()
         {
             if (Directory.Exists(mcplTempPath))
@@ -62,17 +71,34 @@ namespace MCParodyLauncher
                 File.Delete("mc3.zip");
             }
         }
+
+        public void OfflineMode()
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                SystemSounds.Exclamation.Play();
+                MessageBoxResult offlineModeA = MessageBox.Show("Are you sure you want to launch Minecraft Parody Launcher in Offline Mode?", "Offline Mode", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (offlineModeA == MessageBoxResult.Yes)
+                {
+                    offlineMode = true;
+                    this.Title = "Minecraft Parody Launcher (Offline Mode)";
+                }
+            }
+        }
+
         private void DumpVersion()
         {
-            if (!File.Exists(versionFile))
-            {
-                File.Create(versionFile);
-            }
             File.WriteAllText(versionFile, launcherVersion);
         }
+
         private void CheckForUpdates()
         {
             DumpVersion();
+
+            if (offlineMode == true)
+            {
+                return;
+            }
 
             if (File.Exists(versionFile))
             {
@@ -95,7 +121,19 @@ namespace MCParodyLauncher
                 }
                 catch
                 {
-                    MessageBox.Show("Error checking for updates, are you connected to the internet?", "Error");
+                    SystemSounds.Exclamation.Play();
+                    MessageBoxResult offlineModeB = MessageBox.Show("Error checking for updates, Would you like to launch Minecraft Parody Launcher in offline mode?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (offlineModeB == MessageBoxResult.Yes)
+                    {
+                        offlineMode = true;
+                        this.Title = "Minecraft Parody Launcher (Offline Mode)";
+                        return;
+                    }
+                    if (offlineModeB == MessageBoxResult.No)
+                    {
+                        MessageBox.Show("Minecraft Parody Launcher will now close.");
+                        Application.Current.Shutdown();
+                    }
                 }
             }
             else
@@ -119,10 +157,6 @@ namespace MCParodyLauncher
             }
         }
 
-        private void Window_ContentRendered(object sender, EventArgs e)
-        {
-            CheckForUpdates();
-        }
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
@@ -141,6 +175,13 @@ namespace MCParodyLauncher
         }
         private void VersionText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (offlineMode == true)
+            {
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Unable to check for updates in offine mode.", "Offline Mode");
+                return;
+            }
+
             MessageBoxResult checkUpdateLMB = MessageBox.Show("Do you want to check for updates?", "Launcher Update", MessageBoxButton.YesNo);
             if (checkUpdateLMB == MessageBoxResult.Yes)
             {
@@ -155,6 +196,13 @@ namespace MCParodyLauncher
 
         private void VersionText_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (offlineMode == true)
+            {
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Unable to check for updates in offine mode.", "Offline Mode");
+                return;
+            }
+            
             MessageBoxResult checkUpdateRMB = MessageBox.Show("Do you want launch the updater and check for updates?", "Launcher Update", MessageBoxButton.YesNo);
             if (checkUpdateRMB == MessageBoxResult.Yes)
             {

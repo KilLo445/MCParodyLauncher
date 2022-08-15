@@ -192,12 +192,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\button\buttonBGdirt.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\button\buttonBGdirt-disabled.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\mcpl_logo.png" />
   </ItemGroup>
   <ItemGroup>

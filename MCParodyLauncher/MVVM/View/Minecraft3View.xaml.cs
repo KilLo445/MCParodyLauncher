@@ -150,7 +150,6 @@ namespace MCParodyLauncher.MVVM.View
                     try
                     {
                         Directory.Delete(mc3dir, true);
-
                         Directory.CreateDirectory(mc3dir);
 
                         if (File.Exists(mc3zip))
@@ -203,6 +202,20 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC3_Click(object sender, RoutedEventArgs e)
         {
+            if (MainWindow.offlineMode == true)
+            {
+                if (File.Exists(mc3))
+                {
+                    StartMC3();
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 3.");
+                    return;
+                }
+            }
+
             if (File.Exists(mc3) && StatusMC3 == MC3Status.ready)
             {
                 CheckForUpdatesMC3();

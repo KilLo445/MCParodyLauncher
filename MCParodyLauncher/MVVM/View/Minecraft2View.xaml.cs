@@ -282,7 +282,6 @@ namespace MCParodyLauncher.MVVM.View
                     try
                     {
                         Directory.Delete(mc2rdir, true);
-
                         Directory.CreateDirectory(mc2rdir);
 
                         if (File.Exists(mc2rzip))
@@ -413,6 +412,20 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC2_Click(object sender, RoutedEventArgs e)
         {
+            if (MainWindow.offlineMode == true)
+            {
+                if (File.Exists(mc2))
+                {
+                    StartMC2();
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 2.");
+                    return;
+                }
+            }
+
             if (StatusR == MC2RStatus.downloading)
             {
                 MessageBox.Show("Please wait until your download finishes before starting another one.", "MCParodyLauncher");
@@ -474,6 +487,20 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC2R_Click(object sender, RoutedEventArgs e)
         {
+            if (MainWindow.offlineMode == true)
+            {
+                if (File.Exists(mc2r))
+                {
+                    StartMC2R();
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 2 Remake.");
+                    return;
+                }
+            }
+
             if (Status == MC2Status.downloading)
             {
                 MessageBox.Show("Please wait until your download finishes before starting another one.", "MCParodyLauncher");
@@ -583,10 +610,12 @@ namespace MCParodyLauncher.MVVM.View
                 }
             }
         }
+
         private void DownloadWarning()
         {
             MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
         }
+
         struct Version
         {
             internal static Version zero = new Version(0, 0, 0);
