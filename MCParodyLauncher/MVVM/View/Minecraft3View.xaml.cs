@@ -7,6 +7,8 @@ using System.Net;
 using System.Windows;
 using System.Media;
 using System.Windows.Controls;
+using Microsoft.Win32;
+using WinForms = System.Windows.Forms;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -22,24 +24,30 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft3View : UserControl
     {
+        // Paths
         private string rootPath;
         private string tempPath;
         private string mcplTempPath;
         private string gamesPath;
+        private string mc3dir;
+
+        // Files
         private string mc3;
         private string mc3ver;
         private string mc3zip;
-        private string mc3dir;
 
-        private MC3Status _statusmc3;
+        // Settings
+        string mc3Installed;
 
-        internal MC3Status StatusMC3
+        private MC3Status _status;
+
+        internal MC3Status Status
         {
-            get => _statusmc3;
+            get => _status;
             set
             {
-                _statusmc3 = value;
-                switch (_statusmc3)
+                _status = value;
+                switch (_status)
                 {
                     case MC3Status.ready:
                         PlayMC3.Content = "Play";
@@ -69,43 +77,246 @@ namespace MCParodyLauncher.MVVM.View
             rootPath = Directory.GetCurrentDirectory();
             tempPath = Path.GetTempPath();
             mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
-            gamesPath = Path.Combine(rootPath, "games");
-            mc3 = Path.Combine(rootPath, "games", "Minecraft 3", "Game.exe");
-            mc3ver = Path.Combine(rootPath, "games", "Minecraft 3", "version.txt");
+
             mc3zip = Path.Combine(mcplTempPath, "mc3.zip");
-            mc3dir = Path.Combine(rootPath, "games", "Minecraft 3");
 
             CheckInst();
         }
+
+        private void CheckInst()
+        {
+            RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+            Object obMC3Installed = keyMC3.GetValue("Installed", null);
+            keyMC3.Close();
+
+            if (obMC3Installed != null)
+            {
+                Status = MC3Status.ready;
+            }
+            else
+            {
+                Status = MC3Status.noInstall;
+            }
+        }
+
         private void CreateTemp()
         {
             Directory.CreateDirectory(mcplTempPath);
         }
-        private void DelTemp()
+
+        private void DownloadWarning()
         {
-            if (Directory.Exists(mcplTempPath))
-            {
-                Directory.Delete(mcplTempPath, true);
-            }
+            MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
         }
-        private void CheckInst()
+
+        private void PlayMC3_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(mc3))
+            if (Status == MC3Status.downloading)
             {
-                StatusMC3 = MC3Status.ready;
+                return;
+            }
+            
+            RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+            Object obMC3Installed = keyMC3.GetValue("Installed", null);
+
+            if (MainWindow.offlineMode == true)
+            {
+                Object obMC3Path = keyMC3.GetValue("InstallPath");
+                if (obMC3Path != null)
+                {
+                    mc3dir = (obMC3Path as String);
+                    mc3 = Path.Combine(mc3dir, "Game.exe");
+                }
+
+                if (File.Exists(mc3))
+                {
+                    StartMC3();
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 3.");
+                    return;
+                }
+            }
+
+            keyMC3.Close();
+            if (obMC3Installed != null)
+            {
+                mc3Installed = (obMC3Installed as String);
+
+                if (mc3Installed == "1")
+                {
+                    CheckForUpdatesMC3();
+                }
+                else
+                {
+                    InstallMC3();
+                }
             }
             else
             {
-                StatusMC3 = MC3Status.noInstall;
+                InstallMC3();
             }
         }
-        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+
+        private void StartMC3()
         {
-            DLProgress.Value = e.ProgressPercentage;
+            using (RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
+            {
+                if (keyMC3 != null)
+                {
+                    Object obMC3Path = keyMC3.GetValue("InstallPath");
+                    if (obMC3Path != null)
+                    {
+                        mc3dir = (obMC3Path as String);
+                        mc3 = Path.Combine(mc3dir, "Game.exe");
+                        keyMC3.Close();
+                        try
+                        {
+                            Process.Start(mc3);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error launching Minecraft 3: {ex}");
+                        }
+                    }
+                }
+            }
         }
+
+        private void InstallMC3()
+        {
+            WebClient webClient = new WebClient();
+            string mc3Size = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/size.txt");
+
+            MessageBoxResult mc3InstallConfirm = System.Windows.MessageBox.Show($"Minecraft 3 requires {mc3Size}Do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+            if (mc3InstallConfirm == MessageBoxResult.Yes)
+            {
+                RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
+                keyGames.CreateSubKey("mc3");
+                RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+                keyGames.Close();
+
+                MessageBoxResult mc3InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 3 at {rootPath}\\games", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                if (mc3InstallLocationMB == MessageBoxResult.Yes)
+                {
+                    keyMC3.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 3");
+                    keyMC3.Close();
+                    mc3dir = Path.Combine(rootPath, "games", "Minecraft 3");
+                    DownloadMC3();
+                }
+                if (mc3InstallLocationMB == MessageBoxResult.No)
+                {
+                    WinForms.FolderBrowserDialog mc3FolderDialog = new WinForms.FolderBrowserDialog();
+                    mc3FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                    mc3FolderDialog.Description = "Please select where you would like to install Minecraft 3, a folder called \"Minecraft 3\" will be created.";
+                    mc3FolderDialog.ShowNewFolderButton = true;
+                    WinForms.DialogResult mc3Result = mc3FolderDialog.ShowDialog();
+
+                    if (mc3Result == WinForms.DialogResult.OK)
+                    {
+                        mc3dir = Path.Combine(mc3FolderDialog.SelectedPath, "Minecraft 3");
+                        keyMC3.SetValue("InstallPath", mc3dir);
+                        keyMC3.Close();
+                        DownloadMC3();
+                    }
+                }
+
+                keyMC3.Close();
+            }
+        }
+
+        private void DownloadMC3()
+        {
+            DownloadWarning();
+            CreateTemp();
+            Directory.CreateDirectory(mc3dir);
+
+            if (File.Exists(mc3zip))
+            {
+                try
+                {
+                    File.Delete(mc3zip);
+                }
+                catch (Exception ex)
+                {
+                    Status = MC3Status.failed;
+                    MessageBox.Show($"Error deleting zip: {ex}");
+                }
+            }
+
+            DLProgress.Visibility = Visibility.Visible;
+
+            try
+            {
+                Status = MC3Status.downloading;
+
+                WebClient webClient = new WebClient();
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
+                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
+            }
+            catch (Exception ex)
+            {
+                Status = MC3Status.failed;
+                MessageBox.Show($"Error downloading Minecraft 3: {ex}");
+            }
+        }
+
+        private void DownloadMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            Status = MC3Status.unzip;
+
+            try
+            {
+                ZipFile.ExtractToDirectory(mc3zip, mc3dir);
+                File.Delete(mc3zip);
+
+                Status = MC3Status.ready;
+                DLProgress.Visibility = Visibility.Hidden;
+
+                RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+                keyMC3.SetValue("Installed", "1");
+                keyMC3.Close();
+
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Download complete!", "Minecraft 3");
+            }
+            catch (Exception ex)
+            {
+                Status = MC3Status.failed;
+                MessageBox.Show($"Error installing Minecraft 3: {ex}");
+            }
+        }
+
         private void CheckForUpdatesMC3()
         {
-            StatusMC3 = MC3Status.checkUpdate;
+            Status = MC3Status.checkUpdate;
+
+            try
+            {
+                using (RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
+                {
+                    if (keyMC3 != null)
+                    {
+                        Object obMC3Path = keyMC3.GetValue("InstallPath");
+                        if (obMC3Path != null)
+                        {
+                            mc3dir = (obMC3Path as String);
+                            mc3ver = Path.Combine(mc3dir, "version.txt");
+                            keyMC3.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                SystemSounds.Exclamation.Play();
+                Status = MC3Status.failed;
+                MessageBox.Show($"Error: {ex}");
+            }
+
             if (File.Exists(mc3ver))
             {
                 Version localVersionMC3 = new Version(File.ReadAllText(mc3ver));
@@ -121,13 +332,13 @@ namespace MCParodyLauncher.MVVM.View
                     }
                     else
                     {
-                        StatusMC3 = MC3Status.ready;
+                        Status = MC3Status.ready;
                         StartMC3();
                     }
                 }
                 catch (Exception ex)
                 {
-                    StatusMC3 = MC3Status.failed;
+                    Status = MC3Status.failed;
                     MessageBox.Show($"Error checking for updates: {ex}");
                 }
             }
@@ -136,20 +347,22 @@ namespace MCParodyLauncher.MVVM.View
                 InstallUpdateMC3(false, Version.zero);
             }
         }
-        private void InstallUpdateMC3(bool isUpdate, Version _onlineVersionMC2)
+
+        private void InstallUpdateMC3(bool isUpdate, Version _onlineVersionMC3)
         {
             try
             {
                 MessageBoxResult messageBoxResultMC3Update = System.Windows.MessageBox.Show("An update for Minecraft 3 has been found! Would you like to download it?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
                 if (messageBoxResultMC3Update == MessageBoxResult.Yes)
                 {
-                    StatusMC3 = MC3Status.update;
+                    Status = MC3Status.update;
 
                     CreateTemp();
 
                     try
                     {
                         Directory.Delete(mc3dir, true);
+
                         Directory.CreateDirectory(mc3dir);
 
                         if (File.Exists(mc3zip))
@@ -160,24 +373,25 @@ namespace MCParodyLauncher.MVVM.View
                             }
                             catch (Exception ex)
                             {
-                                SystemSounds.Exclamation.Play();
-                                StatusMC3 = MC3Status.failed;
-                                MessageBox.Show($"Error updating Minecraft 3: {ex}");
+                                Status = MC3Status.failed;
+                                MessageBox.Show($"Error deleting zip: {ex}");
                             }
                         }
+
                         DLProgress.Visibility = Visibility.Visible;
+
                         try
                         {
-                            WebClient webClient = new WebClient();
+                            Status = MC3Status.downloading;
 
+                            WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                             webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
                         }
                         catch (Exception ex)
                         {
-                            SystemSounds.Exclamation.Play();
-                            StatusMC3 = MC3Status.failed;
+                            Status = MC3Status.failed;
                             MessageBox.Show($"Error updating Minecraft 3: {ex}");
                         }
                     }
@@ -195,154 +409,78 @@ namespace MCParodyLauncher.MVVM.View
             catch (Exception ex)
             {
                 SystemSounds.Exclamation.Play();
-                StatusMC3 = MC3Status.failed;
+                Status = MC3Status.failed;
                 MessageBox.Show($"Error: {ex}");
             }
         }
 
-        private void PlayMC3_Click(object sender, RoutedEventArgs e)
-        {
-            if (MainWindow.offlineMode == true)
-            {
-                if (File.Exists(mc3))
-                {
-                    StartMC3();
-                    return;
-                }
-                else
-                {
-                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 3.");
-                    return;
-                }
-            }
-
-            if (File.Exists(mc3) && StatusMC3 == MC3Status.ready)
-            {
-                CheckForUpdatesMC3();
-            }
-            else
-            {
-                if (StatusMC3 != MC3Status.downloading)
-                {
-                    WebClient webClient = new WebClient();
-                    string mc3Size = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/size.txt");
-
-                    MessageBoxResult mc3SpaceBox = System.Windows.MessageBox.Show($"Minecraft 3 requires {mc3Size}Do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
-                    if (mc3SpaceBox == MessageBoxResult.Yes)
-                    {
-                        DownloadWarning();
-                        CreateTemp();
-                        Directory.CreateDirectory("games");
-                        Directory.CreateDirectory(mc3dir);
-
-                        if (File.Exists(mc3zip))
-                        {
-                            try
-                            {
-                                File.Delete(mc3zip);
-                            }
-                            catch (Exception ex)
-                            {
-                                SystemSounds.Exclamation.Play();
-                                StatusMC3 = MC3Status.failed;
-                                MessageBox.Show($"Error deleting zip: {ex}");
-                            }
-                        }
-                        DLProgress.Visibility = Visibility.Visible;
-                        try
-                        {
-                            StatusMC3 = MC3Status.downloading;
-
-                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
-                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
-                        }
-                        catch (Exception ex)
-                        {
-                            SystemSounds.Exclamation.Play();
-                            StatusMC3 = MC3Status.failed;
-                            MessageBox.Show($"Error downloading Minecraft 3: {ex}");
-                        }
-                    }
-                }
-            }
-        }
-        private void DownloadMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            StatusMC3 = MC3Status.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc3zip, mc3dir);
-                File.Delete(mc3zip);
-
-                StatusMC3 = MC3Status.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 3");
-            }
-            catch (Exception ex)
-            {
-                SystemSounds.Exclamation.Play();
-                StatusMC3 = MC3Status.failed;
-                MessageBox.Show($"Error installing Minecraft 3: {ex}");
-            }
-        }
         private void UpdateMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            StatusMC3 = MC3Status.unzip;
+            Status = MC3Status.unzip;
 
             try
             {
                 ZipFile.ExtractToDirectory(mc3zip, mc3dir);
                 File.Delete(mc3zip);
 
-                StatusMC3 = MC3Status.ready;
+                Status = MC3Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Update complete!", "Minecraft 3");
             }
             catch (Exception ex)
             {
-                SystemSounds.Exclamation.Play();
-                StatusMC3 = MC3Status.failed;
-                MessageBox.Show($"Error updating Minecraft 3: {ex}");
+                Status = MC3Status.failed;
+                MessageBox.Show($"Error Updating Minecraft 3: {ex}");
             }
         }
+
         private void PlayMC3_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (File.Exists(mc3))
+            using (RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true))
             {
-                MessageBoxResult delMC3Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
-                if (delMC3Box == MessageBoxResult.Yes)
+                if (keyMC3 != null)
                 {
-                    try
+                    Object obMC3Install = keyMC3.GetValue("Installed");
+                    mc3Installed = (obMC3Install as String);
+
+                    if (mc3Installed != "1")
                     {
-                        Directory.Delete(mc3dir, true);
-                        SystemSounds.Exclamation.Play();
-                        if (Directory.GetFiles(gamesPath).Length == 0
-                                 && Directory.GetDirectories(gamesPath).Length == 0)
-                        {
-                            Directory.Delete(gamesPath);
-                        }
-                        StatusMC3 = MC3Status.noInstall;
-                        MessageBox.Show("Minecraft 3 has been successfully deleted!", "Minecraft 3");
+                        keyMC3.Close();
+                        return;
                     }
-                    catch (Exception ex)
+
+                    MessageBoxResult delMC3Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                    if (delMC3Box == MessageBoxResult.Yes)
                     {
-                        SystemSounds.Exclamation.Play();
-                        MessageBox.Show($"Error deleting Minecraft 3: {ex}");
+                        Object obMC3Path = keyMC3.GetValue("InstallPath");
+                        if (obMC3Path != null)
+                        {
+                            mc3dir = (obMC3Path as String);
+
+                            try
+                            {
+                                Directory.Delete(mc3dir, true);
+                                keyMC3.SetValue("Installed", "0");
+                                keyMC3.Close();
+                                SystemSounds.Exclamation.Play();
+                                MessageBox.Show("Minecraft 3 has been successfully deleted!", "Minecraft 3");
+                            }
+                            catch (Exception ex)
+                            {
+                                keyMC3.Close();
+                                SystemSounds.Exclamation.Play();
+                                MessageBox.Show($"Error deleting Minecraft 3: {ex}");
+                            }
+                        }
                     }
                 }
             }
         }
-        private void DownloadWarning()
+
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
-        }
-        private void StartMC3()
-        {
-            Process.Start(mc3);
+            DLProgress.Value = e.ProgressPercentage;
         }
 
         struct Version
