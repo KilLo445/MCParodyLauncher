@@ -9,6 +9,7 @@ using System.Media;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -73,7 +74,7 @@ namespace MCParodyLauncher.MVVM.View
                         PlayMC2.Content = "Downloading";
                         break;
                     case MC2Status.unzip:
-                        PlayMC2.Content = "Extracting";
+                        PlayMC2.Content = "Installing";
                         break;
                     case MC2Status.update:
                         PlayMC2.Content = "Updating";
@@ -99,7 +100,7 @@ namespace MCParodyLauncher.MVVM.View
                         PlayMC2R.Content = "Downloading";
                         break;
                     case MC2RStatus.unzip:
-                        PlayMC2R.Content = "Extracting";
+                        PlayMC2R.Content = "Installing";
                         break;
                     case MC2RStatus.update:
                         PlayMC2R.Content = "Updating";
@@ -127,7 +128,51 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadWarning()
         {
-            MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
+            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
+        }
+
+        private async Task ExtractZipAsyncMC2(string zipfile, string output)
+        {
+            try
+            {
+                Status = MC2Status.unzip;
+                DLProgress.IsIndeterminate = true;
+                await Task.Run(() => ZipFile.ExtractToDirectory(zipfile, output));
+                File.Delete(zipfile);
+                Status = MC2Status.ready;
+                DLProgress.Visibility = Visibility.Hidden;
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Download complete!", "Minecraft 2");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Status = MC2Status.failed;
+                MessageBox.Show($"Error Updating Minecraft 2: {ex}");
+                return;
+            }
+        }
+
+        private async Task ExtractZipAsyncMC2R(string zipfile, string output)
+        {
+            try
+            {
+                StatusR = MC2RStatus.unzip;
+                DLProgress.IsIndeterminate = true;
+                await Task.Run(() => ZipFile.ExtractToDirectory(zipfile, output));
+                File.Delete(zipfile);
+                StatusR = MC2RStatus.ready;
+                DLProgress.Visibility = Visibility.Hidden;
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Download complete!", "Minecraft 2 Remake");
+                return;
+            }
+            catch (Exception ex)
+            {
+                StatusR = MC2RStatus.failed;
+                MessageBox.Show($"Error Updating Minecraft 2 Remake: {ex}");
+                return;
+            }
         }
 
         // Minecarft 2
@@ -283,6 +328,7 @@ namespace MCParodyLauncher.MVVM.View
             {
                 Status = MC2Status.downloading;
 
+                DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -297,28 +343,10 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC2CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            Status = MC2Status.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc2zip, mc2dir);
-                File.Delete(mc2zip);
-
-                Status = MC2Status.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-
-                RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2", true);
-                keyMC2.SetValue("Installed", "1"); 
-                keyMC2.Close();
-
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 2");
-            }
-            catch (Exception ex)
-            {
-                Status = MC2Status.failed;
-                MessageBox.Show($"Error installing Minecraft 2: {ex}");
-            }
+            RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2", true);
+            keyMC2.SetValue("Installed", "1");
+            keyMC2.Close();
+            ExtractZipAsyncMC2(mc2zip, mc2dir);
         }
 
         private void CheckForUpdatesMC2()
@@ -415,6 +443,7 @@ namespace MCParodyLauncher.MVVM.View
                         {
                             Status = MC2Status.downloading;
 
+                            DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -447,23 +476,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC2CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            Status = MC2Status.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc2zip, mc2dir);
-                File.Delete(mc2zip);
-
-                Status = MC2Status.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Update complete!", "Minecraft 2");
-            }
-            catch (Exception ex)
-            {
-                Status = MC2Status.failed;
-                MessageBox.Show($"Error Updating Minecraft 2: {ex}");
-            }
+            ExtractZipAsyncMC2(mc2zip, mc2dir);
         }
 
         private void PlayMC2_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -660,6 +673,7 @@ namespace MCParodyLauncher.MVVM.View
             {
                 StatusR = MC2RStatus.downloading;
 
+                DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -674,28 +688,10 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            StatusR = MC2RStatus.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc2rzip, mc2rdir);
-                File.Delete(mc2rzip);
-
-                StatusR = MC2RStatus.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-
-                RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
-                keyMC2R.SetValue("Installed", "1");
-                keyMC2R.Close();
-
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 2 Remake");
-            }
-            catch (Exception ex)
-            {
-                Status = MC2Status.failed;
-                MessageBox.Show($"Error installing Minecraft 2 Remake: {ex}");
-            }
+            RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
+            keyMC2R.SetValue("Installed", "1");
+            keyMC2R.Close();
+            ExtractZipAsyncMC2R(mc2rzip, mc2rdir);
         }
 
         private void CheckForUpdatesMC2R()
@@ -792,6 +788,7 @@ namespace MCParodyLauncher.MVVM.View
                         {
                             StatusR = MC2RStatus.downloading;
 
+                            DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -824,23 +821,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            StatusR = MC2RStatus.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc2rzip, mc2rdir);
-                File.Delete(mc2rzip);
-
-                StatusR = MC2RStatus.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Update complete!", "Minecraft 2 Remake");
-            }
-            catch (Exception ex)
-            {
-                StatusR = MC2RStatus.failed;
-                MessageBox.Show($"Error Updating Minecraft 2 Remake: {ex}");
-            }
+            ExtractZipAsyncMC2R(mc2rzip, mc2rdir);
         }
 
         private void PlayMC2R_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

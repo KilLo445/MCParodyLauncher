@@ -197,10 +197,19 @@
   <ItemGroup>
     <Resource Include="Images\mc2.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="changelog.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\mc3.png" />
     <Resource Include="Images\mc4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="updater.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

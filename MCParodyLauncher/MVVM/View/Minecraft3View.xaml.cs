@@ -9,6 +9,7 @@ using System.Media;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -62,7 +63,7 @@ namespace MCParodyLauncher.MVVM.View
                         PlayMC3.Content = "Downloading";
                         break;
                     case MC3Status.unzip:
-                        PlayMC3.Content = "Extracting";
+                        PlayMC3.Content = "Installing";
                         break;
                     case MC3Status.update:
                         PlayMC3.Content = "Updating";
@@ -91,7 +92,16 @@ namespace MCParodyLauncher.MVVM.View
 
             if (obMC3Installed != null)
             {
-                Status = MC3Status.ready;
+                string MC3Installed = (obMC3Installed as String);
+
+                if (MC3Installed != "0")
+                {
+                    Status = MC3Status.ready;
+                }
+                else
+                {
+                    Status = MC3Status.noInstall;
+                }
             }
             else
             {
@@ -106,7 +116,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadWarning()
         {
-            MessageBox.Show("Please do not switch windows or close the launcher until your download finishes, it may cause issues if you do so.");
+            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
         }
 
         private void PlayMC3_Click(object sender, RoutedEventArgs e)
@@ -252,6 +262,7 @@ namespace MCParodyLauncher.MVVM.View
             {
                 Status = MC3Status.downloading;
 
+                DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -266,28 +277,10 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            Status = MC3Status.unzip;
-
-            try
-            {
-                ZipFile.ExtractToDirectory(mc3zip, mc3dir);
-                File.Delete(mc3zip);
-
-                Status = MC3Status.ready;
-                DLProgress.Visibility = Visibility.Hidden;
-
-                RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
-                keyMC3.SetValue("Installed", "1");
-                keyMC3.Close();
-
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 3");
-            }
-            catch (Exception ex)
-            {
-                Status = MC3Status.failed;
-                MessageBox.Show($"Error installing Minecraft 3: {ex}");
-            }
+            RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+            keyMC3.SetValue("Installed", "1");
+            keyMC3.Close();
+            ExtractZipAsync(mc3zip, mc3dir);
         }
 
         private void CheckForUpdatesMC3()
@@ -384,6 +377,7 @@ namespace MCParodyLauncher.MVVM.View
                         {
                             Status = MC3Status.downloading;
 
+                            DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -416,22 +410,28 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
-            Status = MC3Status.unzip;
+            ExtractZipAsync(mc3zip, mc3dir);
+        }
 
+        private async Task ExtractZipAsync(string zipfile, string output)
+        {
             try
             {
-                ZipFile.ExtractToDirectory(mc3zip, mc3dir);
+                Status = MC3Status.unzip;
+                DLProgress.IsIndeterminate = true;
+                await Task.Run(() => ZipFile.ExtractToDirectory(zipfile, output));
                 File.Delete(mc3zip);
-
                 Status = MC3Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
                 SystemSounds.Exclamation.Play();
-                MessageBox.Show("Update complete!", "Minecraft 3");
+                MessageBox.Show("Download complete!", "Minecraft 3");
+                return;
             }
             catch (Exception ex)
             {
                 Status = MC3Status.failed;
                 MessageBox.Show($"Error Updating Minecraft 3: {ex}");
+                return;
             }
         }
 
@@ -463,6 +463,7 @@ namespace MCParodyLauncher.MVVM.View
                                 Directory.Delete(mc3dir, true);
                                 keyMC3.SetValue("Installed", "0");
                                 keyMC3.Close();
+                                Status = MC3Status.noInstall;
                                 SystemSounds.Exclamation.Play();
                                 MessageBox.Show("Minecraft 3 has been successfully deleted!", "Minecraft 3");
                             }

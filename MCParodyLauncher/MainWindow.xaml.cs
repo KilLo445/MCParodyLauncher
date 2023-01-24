@@ -12,7 +12,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "0.4.0";
+        string launcherVersion = "0.4.1";
 
         // Paths and Files
         private string rootPath;
