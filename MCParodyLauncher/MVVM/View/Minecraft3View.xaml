@@ -8,7 +8,20 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Image Name="MC3Logo" Source="/Images/mc3.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0" MouseLeftButtonDown="MC3Logo_MouseLeftButtonDown"/>
-        <Button Name="PlayMC3" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC3_Click" MouseRightButtonDown="PlayMC3_MouseRightButtonDown"/>
+
+        <Button Name="PlayMC3" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC3_Click">
+            <Button.ContextMenu>
+                <ContextMenu Name="mc3cm" StaysOpen="true">
+                    <MenuItem Header="Add desktop shortcut"
+                              Click="MC3DS_Click"/>
+                    <MenuItem Header="Open file location"
+                              Click="MC3FL_Click"/>
+                    <MenuItem Header="Uninstall"
+                              Click="MC3UNINST_Click"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+        
         <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
     </Grid>
 </UserControl>

@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
+using Wsh = IWshRuntimeLibrary;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -474,12 +475,65 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void UpdateMC2CompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private void MC2DS_Click(object sender, RoutedEventArgs e)
         {
-            ExtractZipAsyncMC2(mc2zip, mc2dir);
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2"))
+            {
+                if (keyMC2 != null)
+                {
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc2Installed = (obMC2Install as String);
+
+                    if (mc2Installed == "1")
+                    {
+                        object shDesktop = (object)"Desktop";
+                        Wsh.WshShell shell = new Wsh.WshShell();
+                        string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 2.lnk";
+                        Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                        shortcut.TargetPath = mc2dir + "\\Minecraft2.exe";
+                        shortcut.Save();
+
+                        keyMC2.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 2 does not seem to be installed.");
+                        keyMC2.Close();
+                    }
+                }
+            }
         }
 
-        private void PlayMC2_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void MC2FL_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2"))
+            {
+                if (keyMC2 != null)
+                {
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc2Installed = (obMC2Install as String);
+
+                    if (mc2Installed == "1")
+                    {
+                        Object obMC2Path = keyMC2.GetValue("InstallPath");
+                        if (obMC2Path != null)
+                        {
+                            mc2dir = (obMC2Path as String);
+                            keyMC2.Close();
+
+                            Process.Start(mc2dir);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 2 does not seem to be installed.");
+                        keyMC2.Close();
+                    }
+                }
+            }
+        }
+
+        private void MC2UNINST_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2", true))
             {
@@ -490,6 +544,7 @@ namespace MCParodyLauncher.MVVM.View
 
                     if (mc2Installed != "1")
                     {
+                        MessageBox.Show("Minecraft 2 does not seem to be installed.");
                         keyMC2.Close();
                         return;
                     }
@@ -520,6 +575,11 @@ namespace MCParodyLauncher.MVVM.View
                     }
                 }
             }
+        }
+
+        private void UpdateMC2CompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            ExtractZipAsyncMC2(mc2zip, mc2dir);
         }
 
         // Minecraft 2 Remake
@@ -792,7 +852,7 @@ namespace MCParodyLauncher.MVVM.View
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2zip);
+                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
                         }
                         catch (Exception ex)
                         {
@@ -819,12 +879,65 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void UpdateMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private void MC2RDS_Click(object sender, RoutedEventArgs e)
         {
-            ExtractZipAsyncMC2R(mc2rzip, mc2rdir);
+            using (RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r"))
+            {
+                if (keyMC2R != null)
+                {
+                    Object obMC2RInstall = keyMC2R.GetValue("Installed");
+                    mc2rInstalled = (obMC2RInstall as String);
+
+                    if (mc2rInstalled == "1")
+                    {
+                        object shDesktop = (object)"Desktop";
+                        Wsh.WshShell shell = new Wsh.WshShell();
+                        string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 2 Remake.lnk";
+                        Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                        shortcut.TargetPath = mc2rdir + "\\Minecraft2Remake.exe";
+                        shortcut.Save();
+
+                        keyMC2R.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 2 Remake does not seem to be installed.");
+                        keyMC2R.Close();
+                    }
+                }
+            }
         }
 
-        private void PlayMC2R_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void MC2RFL_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r"))
+            {
+                if (keyMC2R != null)
+                {
+                    Object obMC2RInstall = keyMC2R.GetValue("Installed");
+                    mc2rInstalled = (obMC2RInstall as String);
+
+                    if (mc2rInstalled == "1")
+                    {
+                        Object obMC2RPath = keyMC2R.GetValue("InstallPath");
+                        if (obMC2RPath != null)
+                        {
+                            mc2rdir = (obMC2RPath as String);
+                            keyMC2R.Close();
+
+                            Process.Start(mc2rdir);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 2 Remake does not seem to be installed.");
+                        keyMC2R.Close();
+                    }
+                }
+            }
+        }
+
+        private void MC2RUNINST_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true))
             {
@@ -835,6 +948,7 @@ namespace MCParodyLauncher.MVVM.View
 
                     if (mc2rInstalled != "1")
                     {
+                        MessageBox.Show("Minecraft 2 Remake does not seem to be installed.");
                         keyMC2R.Close();
                         return;
                     }
@@ -865,6 +979,11 @@ namespace MCParodyLauncher.MVVM.View
                     }
                 }
             }
+        }
+
+        private void UpdateMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            ExtractZipAsyncMC2R(mc2rzip, mc2rdir);
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)

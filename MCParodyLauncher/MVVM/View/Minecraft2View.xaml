@@ -8,8 +8,33 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Image Name="MC2Logo" Source="/Images/mc2.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0" MouseLeftButtonDown="MC2Logo_MouseLeftButtonDown"/>
-        <Button Name="PlayMC2" Width="100" Height="40" Content="Original" ToolTip="Play Minecraft 2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,150,0" Click="PlayMC2_Click" MouseRightButtonDown="PlayMC2_MouseRightButtonDown"/>
-        <Button Name="PlayMC2R" Width="100" Height="40" Content="Remake" ToolTip="Play Minecraft 2 Remake" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="150,300,0,0" Click="PlayMC2R_Click" MouseRightButtonDown="PlayMC2R_MouseRightButtonDown"/>
+
+        <Button Name="PlayMC2" Width="100" Height="40" Content="Original" ToolTip="Play Minecraft 2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,150,0" Click="PlayMC2_Click">
+            <Button.ContextMenu>
+                <ContextMenu Name="mc2cm" StaysOpen="true">
+                    <MenuItem Header="Add desktop shortcut"
+                              Click="MC2DS_Click"/>
+                    <MenuItem Header="Open file location"
+                              Click="MC2FL_Click"/>
+                    <MenuItem Header="Uninstall"
+                              Click="MC2UNINST_Click"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <Button Name="PlayMC2R" Width="100" Height="40" Content="Remake" ToolTip="Play Minecraft 2 Remake" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="150,300,0,0" Click="PlayMC2R_Click">
+            <Button.ContextMenu>
+                <ContextMenu Name="mc2rcm" StaysOpen="true">
+                    <MenuItem Header="Add desktop shortcut"
+                              Click="MC2RDS_Click"/>
+                    <MenuItem Header="Open file location"
+                              Click="MC2RFL_Click"/>
+                    <MenuItem Header="Uninstall"
+                              Click="MC2RUNINST_Click"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
         <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
     </Grid>
 </UserControl>

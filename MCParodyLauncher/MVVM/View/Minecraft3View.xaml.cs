@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
+using Wsh = IWshRuntimeLibrary;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -88,7 +89,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
             Object obMC3Installed = keyMC3.GetValue("Installed", null);
-            keyMC3.Close();
 
             if (obMC3Installed != null)
             {
@@ -96,15 +96,25 @@ namespace MCParodyLauncher.MVVM.View
 
                 if (MC3Installed != "0")
                 {
+                    Object obMC3Path = keyMC3.GetValue("InstallPath");
+                    if (obMC3Path != null)
+                    {
+                        mc3dir = (obMC3Path as String);
+                        keyMC3.Close();
+                    }
+
+                    keyMC3.Close();
                     Status = MC3Status.ready;
                 }
                 else
                 {
+                    keyMC3.Close();
                     Status = MC3Status.noInstall;
                 }
             }
             else
             {
+                keyMC3.Close();
                 Status = MC3Status.noInstall;
             }
         }
@@ -435,41 +445,101 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void PlayMC3_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void MC3DS_Click(object sender, RoutedEventArgs e)
         {
-            using (RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true))
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
             {
-                if (keyMC3 != null)
+                if (keyMC2 != null)
                 {
-                    Object obMC3Install = keyMC3.GetValue("Installed");
-                    mc3Installed = (obMC3Install as String);
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc3Installed = (obMC2Install as String);
+
+                    if (mc3Installed == "1")
+                    {
+                        object shDesktop = (object)"Desktop";
+                        Wsh.WshShell shell = new Wsh.WshShell();
+                        string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 3.lnk";
+                        Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                        shortcut.TargetPath = mc3dir + "\\Game.exe";
+                        shortcut.IconLocation = mc3dir + "\\www\\icon\\icon.ico";
+                        shortcut.Save();
+
+                        keyMC2.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 3 does not seem to be installed.");
+                        keyMC2.Close();
+                    }
+                }
+            }
+        }
+
+        private void MC3FL_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
+            {
+                if (keyMC2 != null)
+                {
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc3Installed = (obMC2Install as String);
+
+                    if (mc3Installed == "1")
+                    {
+                        Object obMC2Path = keyMC2.GetValue("InstallPath");
+                        if (obMC2Path != null)
+                        {
+                            mc3dir = (obMC2Path as String);
+                            keyMC2.Close();
+
+                            Process.Start(mc3dir);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minecraft 3 does not seem to be installed.");
+                        keyMC2.Close();
+                    }
+                }
+            }
+        }
+
+        private void MC3UNINST_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true))
+            {
+                if (keyMC2 != null)
+                {
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc3Installed = (obMC2Install as String);
 
                     if (mc3Installed != "1")
                     {
-                        keyMC3.Close();
+                        MessageBox.Show("Minecraft 3 does not seem to be installed.");
+                        keyMC2.Close();
                         return;
                     }
 
-                    MessageBoxResult delMC3Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
-                    if (delMC3Box == MessageBoxResult.Yes)
+                    MessageBoxResult delMC2Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                    if (delMC2Box == MessageBoxResult.Yes)
                     {
-                        Object obMC3Path = keyMC3.GetValue("InstallPath");
-                        if (obMC3Path != null)
+                        Object obMC2Path = keyMC2.GetValue("InstallPath");
+                        if (obMC2Path != null)
                         {
-                            mc3dir = (obMC3Path as String);
+                            mc3dir = (obMC2Path as String);
 
                             try
                             {
                                 Directory.Delete(mc3dir, true);
-                                keyMC3.SetValue("Installed", "0");
-                                keyMC3.Close();
+                                keyMC2.SetValue("Installed", "0");
+                                keyMC2.Close();
                                 Status = MC3Status.noInstall;
                                 SystemSounds.Exclamation.Play();
                                 MessageBox.Show("Minecraft 3 has been successfully deleted!", "Minecraft 3");
                             }
                             catch (Exception ex)
                             {
-                                keyMC3.Close();
+                                keyMC2.Close();
                                 SystemSounds.Exclamation.Play();
                                 MessageBox.Show($"Error deleting Minecraft 3: {ex}");
                             }
