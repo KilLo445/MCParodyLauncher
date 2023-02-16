@@ -464,7 +464,6 @@ namespace MCParodyLauncher.MVVM.View
                         string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 4.lnk";
                         Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
                         shortcut.TargetPath = mc4dir + "\\Minecraft4.exe";
-                        shortcut.IconLocation = mc4dir + "\\www\\icon\\icon.ico";
                         shortcut.Save();
 
                         keyMC2.Close();
