@@ -26,6 +26,8 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft3View : UserControl
     {
+        private string mc3link = "https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1";
+
         // Paths
         private string rootPath;
         private string tempPath;
@@ -276,7 +278,7 @@ namespace MCParodyLauncher.MVVM.View
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
+                webClient.DownloadFileAsync(new Uri(mc3link), mc3zip);
             }
             catch (Exception ex)
             {
@@ -391,7 +393,7 @@ namespace MCParodyLauncher.MVVM.View
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1"), mc3zip);
+                            webClient.DownloadFileAsync(new Uri(mc3link), mc3zip);
                         }
                         catch (Exception ex)
                         {

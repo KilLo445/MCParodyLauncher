@@ -12,7 +12,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "0.4.3";
+        string launcherVersion = "1.0.0";
 
         // Paths and Files
         private string rootPath;
@@ -55,17 +55,14 @@ namespace MCParodyLauncher
             key3.CreateSubKey("games");
             RegistryKey key4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
             key4.CreateSubKey("mc2");
-            RegistryKey key5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-            key5.CreateSubKey("mc2r");
-            RegistryKey key6 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-            key6.CreateSubKey("mc3");
+            key4.CreateSubKey("mc2r");
+            key4.CreateSubKey("mc3");
+            key4.CreateSubKey("mc4");
 
             key1.Close();
             key2.Close();
             key3.Close();
             key4.Close();
-            key5.Close();
-            key6.Close();
         }
 
         protected override void OnClosing(CancelEventArgs e)

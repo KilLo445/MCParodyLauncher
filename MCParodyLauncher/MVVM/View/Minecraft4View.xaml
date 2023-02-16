@@ -7,7 +7,21 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Image Source="/Images/mc4.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0"/>
-        <Button Name="PlayMC4" Width="100" Height="40" Content="Coming Soon" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0"/>
+        <Image Name="MC3Logo" Source="/Images/mc4.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0" MouseLeftButtonDown="MC4Logo_MouseLeftButtonDown"/>
+
+        <Button Name="PlayMC4" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC4_Click">
+            <Button.ContextMenu>
+                <ContextMenu Name="mc4cm" StaysOpen="true">
+                    <MenuItem Header="Add desktop shortcut"
+                              Click="MC4DS_Click"/>
+                    <MenuItem Header="Open file location"
+                              Click="MC4FL_Click"/>
+                    <MenuItem Header="Uninstall"
+                              Click="MC4UNINST_Click"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
     </Grid>
 </UserControl>

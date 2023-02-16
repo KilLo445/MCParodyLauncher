@@ -34,6 +34,9 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft2View : UserControl
     {
+        private string mc2link = "https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1";
+        private string mc2rlink = "https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1";
+
         // Paths
         private string rootPath;
         private string tempPath;
@@ -333,7 +336,7 @@ namespace MCParodyLauncher.MVVM.View
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
+                webClient.DownloadFileAsync(new Uri(mc2link), mc2zip);
             }
             catch (Exception ex)
             {
@@ -448,7 +451,7 @@ namespace MCParodyLauncher.MVVM.View
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/6ea5or46qxbuamz/mc2.zip?dl=1"), mc2zip);
+                            webClient.DownloadFileAsync(new Uri(mc2link), mc2zip);
                         }
                         catch (Exception ex)
                         {
@@ -737,7 +740,7 @@ namespace MCParodyLauncher.MVVM.View
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
+                webClient.DownloadFileAsync(new Uri(mc2rlink), mc2rzip);
             }
             catch (Exception ex)
             {
@@ -852,7 +855,7 @@ namespace MCParodyLauncher.MVVM.View
                             WebClient webClient = new WebClient();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri("https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1"), mc2rzip);
+                            webClient.DownloadFileAsync(new Uri(mc2rlink), mc2rzip);
                         }
                         catch (Exception ex)
                         {
