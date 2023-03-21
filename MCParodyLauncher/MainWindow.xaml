@@ -9,7 +9,7 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        Background="Transparent"
+        Background="Black"
         AllowsTransparency="False"
         MouseDown="Window_MouseDown"
         Title="Minecraft Parody Launcher" Height="600" Width="920">
@@ -17,13 +17,13 @@
     <Window.DataContext>
         <viewModel:MainViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <SolidColorBrush x:Key="TransparentBlack" Color="Black" Opacity="0.4"/>
+    </Window.Resources>
 
     <Border>
         <Border.Background>
-            <LinearGradientBrush>
-                <GradientStop Color="#1c1c1c" Offset="0.0"/>
-                <GradientStop Color="#242424" Offset="1"/>
-            </LinearGradientBrush>
+            <ImageBrush ImageSource="Images/bg/waterfall.png" Opacity="0.2" Stretch="UniformToFill"/>
         </Border.Background>
         <Grid>
 
@@ -37,22 +37,23 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <TextBlock Visibility="Visible" Text="MCParodyLauncher" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
-            <Image Source="Images/mcpl_logo.png" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" Width="190"/>
+            <Rectangle Fill="Black" Opacity="0.4"/>
+            <TextBlock Visibility="Hidden" Text="MCParodyLauncher" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+            <Image Source="Images/logo/logo_full.png" Stretch="Uniform" Width="140"/>
 
-            <StackPanel Grid.Row="1">
+            <StackPanel Grid.Row="1" Background="{StaticResource TransparentBlack}">
                 <RadioButton Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
                 <RadioButton Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
                 <RadioButton Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
                 <RadioButton Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
-                
-                <TextBlock Name="VersionText" Text="" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,280,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates."/>
             </StackPanel>
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
 
+            <TextBlock Name="VersionText" Text="" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
+
             <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
-            <TextBlock Name="MinimizeButton" Text="-" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Style="{StaticResource MinimizeButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Height="30" Margin="0,1,30,0" Grid.Column="1" Grid.RowSpan="2"/>
+            <TextBlock Name="MinimizeButton" Text="_" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Style="{StaticResource MinimizeButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Height="30" Margin="0,-2.5,30,0" Grid.Column="1" Grid.RowSpan="2"/>
         </Grid>
     </Border>
 </Window>

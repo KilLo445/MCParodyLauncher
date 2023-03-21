@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows;
+using System.Windows.Navigation;
 using System.Windows.Controls;
 
 namespace MCParodyLauncher.MVVM.View
 {
     public partial class HomeView : UserControl
     {
+        private static bool Navigate;
+
         public HomeView()
         {
             InitializeComponent();

@@ -448,14 +448,14 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC4DS_Click(object sender, RoutedEventArgs e)
+        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
         {
-            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
-                if (keyMC2 != null)
+                if (keyMC4 != null)
                 {
-                    Object obMC2Install = keyMC2.GetValue("Installed");
-                    mc4Installed = (obMC2Install as String);
+                    Object obMC4Install = keyMC4.GetValue("Installed");
+                    mc4Installed = (obMC4Install as String);
 
                     if (mc4Installed == "1")
                     {
@@ -466,33 +466,33 @@ namespace MCParodyLauncher.MVVM.View
                         shortcut.TargetPath = mc4dir + "\\Minecraft4.exe";
                         shortcut.Save();
 
-                        keyMC2.Close();
+                        keyMC4.Close();
                     }
                     else
                     {
                         MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC2.Close();
+                        keyMC4.Close();
                     }
                 }
             }
         }
 
-        private void MC4FL_Click(object sender, RoutedEventArgs e)
+        private void FileLocation_Click(object sender, RoutedEventArgs e)
         {
-            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
-                if (keyMC2 != null)
+                if (keyMC4 != null)
                 {
-                    Object obMC2Install = keyMC2.GetValue("Installed");
-                    mc4Installed = (obMC2Install as String);
+                    Object obMC4Install = keyMC4.GetValue("Installed");
+                    mc4Installed = (obMC4Install as String);
 
                     if (mc4Installed == "1")
                     {
-                        Object obMC2Path = keyMC2.GetValue("InstallPath");
-                        if (obMC2Path != null)
+                        Object obMC4Path = keyMC4.GetValue("InstallPath");
+                        if (obMC4Path != null)
                         {
-                            mc4dir = (obMC2Path as String);
-                            keyMC2.Close();
+                            mc4dir = (obMC4Path as String);
+                            keyMC4.Close();
 
                             Process.Start(mc4dir);
                         }
@@ -500,48 +500,48 @@ namespace MCParodyLauncher.MVVM.View
                     else
                     {
                         MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC2.Close();
+                        keyMC4.Close();
                     }
                 }
             }
         }
 
-        private void MC4UNINST_Click(object sender, RoutedEventArgs e)
+        private void Uninstall_Click(object sender, RoutedEventArgs e)
         {
-            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
             {
-                if (keyMC2 != null)
+                if (keyMC4 != null)
                 {
-                    Object obMC2Install = keyMC2.GetValue("Installed");
-                    mc4Installed = (obMC2Install as String);
+                    Object obMC4Install = keyMC4.GetValue("Installed");
+                    mc4Installed = (obMC4Install as String);
 
                     if (mc4Installed != "1")
                     {
                         MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC2.Close();
+                        keyMC4.Close();
                         return;
                     }
 
-                    MessageBoxResult delMC2Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 4?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
-                    if (delMC2Box == MessageBoxResult.Yes)
+                    MessageBoxResult delMC4Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 4?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
+                    if (delMC4Box == MessageBoxResult.Yes)
                     {
-                        Object obMC2Path = keyMC2.GetValue("InstallPath");
-                        if (obMC2Path != null)
+                        Object obMC4Path = keyMC4.GetValue("InstallPath");
+                        if (obMC4Path != null)
                         {
-                            mc4dir = (obMC2Path as String);
+                            mc4dir = (obMC4Path as String);
 
                             try
                             {
                                 Directory.Delete(mc4dir, true);
-                                keyMC2.SetValue("Installed", "0");
-                                keyMC2.Close();
+                                keyMC4.SetValue("Installed", "0");
+                                keyMC4.Close();
                                 Status = MC4Status.noInstall;
                                 SystemSounds.Exclamation.Play();
                                 MessageBox.Show("Minecraft 4 has been successfully deleted!", "Minecraft 4");
                             }
                             catch (Exception ex)
                             {
-                                keyMC2.Close();
+                                keyMC4.Close();
                                 SystemSounds.Exclamation.Play();
                                 MessageBox.Show($"Error deleting Minecraft 4: {ex}");
                             }

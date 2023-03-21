@@ -53,6 +53,21 @@
   <PropertyGroup>
     <ApplicationIcon>Images\Minecraft.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -168,6 +183,7 @@
     <Resource Include="Fonts\Poppins-Bold.ttf" />
     <Resource Include="Fonts\Poppins-Light.ttf" />
     <Resource Include="Fonts\Poppins-Regular.ttf" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -192,19 +208,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\mcpl_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\mc2.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="changelog.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\mc3.png" />
-    <Resource Include="Images\mc4.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="updater.exe">
@@ -222,5 +228,23 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\bg\waterfall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logo\logo_full.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\bg\mountain.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logo\game\generic\mc2.png" />
+    <Resource Include="Images\logo\game\generic\mc3.png" />
+    <Resource Include="Images\logo\game\generic\mc4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logo\game\mc4\mc4.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -447,7 +447,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC3DS_Click(object sender, RoutedEventArgs e)
+        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
             {
@@ -477,7 +477,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC3FL_Click(object sender, RoutedEventArgs e)
+        private void FileLocation_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
             {
@@ -506,7 +506,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC3UNINST_Click(object sender, RoutedEventArgs e)
+        private void Uninstall_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true))
             {

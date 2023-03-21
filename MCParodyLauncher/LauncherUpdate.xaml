@@ -8,11 +8,13 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="#202020"
+        Background="Black"
         AllowsTransparency="True"
         MouseDown="Window_MouseDown"
         Title="Launcher Update" Height="400" Width="400">
     <Grid>
+        <Image Source="Images/bg/mountain.png" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.2"/>
+
         <TextBlock Text="Launcher Update" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="35" FontWeight="Light" FontFamily="/Fonts/#Poppins" Margin="0,30,0,0"/>
         <TextBlock Text="An update for the launcher has been found! Would you like to download it?" Foreground="White" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" FontWeight="Light" FontFamily="/Fonts/#Poppins" TextWrapping="Wrap" TextAlignment="Center" Margin="0,150,0,0"/>
 
