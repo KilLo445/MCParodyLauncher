@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel>
-        <TextBlock Text="Changelog" Foreground="White" FontSize="28" HorizontalAlignment="Left" Margin="20,10,0,20" FontFamily="/Fonts/#Poppins"/>
+        <TextBlock Text="Changelog" Foreground="White" FontSize="28" HorizontalAlignment="Left" Margin="20,10,0,20" FontFamily="/Fonts/Poppins/#Poppins"/>
         <Button Name="OpenWebButton" Width="100" Height="40" Content="Website" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="540,-70,0,0" Click="OpenWebButton_Click"/>
         <Button Name="OpenGitHubButton" Width="100" Height="40" Content="GitHub" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="300,-70,0,0" Click="OpenGitHubButton_Click"/>
         <StackPanel>

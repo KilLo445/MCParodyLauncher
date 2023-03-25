@@ -7,12 +7,13 @@ using System.Windows;
 using System.Media;
 using System.Windows.Input;
 using Microsoft.Win32;
+using MCParodyLauncher.MVVM.View;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.1.0";
+        string launcherVersion = "1.1.1";
 
         // Paths and Files
         private string rootPath;
@@ -54,10 +55,10 @@ namespace MCParodyLauncher
             RegistryKey key3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true);
             key3.CreateSubKey("games");
             RegistryKey key4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-            key4.CreateSubKey("mc2");
             key4.CreateSubKey("mc2r");
             key4.CreateSubKey("mc3");
             key4.CreateSubKey("mc4");
+            key4.CreateSubKey("mc5");
 
             key1.Close();
             key2.Close();
@@ -156,11 +157,7 @@ namespace MCParodyLauncher
                 LauncherUpdate updateWindow = new LauncherUpdate();
                 updateWindow.Show();
             }
-            catch (Exception ex)
-            {
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show($"Error: {ex}");
-            }
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -172,7 +169,19 @@ namespace MCParodyLauncher
         }
         private void CloseButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Application.Current.Shutdown();
+            if (Minecraft2View.downloadActive == true || Minecraft3View.downloadActive == true || Minecraft4View.downloadActive == true || Minecraft5View.downloadActive == true)
+            {
+                MessageBox.Show("Please do not close Minecraft Parody Launcher while a download is active.", "Download Active", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                try
+                {
+                    Application.Current.Shutdown();
+                }
+                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+            }
         }
 
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -27,6 +28,8 @@ namespace MCParodyLauncher.MVVM.View
     public partial class Minecraft2View : UserControl
     {
         private string mc2rlink = "https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1";
+        private string verLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/version.txt";
+        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/size.txt";
 
         // Paths
         private string rootPath;
@@ -42,6 +45,7 @@ namespace MCParodyLauncher.MVVM.View
 
         // Settings
         string mc2rInstalled;
+        public static bool downloadActive = false;
 
         private MC2RStatus _status;
 
@@ -55,21 +59,27 @@ namespace MCParodyLauncher.MVVM.View
                 {
                     case MC2RStatus.ready:
                         PlayMC2.Content = "Play";
+                        downloadActive = false;
                         break;
                     case MC2RStatus.noInstall:
                         PlayMC2.Content = "Download";
+                        downloadActive = false;
                         break;
                     case MC2RStatus.failed:
                         PlayMC2.Content = "Error";
+                        downloadActive = false;
                         break;
                     case MC2RStatus.downloading:
                         PlayMC2.Content = "Downloading";
+                        downloadActive = true;
                         break;
                     case MC2RStatus.unzip:
                         PlayMC2.Content = "Installing";
+                        downloadActive = true;
                         break;
                     case MC2RStatus.update:
                         PlayMC2.Content = "Updating";
+                        downloadActive = true;
                         break;
                 }
             }
@@ -210,7 +220,7 @@ namespace MCParodyLauncher.MVVM.View
         private void InstallMC2R()
         {
             WebClient webClient = new WebClient();
-            string mc2rSize = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/size.txt");
+            string mc2rSize = webClient.DownloadString(sizeLink);
 
             MessageBoxResult mc2rInstallConfirm = System.Windows.MessageBox.Show($"Minecraft 2 Remake requires {mc2rSize}Do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
             if (mc2rInstallConfirm == MessageBoxResult.Yes)
@@ -251,7 +261,6 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC2R()
         {
-            DownloadWarning();
             CreateTemp();
             Directory.CreateDirectory(mc2rdir);
 
@@ -329,7 +338,7 @@ namespace MCParodyLauncher.MVVM.View
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersionMC2R = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/version.txt"));
+                    Version onlineVersionMC2R = new Version(webClient.DownloadString(verLink));
 
                     if (onlineVersionMC2R.IsDifferentThan(localVersionMC2R))
                     {
@@ -403,6 +412,7 @@ namespace MCParodyLauncher.MVVM.View
                     }
                     catch (Exception ex)
                     {
+                        Status = MC2RStatus.failed;
                         SystemSounds.Exclamation.Play();
                         MessageBox.Show($"Error updating Minecraft 2 Remake: {ex}");
                     }
@@ -500,6 +510,123 @@ namespace MCParodyLauncher.MVVM.View
                     {
                         MessageBox.Show("Minecraft 2 Remake does not seem to be installed.");
                         keyMC2.Close();
+                    }
+                }
+            }
+        }
+
+        private void SelectLocation_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true))
+            {
+                if (keyMC2 != null)
+                {
+                    WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
+                    selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                    selectInstallDialog.Description = "Please select the folder that containes \"Minecraft2Remake.exe\".";
+                    selectInstallDialog.ShowNewFolderButton = true;
+                    WinForms.DialogResult mc2rResult = selectInstallDialog.ShowDialog();
+
+                    if (mc2rResult == WinForms.DialogResult.OK)
+                    {
+                        string _mc2rResult = Path.Combine(selectInstallDialog.SelectedPath, "Minecraft2Remake.exe");
+                        if (!File.Exists(_mc2rResult))
+                        {
+                            SystemSounds.Exclamation.Play();
+                            MessageBox.Show("Please select the location with Minecraft2Remake.exe");
+                            return;
+                        }
+
+                        mc2rdir = Path.Combine(selectInstallDialog.SelectedPath);
+                        keyMC2.SetValue("InstallPath", mc2rdir);
+                        keyMC2.SetValue("Installed", "1");
+                        keyMC2.Close();
+                        Status = MC2RStatus.ready;
+                        return;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void MoveInstall_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true))
+            {
+                if (keyMC2 != null)
+                {
+                    Object obMC2Install = keyMC2.GetValue("Installed");
+                    mc2rInstalled = (obMC2Install as String);
+
+                    if (mc2rInstalled != "1")
+                    {
+                        MessageBox.Show("Minecraft 2 Remake does not seem to be installed.");
+                        keyMC2.Close();
+                        return;
+                    }
+
+                    WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
+                    moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                    moveInstallDialog.Description = "Please select where you would like to move Minecraft 2 Remake to, a folder called \"Minecraft 2 Remake\" will be created.";
+                    moveInstallDialog.ShowNewFolderButton = true;
+                    WinForms.DialogResult mc2rResult = moveInstallDialog.ShowDialog();
+
+                    if (mc2rResult == WinForms.DialogResult.OK)
+                    {
+                        string dirOld = mc2rdir;
+                        mc2rdir = Path.Combine(moveInstallDialog.SelectedPath, "Minecraft 2 Remake");
+                        keyMC2.SetValue("InstallPath", mc2rdir);
+                        keyMC2.Close();
+
+                        string dirOldChar = dirOld.Substring(0, 1);
+                        string mc2rdirChar = mc2rdir.Substring(0, 1);
+                        bool sameVolume = dirOldChar.Equals(mc2rdirChar);
+
+                        if (sameVolume == true)
+                        {
+                            try
+                            {
+                                Directory.Move(dirOld, mc2rdir);
+                                MessageBox.Show("Install has been moved!", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error Moving Minecraft 2 Remake: {ex}");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(mc2rdir);
+
+                                foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories))
+                                {
+                                    Directory.CreateDirectory(dirPath.Replace(dirOld, mc2rdir));
+                                }
+                                foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories))
+                                {
+                                    File.Copy(newPath, newPath.Replace(dirOld, mc2rdir), true);
+                                }
+                                Directory.Delete(dirOld, true );
+                                MessageBox.Show("Install has been moved!", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error Moving Minecraft 2 Remake: {ex}");
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
             }

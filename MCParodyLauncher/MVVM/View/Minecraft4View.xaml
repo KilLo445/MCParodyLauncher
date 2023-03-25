@@ -14,8 +14,10 @@
                 <ContextMenu Name="mc4cm" StaysOpen="true">
                     <MenuItem Name="DesktopShortcut" Header="Add desktop shortcut"
                               Click="DesktopShortcut_Click"/>
-                    <MenuItem Name="FileLocation" Header="Open file location"
+                    <MenuItem Name="FileLocation" Header="Browse local files"
                               Click="FileLocation_Click"/>
+                    <MenuItem Name="MoveInstall" Header="Move install folder"
+                              Click="MoveInstall_Click"/>
                     <MenuItem Name="Uninstall" Header="Uninstall"
                               Click="Uninstall_Click"/>
                 </ContextMenu>

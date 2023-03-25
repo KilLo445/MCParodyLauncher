@@ -42,6 +42,7 @@ namespace MCParodyLauncher.MVVM.View
 
         // Settings
         string mc4Installed;
+        public static bool downloadActive = false;
 
         private MC4Status _status;
 
@@ -55,21 +56,27 @@ namespace MCParodyLauncher.MVVM.View
                 {
                     case MC4Status.ready:
                         PlayMC4.Content = "Play";
+                        downloadActive = false;
                         break;
                     case MC4Status.noInstall:
                         PlayMC4.Content = "Download";
+                        downloadActive = false;
                         break;
                     case MC4Status.failed:
                         PlayMC4.Content = "Error";
+                        downloadActive = false;
                         break;
                     case MC4Status.downloading:
                         PlayMC4.Content = "Downloading";
+                        downloadActive = true;
                         break;
                     case MC4Status.unzip:
                         PlayMC4.Content = "Installing";
+                        downloadActive = true;
                         break;
                     case MC4Status.update:
                         PlayMC4.Content = "Updating";
+                        downloadActive = true;
                         break;
                 }
             }
@@ -472,6 +479,86 @@ namespace MCParodyLauncher.MVVM.View
                     {
                         MessageBox.Show("Minecraft 4 does not seem to be installed.");
                         keyMC4.Close();
+                    }
+                }
+            }
+        }
+
+        private void MoveInstall_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
+            {
+                if (keyMC4 != null)
+                {
+                    Object obMC4Install = keyMC4.GetValue("Installed");
+                    mc4Installed = (obMC4Install as String);
+
+                    if (mc4Installed != "1")
+                    {
+                        MessageBox.Show("Minecraft 4 does not seem to be installed.");
+                        keyMC4.Close();
+                        return;
+                    }
+
+                    WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
+                    moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                    moveInstallDialog.Description = "Please select where you would like to move Minecraft 4 to, a folder called \"Minecraft 4\" will be created.";
+                    moveInstallDialog.ShowNewFolderButton = true;
+                    WinForms.DialogResult mc4Result = moveInstallDialog.ShowDialog();
+
+                    if (mc4Result == WinForms.DialogResult.OK)
+                    {
+                        string dirOld = mc4dir;
+                        mc4dir = Path.Combine(moveInstallDialog.SelectedPath, "Minecraft 4");
+                        keyMC4.SetValue("InstallPath", mc4dir);
+                        keyMC4.Close();
+
+                        string dirOldChar = dirOld.Substring(0, 1);
+                        string mc4dirChar = mc4dir.Substring(0, 1);
+                        bool sameVolume = dirOldChar.Equals(mc4dirChar);
+
+                        if (sameVolume == true)
+                        {
+                            try
+                            {
+                                Directory.Move(dirOld, mc4dir);
+                                MessageBox.Show("Install has been moved!", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error Moving Minecraft 4: {ex}");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(mc4dir);
+
+                                foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories))
+                                {
+                                    Directory.CreateDirectory(dirPath.Replace(dirOld, mc4dir));
+                                }
+                                foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories))
+                                {
+                                    File.Copy(newPath, newPath.Replace(dirOld, mc4dir), true);
+                                }
+                                Directory.Delete(dirOld, true);
+                                MessageBox.Show("Install has been moved!", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error Moving Minecraft 4: {ex}");
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
             }

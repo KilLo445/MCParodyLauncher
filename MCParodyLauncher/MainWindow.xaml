@@ -38,22 +38,23 @@
             </Grid.RowDefinitions>
 
             <Rectangle Fill="Black" Opacity="0.4"/>
-            <TextBlock Visibility="Hidden" Text="MCParodyLauncher" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/#Poppins" FontWeight="Light"/>
+            <TextBlock Visibility="Hidden" Text="MCParodyLauncher" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"/>
             <Image Source="Images/logo/logo_full.png" Stretch="Uniform" Width="140"/>
-
+            
             <StackPanel Grid.Row="1" Background="{StaticResource TransparentBlack}">
-                <RadioButton Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
-                <RadioButton Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
-                <RadioButton Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
-                <RadioButton Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
+                <RadioButton Name="rbtnHome" Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
+                <RadioButton Name="rbtnMC2" Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
+                <RadioButton Name="rbtnMC3" Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
+                <RadioButton Name="rbtnMC4" Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
+                <RadioButton Name="rbtnMC5" Content="Minecraft 5" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft5ViewCommand}"/>
             </StackPanel>
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
 
-            <TextBlock Name="VersionText" Text="" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
+            <TextBlock Name="VersionText" Text="" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
 
-            <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
-            <TextBlock Name="MinimizeButton" Text="_" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Style="{StaticResource MinimizeButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/#Poppins" Height="30" Margin="0,-2.5,30,0" Grid.Column="1" Grid.RowSpan="2"/>
+            <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
+            <TextBlock Name="MinimizeButton" Text="_" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Style="{StaticResource MinimizeButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,-2.5,30,0" Grid.Column="1" Grid.RowSpan="2"/>
         </Grid>
     </Border>
 </Window>

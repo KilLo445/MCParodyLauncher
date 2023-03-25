@@ -26,6 +26,9 @@
             <DataTemplate DataType="{x:Type viewModel:Minecraft4ViewModel}">
                 <view:Minecraft4View/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:Minecraft5ViewModel}">
+                <view:Minecraft5View/>
+            </DataTemplate>
 
         </ResourceDictionary>
     </Application.Resources>
