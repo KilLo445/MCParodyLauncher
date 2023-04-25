@@ -2,8 +2,6 @@
 
 Minecraft Parody Launcher is a launcher for the Minecraft Parody games developed by decentgames.  
 
-[FAQ](https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md)
-
 ## Download
 [Latest Release](https://github.com/KilLo445/MCParodyLauncher/releases/download/main/MinecraftParodyLauncher.zip)  
 [Latest Release Page](https://github.com/KilLo445/MCParodyLauncher/releases/latest)
@@ -12,6 +10,7 @@ Minecraft Parody Launcher is a launcher for the Minecraft Parody games developed
 [Itch.io](https://decentgamestudio.itch.io/mc)  
 [decentgames](https://killoofficial.wixsite.com/decentgames)  
 [Changelog](https://htmlpreview.github.io/?https://github.com/KilLo445/MCParodyLauncher/master/MCParodyLauncher/changelog.html)  
+[FAQ](https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md)
 
 ## Building
 To build Minecraft Parody Launcher from source, download the [master zip](https://github.com/KilLo445/MCParodyLauncher/archive/refs/heads/master.zip) and open "MCParodyLauncher.sln" in Visual Studio 2022, then go to Build -> Build MCParodyLauncher.  
