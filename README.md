@@ -9,7 +9,7 @@ Minecraft Parody Launcher is a launcher for the Minecraft Parody games developed
 ## Links
 [Itch.io](https://decentgamestudio.itch.io/mc)  
 [decentgames](https://killoofficial.wixsite.com/decentgames)  
-[Changelog](https://htmlpreview.github.io/?https://github.com/KilLo445/MCParodyLauncher/master/MCParodyLauncher/changelog.html)  
+[Changelog](https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/MCParodyLauncher/changelog.txt)  
 [FAQ](https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md)  
 [MC2 Uninstaller](https://killoofficial.wixsite.com/decentgames/mc2-uninstaller)  
 
