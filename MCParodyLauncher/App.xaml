@@ -8,12 +8,16 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/DefaultButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/MenuButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/ButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/CloseButton.xaml"/>
                 <ResourceDictionary Source="Theme/MinimizeButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
+            <DataTemplate DataType="{x:Type viewModel:DevViewModel}">
+                <view:DevView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type viewModel:HomeViewModel}">
                 <view:HomeView/>
             </DataTemplate>

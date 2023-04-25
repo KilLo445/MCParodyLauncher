@@ -72,7 +72,7 @@ namespace MCParodyLauncher
                     if (obMC4OPath != null)
                     {
                         mc4odir = (obMC4OPath as String);
-                        mc4o = Path.Combine(mc4odir, "Game.exe");
+                        mc4o = Path.Combine(mc4odir, "Minecraft4Otherside.exe");
                         keyMC4O.Close();
                         try
                         {

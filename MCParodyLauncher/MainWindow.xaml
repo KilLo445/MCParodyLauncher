@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MCParodyLauncher"
         xmlns:viewModel="clr-namespace:MCParodyLauncher.MVVM.ViewModel"
+        xmlns:local="clr-namespace:MCParodyLauncher"
         mc:Ignorable="d"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
@@ -40,13 +40,15 @@
             <Rectangle Fill="Black" Opacity="0.4"/>
             <TextBlock Visibility="Hidden" Text="MCParodyLauncher" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"/>
             <Image Source="Images/logo/logo_full.png" Stretch="Uniform" Width="140"/>
-            
+
             <StackPanel Grid.Row="1" Background="{StaticResource TransparentBlack}">
                 <RadioButton Name="rbtnHome" Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
                 <RadioButton Name="rbtnMC2" Content="Minecraft 2" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft2ViewCommand}"/>
                 <RadioButton Name="rbtnMC3" Content="Minecraft 3" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft3ViewCommand}"/>
                 <RadioButton Name="rbtnMC4" Content="Minecraft 4" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft4ViewCommand}"/>
                 <RadioButton Name="rbtnMC5" Content="Minecraft 5" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding Minecraft5ViewCommand}"/>
+
+                <RadioButton Name="rbtnDev" Content="Developer" Visibility="Hidden" Height="50" Foreground="Red" FontSize="14" Style="{StaticResource MenuButtonTheme}" Command="{Binding DevViewCommand}"/>
             </StackPanel>
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>

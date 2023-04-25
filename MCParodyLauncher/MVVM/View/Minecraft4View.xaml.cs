@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -134,11 +135,6 @@ namespace MCParodyLauncher.MVVM.View
             Directory.CreateDirectory(mcplTempPath);
         }
 
-        private void DownloadWarning()
-        {
-            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
-        }
-
         private void PlayMC4_Click(object sender, RoutedEventArgs e)
         {
             if (Status == MC4Status.downloading)
@@ -259,7 +255,6 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC4()
         {
-            DownloadWarning();
             CreateTemp();
             Directory.CreateDirectory(mc4dir);
 
@@ -443,8 +438,10 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc4zip);
                 Status = MC4Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 4");
+                new ToastContentBuilder()
+                .AddText("Download complete!")
+                .AddText("Minecraft 4 has finished downloading.")
+                .Show();
                 return;
             }
             catch (Exception ex)
@@ -593,6 +590,43 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
+        private void SelectLocation_Click(object sender, RoutedEventArgs e)
+        {
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
+            {
+                if (keyMC4 != null)
+                {
+                    MessageBox.Show("Please select the folder that containes \"Minecraft4.exe\".", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
+                    WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
+                    selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                    selectInstallDialog.ShowNewFolderButton = true;
+                    WinForms.DialogResult mc4Result = selectInstallDialog.ShowDialog();
+
+                    if (mc4Result == WinForms.DialogResult.OK)
+                    {
+                        string _mc4Result = Path.Combine(selectInstallDialog.SelectedPath, "Minecraft4.exe");
+                        if (!File.Exists(_mc4Result))
+                        {
+                            SystemSounds.Exclamation.Play();
+                            MessageBox.Show("Please select the location with Minecraft4.exe");
+                            return;
+                        }
+
+                        mc4dir = Path.Combine(selectInstallDialog.SelectedPath);
+                        keyMC4.SetValue("InstallPath", mc4dir);
+                        keyMC4.SetValue("Installed", "1");
+                        keyMC4.Close();
+                        Status = MC4Status.ready;
+                        return;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
         private void Uninstall_Click(object sender, RoutedEventArgs e)
         {
             using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
@@ -609,7 +643,7 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
-                    MessageBoxResult delMC4Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 4?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
+                    MessageBoxResult delMC4Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 4?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
                     if (delMC4Box == MessageBoxResult.Yes)
                     {
                         Object obMC4Path = keyMC4.GetValue("InstallPath");
@@ -624,13 +658,13 @@ namespace MCParodyLauncher.MVVM.View
                                 keyMC4.Close();
                                 Status = MC4Status.noInstall;
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 4 has been successfully deleted!", "Minecraft 4");
+                                MessageBox.Show("Minecraft 4 has been successfully uninstalled!", "Minecraft 4");
                             }
                             catch (Exception ex)
                             {
                                 keyMC4.Close();
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error deleting Minecraft 4: {ex}");
+                                MessageBox.Show($"Error uninstallig Minecraft 4: {ex}");
                             }
                         }
                     }

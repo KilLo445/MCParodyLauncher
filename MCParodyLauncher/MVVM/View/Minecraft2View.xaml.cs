@@ -8,10 +8,10 @@ using System.Windows;
 using System.Media;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Microsoft.Toolkit.Uwp.Notifications;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -136,11 +136,6 @@ namespace MCParodyLauncher.MVVM.View
             Directory.CreateDirectory(mcplTempPath);
         }
 
-        private void DownloadWarning()
-        {
-            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
-        }
-
         private void PlayMC2R_Click(object sender, RoutedEventArgs e)
         {
             if (Status == MC2RStatus.downloading)
@@ -230,7 +225,7 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
                 keyGames.Close();
 
-                MessageBoxResult mc2rInstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 2 Remake at {rootPath}\\games", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
+                MessageBoxResult mc2rInstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 2 Remake at the default path?\n\n{rootPath}\\games", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
                 if (mc2rInstallLocationMB == MessageBoxResult.Yes)
                 {
                     keyMC2R.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 2 Remake");
@@ -240,9 +235,9 @@ namespace MCParodyLauncher.MVVM.View
                 }
                 if (mc2rInstallLocationMB == MessageBoxResult.No)
                 {
+                    MessageBox.Show("Please select where you would like to install Minecraft 2 Remake, a folder called \"Minecraft 2 Remake\" will be created.", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog mc2rFolderDialog = new WinForms.FolderBrowserDialog();
                     mc2rFolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc2rFolderDialog.Description = "Please select where you would like to install Minecraft 2 Remake, a folder called \"Minecraft 2 Remake\" will be created.";
                     mc2rFolderDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc2rResult = mc2rFolderDialog.ShowDialog();
 
@@ -254,8 +249,6 @@ namespace MCParodyLauncher.MVVM.View
                         DownloadMC2R();
                     }
                 }
-
-                keyMC2R.Close();
             }
         }
 
@@ -445,8 +438,10 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc2rzip);
                 Status = MC2RStatus.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 2 Remake");
+                new ToastContentBuilder()
+                .AddText("Download complete!")
+                .AddText("Minecraft 2 Remake has finished downloading.")
+                .Show();
                 return;
             }
             catch (Exception ex)
@@ -503,7 +498,11 @@ namespace MCParodyLauncher.MVVM.View
                             mc2rdir = (obMC2Path as String);
                             keyMC2.Close();
 
-                            Process.Start(mc2rdir);
+                            try
+                            {
+                                Process.Start(new ProcessStartInfo { FileName = mc2rdir, UseShellExecute = true });
+                            }
+                            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
                         }
                     }
                     else
@@ -521,9 +520,9 @@ namespace MCParodyLauncher.MVVM.View
             {
                 if (keyMC2 != null)
                 {
+                    MessageBox.Show("Please select the folder that containes \"Minecraft2Remake.exe\".", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
                     selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    selectInstallDialog.Description = "Please select the folder that containes \"Minecraft2Remake.exe\".";
                     selectInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc2rResult = selectInstallDialog.ShowDialog();
 
@@ -568,9 +567,9 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
+                    MessageBox.Show("Please select where you would like to move Minecraft 2 Remake to, a folder called \"Minecraft 2 Remake\" will be created.", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
                     moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    moveInstallDialog.Description = "Please select where you would like to move Minecraft 2 Remake to, a folder called \"Minecraft 2 Remake\" will be created.";
                     moveInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc2rResult = moveInstallDialog.ShowDialog();
 
@@ -648,7 +647,7 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
-                    MessageBoxResult delMC2Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 2 Remake?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
+                    MessageBoxResult delMC2Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 2 Remake?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
                     if (delMC2Box == MessageBoxResult.Yes)
                     {
                         Object obMC2Path = keyMC2.GetValue("InstallPath");
@@ -663,13 +662,13 @@ namespace MCParodyLauncher.MVVM.View
                                 keyMC2.Close();
                                 Status = MC2RStatus.noInstall;
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 2 Remake has been successfully deleted!", "Minecraft 2 Remake");
+                                MessageBox.Show("Minecraft 2 Remake has been successfully uninstalled!", "Minecraft 2 Remake");
                             }
                             catch (Exception ex)
                             {
                                 keyMC2.Close();
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error deleting Minecraft 2 Remake: {ex}");
+                                MessageBox.Show($"Error uninstalling Minecraft 2 Remake: {ex}");
                             }
                         }
                     }
@@ -743,7 +742,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void MC2Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Process.Start("https://killo445.itch.io/minecraft-2");
+            Process.Start(new ProcessStartInfo("https://killo445.itch.io/minecraft-2-remake") { UseShellExecute = true });
         }
     }
 }

@@ -1,30 +1,31 @@
-﻿using System;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Navigation;
+﻿using System.Diagnostics;
 using System.Windows.Controls;
+using System.IO;
 
 namespace MCParodyLauncher.MVVM.View
 {
     public partial class HomeView : UserControl
     {
-        private static bool Navigate;
-
         public HomeView()
         {
             InitializeComponent();
 
-            Changelog.Source = new Uri($@"{Environment.CurrentDirectory}\changelog.html");
+            string rootPath = Directory.GetCurrentDirectory();
+            string changelogFile = Path.Combine(rootPath, "changelog.txt");
+            string changelogContent;
+            if (File.Exists(changelogFile)) { changelogContent = File.ReadAllText(changelogFile); }
+            else { changelogContent = "Changelog file not found"; }
+            Changelog.Text = changelogContent;
         }
 
         private void OpenWebButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Process.Start("https://killoofficial.wixsite.com/decentgames/launcher");
+            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/mc") { UseShellExecute = true });
         }
 
         private void OpenGitHubButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Process.Start("https://github.com/KilLo445/MCParodyLauncher");
+            Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true });
         }
     }
 }

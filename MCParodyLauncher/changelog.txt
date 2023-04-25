@@ -1,0 +1,150 @@
+v1.2.0
+- Changed from .NET Framwork to .NET 7.0
+- Minor fixes and changes.
+
+v1.1.1
+- Added Minecraft 5.
+- Disabled closing application and switching tabs during downloads and updates to prevent errors.
+- Added ability to move game installs without re-downloading.
+- Added ability to select game folders instead of downloading them. Useful if you reinstall MC Parody Launcher.
+- Minor fixes and changes.
+
+v1.1.0
+- Removed the original Minecraft 2 from the launcher, it will continue to be available on itch.io. I made a tool to uninstall the Launcher version of Minecraft 2.
+  Links:
+  Minecraft 2: killo445.itch.io/minecraft-2
+  MC2 Uninstaller: killoofficial.wixsite.com/decentgames/mc2-uninstaller
+- UI Redesign
+
+v1.0.2
+- Fixed Minecraft 4 desktop shortcut
+
+v1.0.1
+- Fixed an issue where the launcher would not launch Minecraft 4
+
+v1.0.0
+- Added Minecraft 4, it's finally here!
+
+v0.4.3
+- Added right click dropdown menu to play buttons
+
+v0.4.2
+- Fixed "Failed to find file" issue while updating Minecraft 2 Remake
+
+v0.4.1
+- Changed install process to async so the launcher doesn't freeze
+
+v0.4.0
+- Added ability to choose install location for games. Because of this you may have to reinstall the launcher if you updated from 0.3.9 or before
+- Small changes
+
+v0.3.9
+- Added offline mode, hold Left Shift wile opening the launcher to launch in offline mode
+- Small changes
+
+v0.3.8
+- Small changes
+
+v0.3.7
+- Small changes
+
+v0.3.6
+- New update notification
+- Small changes
+
+v0.3.5
+- Fixes
+
+v0.3.4
+- Added ability for user to check for updates (Click version text, left click for launcher to check, right click for updater to check)
+- Small changes
+
+v0.3.3
+- Small changes
+
+v0.3.2
+- Fixes
+- Small changes
+
+v0.3.1
+- Added minimize button
+- Reduced file size
+
+v0.3.0
+- UI Revamp
+- Some code rewritten
+- Launcher now stays open while game is running instead of hiding
+
+v0.2.9
+- Small changes
+
+v0.2.8
+- Launcher now re-opens after a game is closed
+- Small changes
+
+v0.2.7
+- Source code now availible at github.com/KilLo445/MCParodyLauncher
+- Updated automatic updater
+- Moved to GitHub
+- Moved game downloads back to Dropbox
+
+v0.2.6
+- Fixed an issue where the Minecraft 3 button was launching Minecraft 2
+
+v0.2.5
+- Games now automatically update, to enable this you may need to reinstall the games
+- Switched download servers back to Google Drive
+- Small changes
+
+v0.2.4
+- Removed FAQ (FAQ is now on download page)
+- Small changes
+
+v0.2.3
+- Updated automatic updater
+
+v0.2.2
+- Added automatic updater. (If you choose to update)
+
+v0.2.1
+- Added ability to delete games. (Right click)
+
+v0.2.0
+- Minecraft 2, Minecraft 2 Remake, and Minecraft 3 are no longer pre-installed
+- All games are now optional downloads
+- Switched download servers to Dropbox (temporarily?)
+- Added even more checks to Minecraft 2 download to prevent fails
+- Added Minecraft 2 download checks to all downloads
+- Small changes
+
+v0.1.3
+- Added more checks to Minecraft 2 download to prevent fails
+
+v0.1.2
+- Upgraded to Visual Studio 2022
+- Upgraded to .NET Framework 4.8
+
+v0.1.1
+- Fixed spelling mistake in FAQ
+- Added extra information box when downloading Minecraft 2
+
+v0.1.0
+- Added Minecraft 2 Remake
+- Minecraft 2 (Original) is now an optional download
+- Added FAQ (FAQ is at the bottom of the changelog)
+- Reduced File Size, If Minecraft 2 (Original) is not installed
+
+v0.0.3
+- Disabled Minecraft 4 Button
+- Updated Logo
+- Reduced File Size
+
+v0.0.2
+- Reduced File Size
+- Added more error messages (more detail)
+
+v0.0.1
+- Launcher Funcional
+- Added update checker
+- Minecraft 2 v2.2 Added
+- Minecraft 3 v1.2 Added

@@ -13,7 +13,8 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.1.1";
+        string launcherVersion = "1.1.2";
+        bool devMode = false;
 
         // Paths and Files
         private string rootPath;
@@ -37,6 +38,10 @@ namespace MCParodyLauncher
             updater = Path.Combine(rootPath, "updater.exe");
 
             VersionText.Text = $"Launcher v{launcherVersion}";
+
+            if (File.Exists(Path.Combine(rootPath, "devmode.txt"))) { devMode = true; }
+            if (devMode == true) { rbtnDev.Visibility = Visibility.Visible; }
+            if (devMode == false) { rbtnDev.Visibility = Visibility.Hidden; }
 
             OfflineMode();
             CheckForUpdates();
@@ -217,7 +222,7 @@ namespace MCParodyLauncher
                 MessageBox.Show("Unable to check for updates in offine mode.", "Offline Mode");
                 return;
             }
-            
+
             MessageBoxResult checkUpdateRMB = MessageBox.Show("Do you want launch the updater and check for updates?", "Launcher Update", MessageBoxButton.YesNo);
             if (checkUpdateRMB == MessageBoxResult.Yes)
             {

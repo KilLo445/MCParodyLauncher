@@ -16,6 +16,8 @@
                               Click="DesktopShortcut_Click"/>
                     <MenuItem Name="FileLocation" Header="Browse local files"
                               Click="FileLocation_Click"/>
+                    <MenuItem Name="SelectLocation" Header="Locate installed game"
+                              Click="SelectLocation_Click"/>
                     <MenuItem Name="MoveInstall" Header="Move install folder"
                               Click="MoveInstall_Click"/>
                     <MenuItem Name="Uninstall" Header="Uninstall"

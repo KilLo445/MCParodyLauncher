@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -135,11 +136,6 @@ namespace MCParodyLauncher.MVVM.View
             Directory.CreateDirectory(mcplTempPath);
         }
 
-        private void DownloadWarning()
-        {
-            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
-        }
-
         private void PlayMC3_Click(object sender, RoutedEventArgs e)
         {
             if (Status == MC3Status.downloading)
@@ -229,7 +225,7 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
                 keyGames.Close();
 
-                MessageBoxResult mc3InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 3 at {rootPath}\\games", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                MessageBoxResult mc3InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 3 at the default path?\n\n{rootPath}\\games", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
                 if (mc3InstallLocationMB == MessageBoxResult.Yes)
                 {
                     keyMC3.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 3");
@@ -239,9 +235,9 @@ namespace MCParodyLauncher.MVVM.View
                 }
                 if (mc3InstallLocationMB == MessageBoxResult.No)
                 {
+                    MessageBox.Show("Please select where you would like to install Minecraft 3, a folder called \"Minecraft 3\" will be created.", "Minecraft 3", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog mc3FolderDialog = new WinForms.FolderBrowserDialog();
                     mc3FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc3FolderDialog.Description = "Please select where you would like to install Minecraft 3, a folder called \"Minecraft 3\" will be created.";
                     mc3FolderDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc3Result = mc3FolderDialog.ShowDialog();
 
@@ -444,8 +440,10 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc3zip);
                 Status = MC3Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 3");
+                new ToastContentBuilder()
+                .AddText("Download complete!")
+                .AddText("Minecraft 3 has finished downloading.")
+                .Show();
                 return;
             }
             catch (Exception ex)
@@ -503,7 +501,11 @@ namespace MCParodyLauncher.MVVM.View
                             mc3dir = (obMC3Path as String);
                             keyMC3.Close();
 
-                            Process.Start(mc3dir);
+                            try
+                            {
+                                Process.Start(new ProcessStartInfo { FileName = mc3dir, UseShellExecute = true });
+                            }
+                            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
                         }
                     }
                     else
@@ -521,9 +523,9 @@ namespace MCParodyLauncher.MVVM.View
             {
                 if (keyMC3 != null)
                 {
+                    MessageBox.Show("Please select the folder that containes \"Game.exe\".", "Minecraft 3", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
                     selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    selectInstallDialog.Description = "Please select the folder that containes \"Game.exe\".";
                     selectInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc3Result = selectInstallDialog.ShowDialog();
 
@@ -567,10 +569,10 @@ namespace MCParodyLauncher.MVVM.View
                         keyMC3.Close();
                         return;
                     }
-
+                    
+                    MessageBox.Show("Please select where you would like to move Minecraft 3 to, a folder called \"Minecraft 3\" will be created.", "Minecraft 3", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
                     moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    moveInstallDialog.Description = "Please select where you would like to move Minecraft 3 to, a folder called \"Minecraft 3\" will be created.";
                     moveInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc3Result = moveInstallDialog.ShowDialog();
 
@@ -648,7 +650,7 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
-                    MessageBoxResult delMC3Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
+                    MessageBoxResult delMC3Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 3?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
                     if (delMC3Box == MessageBoxResult.Yes)
                     {
                         Object obMC3Path = keyMC3.GetValue("InstallPath");
@@ -663,13 +665,13 @@ namespace MCParodyLauncher.MVVM.View
                                 keyMC3.Close();
                                 Status = MC3Status.noInstall;
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 3 has been successfully deleted!", "Minecraft 3");
+                                MessageBox.Show("Minecraft 3 has been successfully uninstalled!", "Minecraft 3");
                             }
                             catch (Exception ex)
                             {
                                 keyMC3.Close();
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error deleting Minecraft 3: {ex}");
+                                MessageBox.Show($"Error uninstalling Minecraft 3: {ex}");
                             }
                         }
                     }
@@ -743,7 +745,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void MC3Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Process.Start("https://roggzerz.itch.io/minecraft-3");
+            Process.Start(new ProcessStartInfo("https://roggzerz.itch.io/minecraft-3") { UseShellExecute = true });
         }
     }
 }

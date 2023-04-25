@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -136,11 +137,6 @@ namespace MCParodyLauncher.MVVM.View
             Directory.CreateDirectory(mcplTempPath);
         }
 
-        private void DownloadWarning()
-        {
-            MessageBox.Show("Please do not switch game tabs or close the launcher until your download finishes, it may cause issues if you do so.");
-        }
-
         private void PlayMC5_Click(object sender, RoutedEventArgs e)
         {
             if (Status == MC5Status.downloading)
@@ -230,7 +226,7 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
                 keyGames.Close();
 
-                MessageBoxResult mc5InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 5 at {rootPath}\\games", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
+                MessageBoxResult mc5InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 5 at the default path?\n\n{rootPath}\\games", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
                 if (mc5InstallLocationMB == MessageBoxResult.Yes)
                 {
                     keyMC5.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 5");
@@ -240,9 +236,9 @@ namespace MCParodyLauncher.MVVM.View
                 }
                 if (mc5InstallLocationMB == MessageBoxResult.No)
                 {
+                    MessageBox.Show("Please select where you would like to install Minecraft 5, a folder called \"Minecraft 5\" will be created.", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog mc5FolderDialog = new WinForms.FolderBrowserDialog();
                     mc5FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc5FolderDialog.Description = "Please select where you would like to install Minecraft 5, a folder called \"Minecraft 5\" will be created.";
                     mc5FolderDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc5Result = mc5FolderDialog.ShowDialog();
 
@@ -445,8 +441,10 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc5zip);
                 Status = MC5Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Download complete!", "Minecraft 5");
+                new ToastContentBuilder()
+                .AddText("Download complete!")
+                .AddText("Minecraft 5 has finished downloading.")
+                .Show();
                 return;
             }
             catch (Exception ex)
@@ -504,7 +502,11 @@ namespace MCParodyLauncher.MVVM.View
                             mc5dir = (obMC5Path as String);
                             keyMC5.Close();
 
-                            Process.Start(mc5dir);
+                            try
+                            {
+                                Process.Start(new ProcessStartInfo { FileName = mc5dir, UseShellExecute = true });
+                            }
+                            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
                         }
                     }
                     else
@@ -522,9 +524,9 @@ namespace MCParodyLauncher.MVVM.View
             {
                 if (keyMC5 != null)
                 {
+                    MessageBox.Show("Please select the folder that containes \"MC5.exe\".", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
                     selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    selectInstallDialog.Description = "Please select the folder that containes \"MC5.exe\".";
                     selectInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc5Result = selectInstallDialog.ShowDialog();
 
@@ -569,9 +571,9 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
+                    MessageBox.Show("Please select where you would like to move Minecraft 5 to, a folder called \"Minecraft 5\" will be created.", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
                     WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
                     moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    moveInstallDialog.Description = "Please select where you would like to move Minecraft 5 to, a folder called \"Minecraft 5\" will be created.";
                     moveInstallDialog.ShowNewFolderButton = true;
                     WinForms.DialogResult mc5Result = moveInstallDialog.ShowDialog();
 
@@ -649,7 +651,7 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
-                    MessageBoxResult delMC5Box = System.Windows.MessageBox.Show("Are you sure you want to delete Minecraft 5?", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
+                    MessageBoxResult delMC5Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 5?", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
                     if (delMC5Box == MessageBoxResult.Yes)
                     {
                         Object obMC5Path = keyMC5.GetValue("InstallPath");
@@ -664,13 +666,13 @@ namespace MCParodyLauncher.MVVM.View
                                 keyMC5.Close();
                                 Status = MC5Status.noInstall;
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 5 has been successfully deleted!", "Minecraft 5");
+                                MessageBox.Show("Minecraft 5 has been successfully uninstalled!", "Minecraft 5");
                             }
                             catch (Exception ex)
                             {
                                 keyMC5.Close();
                                 SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error deleting Minecraft 5: {ex}");
+                                MessageBox.Show($"Error uninstalling Minecraft 5: {ex}");
                             }
                         }
                     }
@@ -744,7 +746,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void MC5Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Process.Start("https://decentgamestudio.itch.io/minecraft-5");
+            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-5") { UseShellExecute = true });
         }
     }
 }

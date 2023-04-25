@@ -8,7 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Image Name="MC2Logo" Source="/Images/logo/game/generic/mc2.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0" MouseLeftButtonDown="MC2Logo_MouseLeftButtonDown"/>
-
+        
         <Button Name="PlayMC2" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC2R_Click">
             <Button.ContextMenu>
                 <ContextMenu Name="mc2rcm" StaysOpen="true">
