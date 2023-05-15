@@ -28,7 +28,7 @@ namespace MCParodyLauncher.MVVM.View
     public partial class Minecraft4View : UserControl
     {
         private string mc4link = "https://www.dropbox.com/s/dq5vl127q7gza4r/mc4.zip?dl=1";
-        private string mc4olink = "";
+        private string mc4olink = "https://www.dropbox.com/s/6xd3c6dtd889ekb/mc4o.zip?dl=0";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC4/version.txt";
         private string verLinkO = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC4O/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC4/size.txt";
