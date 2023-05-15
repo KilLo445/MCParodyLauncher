@@ -297,6 +297,7 @@ namespace MCParodyLauncher.MVVM.View
                         mc4dir = Path.Combine(mc4FolderDialog.SelectedPath, "Minecraft 4");
                         mc4odir = Path.Combine(mc4FolderDialog.SelectedPath, "Minecraft 4 Otherside");
                         keyMC4.SetValue("InstallPath", mc4dir);
+                        keyMC4.SetValue("InstallPathOtherside", mc4odir);
                         keyMC4.Close();
                         DownloadMC4();
                     }
