@@ -1,3 +1,6 @@
+v1.2.2
+- Fixed Minecraft 4: Otherside desktop shortcut
+
 v1.2.1
 - Fixed "An update for Minecraft 4 has been found" bug when the game is installed to a custom location.
 

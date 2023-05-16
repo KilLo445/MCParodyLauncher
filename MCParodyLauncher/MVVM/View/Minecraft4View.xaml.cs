@@ -661,7 +661,7 @@ namespace MCParodyLauncher.MVVM.View
                         Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
                         Wsh.IWshShortcut shortcutO = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddressO);
                         shortcut.TargetPath = mc4dir + "\\Minecraft4.exe";
-                        shortcutO.TargetPath = mc4odir + "\\Game.exe";
+                        shortcutO.TargetPath = mc4odir + "\\Minecraft4Otherside.exe";
                         shortcut.Save();
                         shortcutO.Save();
 
