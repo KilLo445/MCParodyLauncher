@@ -1,0 +1,30 @@
+﻿<Window x:Class="MCParodyLauncher.Settings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MCParodyLauncher"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        Background="Black"
+        AllowsTransparency="False"
+        MouseDown="Window_MouseDown"
+        Title="Settings" Height="300" Width="300">
+    <Grid>
+        <Image Source="Images/bg/lake.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4" Margin="0,0,0,0"/>
+        <TextBlock Text="Settings" TextAlignment="Center" TextWrapping="Wrap" Width="220" Height="80" Foreground="White" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0" FontFamily="/Fonts/Poppins/#Poppins"/>
+
+        <Rectangle Fill="Black" Opacity="0.8" Width="250" Height="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20"/>
+        <CheckBox Name="cbSplash" Margin="30,0,0,145" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+            Content="Splash Screen" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            Checked="cbSplash_Checked" Unchecked="cbSplash_Unchecked"/>
+
+        <CheckBox Name="cbOffline" Margin="30,20,0,125" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+            Content="Offline Mode" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            Checked="cbOffline_Checked" Unchecked="cbOffline_Unchecked"/>
+
+        <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
+    </Grid>
+</Window>

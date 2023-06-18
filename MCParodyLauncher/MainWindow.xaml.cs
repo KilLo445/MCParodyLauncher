@@ -5,16 +5,16 @@ using System.IO;
 using System.Net;
 using System.Windows;
 using System.Media;
-using System.Windows.Input;
 using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
+using System.Threading.Tasks;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.2";
-        bool devMode = false;
+        string launcherVersion = "1.2.3";
+        public static bool devMode = false;
 
         // Paths and Files
         private string rootPath;
@@ -26,6 +26,10 @@ namespace MCParodyLauncher
         // Bools
         bool updateAvailable;
         public static bool offlineMode;
+
+        // User Settings
+        bool usSplashScreen;
+        bool usOfflineMode;
 
         public MainWindow()
         {
@@ -39,12 +43,23 @@ namespace MCParodyLauncher
 
             VersionText.Text = $"Launcher v{launcherVersion}";
 
+            GetUserSettings();
+
             if (File.Exists(Path.Combine(rootPath, "devmode.txt"))) { devMode = true; }
-            if (devMode == true) { rbtnDev.Visibility = Visibility.Visible; }
+            if (devMode == true) { rbtnDev.Visibility = Visibility.Visible; offlineMode = true; }
             if (devMode == false) { rbtnDev.Visibility = Visibility.Hidden; }
 
-            OfflineMode();
-            CheckForUpdates();
+            if (usOfflineMode == true && devMode == false) { offlineMode = true; this.Title = "Minecraft Parody Launcher (Offline Mode)"; OfflineText.Visibility = Visibility.Visible; }
+
+            if (usSplashScreen == true) { SplashScreen(); }
+            else
+            {
+                this.Visibility = Visibility.Visible; this.ShowInTaskbar = true;
+                if (offlineMode == false)
+                {
+                    CheckForUpdates();
+                }
+            }
 
             DelTemp();
 
@@ -59,6 +74,7 @@ namespace MCParodyLauncher
             key2.CreateSubKey("MinecraftParodyLauncher");
             RegistryKey key3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true);
             key3.CreateSubKey("games");
+            key3.CreateSubKey("settings");
             RegistryKey key4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
             key4.CreateSubKey("mc2r");
             key4.CreateSubKey("mc3");
@@ -84,23 +100,41 @@ namespace MCParodyLauncher
             }
         }
 
-        public void OfflineMode()
-        {
-            if (Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                SystemSounds.Exclamation.Play();
-                MessageBoxResult offlineModeA = MessageBox.Show("Are you sure you want to launch Minecraft Parody Launcher in Offline Mode?", "Offline Mode", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (offlineModeA == MessageBoxResult.Yes)
-                {
-                    offlineMode = true;
-                    this.Title = "Minecraft Parody Launcher (Offline Mode)";
-                }
-            }
-        }
-
         private void DumpVersion()
         {
             File.WriteAllText(versionFile, launcherVersion);
+        }
+
+        private void GetUserSettings()
+        {
+            RegistryKey keySettings = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            if (keySettings == null) { RegistryKey keySettings2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); keySettings2.CreateSubKey("settings"); keySettings2.Close(); }
+
+            // Splash Screen
+            Object obSplashScreen = keySettings.GetValue("SplashScreen", null); string splashscreen = (obSplashScreen as String);
+            if (splashscreen == null) { splashscreen = "1"; keySettings.SetValue("SplashScreen", "1"); }
+            if (splashscreen == "0") { usSplashScreen = false; }
+            if (splashscreen == "1") { usSplashScreen = true; }
+
+            // Offline Mode
+            Object obOfflineMode = keySettings.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
+            if (offlinemode == null) { offlinemode = "0"; keySettings.SetValue("OfflineMode", "0"); }
+            if (offlinemode == "0") { usOfflineMode = false; }
+            if (offlinemode == "1") { usOfflineMode = true; }
+
+            keySettings.Close();
+        }
+
+        private async Task SplashScreen()
+        {
+            SplashScreen splashWindow = new SplashScreen();
+            splashWindow.Show();
+
+            await Task.Delay(2000);
+
+            CheckForUpdates();
+
+            return;
         }
 
         private void CheckForUpdates()
@@ -109,6 +143,8 @@ namespace MCParodyLauncher
 
             if (offlineMode == true)
             {
+                this.Visibility = Visibility.Visible;
+                this.ShowInTaskbar = true;
                 return;
             }
 
@@ -128,6 +164,8 @@ namespace MCParodyLauncher
                     }
                     else
                     {
+                        this.Visibility = Visibility.Visible;
+                        this.ShowInTaskbar = true;
                         updateAvailable = false;
                     }
                 }
@@ -137,6 +175,8 @@ namespace MCParodyLauncher
                     MessageBoxResult offlineModeB = MessageBox.Show("Error checking for updates, Would you like to launch Minecraft Parody Launcher in offline mode?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (offlineModeB == MessageBoxResult.Yes)
                     {
+                        this.Visibility = Visibility.Visible;
+                        this.ShowInTaskbar = true;
                         offlineMode = true;
                         this.Title = "Minecraft Parody Launcher (Offline Mode)";
                         return;
@@ -161,6 +201,7 @@ namespace MCParodyLauncher
             {
                 LauncherUpdate updateWindow = new LauncherUpdate();
                 updateWindow.Show();
+                updateWindow.Closed += (sender, args) => { this.Visibility = Visibility.Visible; this.ShowInTaskbar = true; };
             }
             catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
@@ -172,6 +213,7 @@ namespace MCParodyLauncher
                 DragMove();
             }
         }
+
         private void CloseButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (Minecraft2View.downloadActive == true || Minecraft3View.downloadActive == true || Minecraft4View.downloadActive == true || Minecraft5View.downloadActive == true)
@@ -193,6 +235,19 @@ namespace MCParodyLauncher
         {
             this.WindowState = WindowState.Minimized;
         }
+
+        private void cmSettings_Click(object sender, RoutedEventArgs e)
+        {
+            Settings settingsWindow = new Settings();
+            settingsWindow.Show();
+        }
+
+        private void cmAbout_Click(object sender, RoutedEventArgs e)
+        {
+            About aboutWindow = new About();
+            aboutWindow.Show();
+        }
+
         private void VersionText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (offlineMode == true)

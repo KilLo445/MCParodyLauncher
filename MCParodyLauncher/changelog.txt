@@ -1,3 +1,9 @@
+v1.2.3
+- Made changelog read-only
+- Changed progress bar visuals
+- Added settings and about screen (Right click logo)
+- Added splash screen
+
 v1.2.2
 - Fixed Minecraft 4: Otherside desktop shortcut
 

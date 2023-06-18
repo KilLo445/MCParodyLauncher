@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="Theme/ButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/CloseButton.xaml"/>
                 <ResourceDictionary Source="Theme/MinimizeButton.xaml"/>
+                <ResourceDictionary Source="Theme/ProgressBar.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <DataTemplate DataType="{x:Type viewModel:DevViewModel}">

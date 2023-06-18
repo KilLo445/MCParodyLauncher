@@ -25,7 +25,11 @@
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>
-        
-        <ProgressBar Name="DLProgress" HorizontalAlignment="Center" Height="15" VerticalAlignment="Center" Width="638" Visibility="Hidden" Margin="0,305,0,0"/>
+
+        <ProgressBar Name="DLProgress" Visibility="Hidden" IsIndeterminate="True" Style="{StaticResource PBTheme}">
+            <ProgressBar.Clip>
+                <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,640,10"/>
+            </ProgressBar.Clip>
+        </ProgressBar>
     </Grid>
 </UserControl>

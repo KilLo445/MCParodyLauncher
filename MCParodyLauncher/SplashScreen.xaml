@@ -1,0 +1,38 @@
+﻿<Window x:Class="MCParodyLauncher.SplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MCParodyLauncher"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="Black"
+        AllowsTransparency="False"
+        Title="Minecraft Parody Lancher" Height="450" Width="750" ShowInTaskbar="False">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="400*" />
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.ColumnSpan="2" Source="Images/bg/lake.png" Stretch="UniformToFill" Opacity="0.2"/>
+
+        <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50 0 0 0">
+
+            <WrapPanel>
+                <TextBlock Margin="0 0 0 0" HorizontalAlignment="left" VerticalAlignment="Center" Foreground="White" FontSize="23" FontWeight="Bold" Text="Minecraft Parody Launcher"/>
+            </WrapPanel>
+
+            <TextBlock Name="Status" Margin="0 30 0 15" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Left" Foreground="White" Text="Checking for updates..."/>
+
+            <ProgressBar Margin="0 0 0 10" Name="progressBar" IsIndeterminate="True" Value="0" Height="5" Width="292" Visibility="Visible"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200">
+            <Image Source="Images/Minecraft.png"></Image>
+        </StackPanel>
+    </Grid>
+</Window>

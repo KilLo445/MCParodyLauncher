@@ -11,7 +11,7 @@
         <Button Name="OpenWebButton" Width="100" Height="40" Content="Website" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="540,-70,0,0" Click="OpenWebButton_Click"/>
         <Button Name="OpenGitHubButton" Width="100" Height="40" Content="GitHub" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="300,-70,0,0" Click="OpenGitHubButton_Click"/>
         <StackPanel>
-            <TextBox Name="Changelog" Foreground="White" TextAlignment="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" FontSize="14" BorderThickness="0" Width="650" Height="380" HorizontalAlignment="Left" Margin="20,0,0,0" Visibility="Visible">
+            <TextBox Name="Changelog" IsReadOnly="True" Foreground="White" TextAlignment="Left" HorizontalAlignment="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" FontSize="14" BorderThickness="0" Width="650" Height="380" Margin="20,0,0,0" Visibility="Visible">
                 <TextBox.Background>
                     <SolidColorBrush Color="Black" Opacity="0.8"/>
                 </TextBox.Background>

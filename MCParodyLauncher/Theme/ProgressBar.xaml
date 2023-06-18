@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="PBTheme" TargetType="ProgressBar">
+        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="Width" Value="640"/>
+        <Setter Property="Margin" Value="0,305,0,0"/>
+    </Style>
+</ResourceDictionary>
