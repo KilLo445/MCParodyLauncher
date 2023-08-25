@@ -19,11 +19,23 @@
         <Rectangle Fill="Black" Opacity="0.8" Width="250" Height="150" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20"/>
         <CheckBox Name="cbSplash" Margin="30,0,0,145" HorizontalAlignment="Left" VerticalAlignment="Bottom"
             Content="Splash Screen" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            ToolTip="Enable/Disable splash screen on startup"
             Checked="cbSplash_Checked" Unchecked="cbSplash_Unchecked"/>
 
-        <CheckBox Name="cbOffline" Margin="30,20,0,125" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <CheckBox Name="cbNotifications" Margin="30,20,0,125" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+            Content="Notifications" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            ToolTip="Enable/Disable notifications"
+            Checked="cbNotifications_Checked" Unchecked="cbNotifications_Unchecked"/>
+
+        <CheckBox Name="cbOffline" Margin="30,20,0,105" HorizontalAlignment="Left" VerticalAlignment="Bottom"
             Content="Offline Mode" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            ToolTip="Enable/Disable offline mode"
             Checked="cbOffline_Checked" Unchecked="cbOffline_Unchecked"/>
+
+        <CheckBox Name="cbDev" Margin="30,20,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="Hidden"
+            Content="Developer Mode" Foreground="Red" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
+            ToolTip="Enable/Disable developer mode"
+            Checked="cbDev_Checked" Unchecked="cbDev_Unchecked"/>
 
         <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
     </Grid>

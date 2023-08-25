@@ -8,12 +8,13 @@ using System.Media;
 using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.3";
+        string launcherVersion = "1.2.4";
         public static bool devMode = false;
 
         // Paths and Files
@@ -29,6 +30,7 @@ namespace MCParodyLauncher
 
         // User Settings
         bool usSplashScreen;
+        public static bool usNotifications;
         bool usOfflineMode;
 
         public MainWindow()
@@ -116,6 +118,12 @@ namespace MCParodyLauncher
             if (splashscreen == "0") { usSplashScreen = false; }
             if (splashscreen == "1") { usSplashScreen = true; }
 
+            // Notifications
+            Object obNotifications = keySettings.GetValue("Notifications", null); string notifications = (obNotifications as String);
+            if (notifications == null) { notifications = "1"; keySettings.SetValue("Notifications", "1"); }
+            if (notifications == "0") { usNotifications = false; }
+            if (notifications == "1") { usNotifications = true; }
+
             // Offline Mode
             Object obOfflineMode = keySettings.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
             if (offlinemode == null) { offlinemode = "0"; keySettings.SetValue("OfflineMode", "0"); }
@@ -135,6 +143,13 @@ namespace MCParodyLauncher
             CheckForUpdates();
 
             return;
+        }
+
+        private void RestartApp()
+        {
+            var currentExecutablePath = Process.GetCurrentProcess().MainModule.FileName;
+            Process.Start(currentExecutablePath);
+            Application.Current.Shutdown();
         }
 
         private void CheckForUpdates()
@@ -175,11 +190,10 @@ namespace MCParodyLauncher
                     MessageBoxResult offlineModeB = MessageBox.Show("Error checking for updates, Would you like to launch Minecraft Parody Launcher in offline mode?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (offlineModeB == MessageBoxResult.Yes)
                     {
-                        this.Visibility = Visibility.Visible;
-                        this.ShowInTaskbar = true;
-                        offlineMode = true;
-                        this.Title = "Minecraft Parody Launcher (Offline Mode)";
-                        return;
+                        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+                        key.SetValue("OfflineMode", "1");
+                        key.Close();
+                        RestartApp();
                     }
                     if (offlineModeB == MessageBoxResult.No)
                     {

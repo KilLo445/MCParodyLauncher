@@ -441,10 +441,13 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc5zip);
                 Status = MC5Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                new ToastContentBuilder()
-                .AddText("Download complete!")
-                .AddText("Minecraft 5 has finished downloading.")
-                .Show();
+                if (MainWindow.usNotifications == true)
+                {
+                    new ToastContentBuilder()
+                    .AddText("Download complete!")
+                    .AddText("Minecraft 5 has finished downloading.")
+                    .Show();
+                }
                 return;
             }
             catch (Exception ex)

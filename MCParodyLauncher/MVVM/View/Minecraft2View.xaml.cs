@@ -438,10 +438,13 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc2rzip);
                 Status = MC2RStatus.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                new ToastContentBuilder()
-                .AddText("Download complete!")
-                .AddText("Minecraft 2 Remake has finished downloading.")
-                .Show();
+                if (MainWindow.usNotifications == true)
+                {
+                    new ToastContentBuilder()
+                    .AddText("Download complete!")
+                    .AddText("Minecraft 2 Remake has finished downloading.")
+                    .Show();
+                }
                 return;
             }
             catch (Exception ex)

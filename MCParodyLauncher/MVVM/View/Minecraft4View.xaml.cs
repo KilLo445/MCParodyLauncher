@@ -628,10 +628,13 @@ namespace MCParodyLauncher.MVVM.View
                     DLProgress.Visibility = Visibility.Hidden;
                     mc4DL = false;
                     mc4oDL = false;
-                    new ToastContentBuilder()
-                    .AddText("Download complete!")
-                    .AddText("Minecraft 4 has finished downloading.")
-                    .Show();
+                    if (MainWindow.usNotifications == true)
+                    {
+                        new ToastContentBuilder()
+                        .AddText("Download complete!")
+                        .AddText("Minecraft 4 has finished downloading.")
+                        .Show();
+                    }
                 }
                 return;
             }

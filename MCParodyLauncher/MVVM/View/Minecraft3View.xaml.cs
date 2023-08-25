@@ -440,10 +440,13 @@ namespace MCParodyLauncher.MVVM.View
                 File.Delete(mc3zip);
                 Status = MC3Status.ready;
                 DLProgress.Visibility = Visibility.Hidden;
-                new ToastContentBuilder()
-                .AddText("Download complete!")
-                .AddText("Minecraft 3 has finished downloading.")
-                .Show();
+                if (MainWindow.usNotifications == true)
+                {
+                    new ToastContentBuilder()
+                    .AddText("Download complete!")
+                    .AddText("Minecraft 3 has finished downloading.")
+                    .Show();
+                }
                 return;
             }
             catch (Exception ex)
