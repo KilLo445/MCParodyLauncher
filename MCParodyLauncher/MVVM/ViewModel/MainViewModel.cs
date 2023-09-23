@@ -1,5 +1,4 @@
-﻿using System;
-using MCParodyLauncher.Core;
+﻿using MCParodyLauncher.Core;
 using MCParodyLauncher.MVVM.View;
 
 namespace MCParodyLauncher.MVVM.ViewModel

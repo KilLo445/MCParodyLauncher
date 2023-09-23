@@ -29,8 +29,8 @@ namespace MCParodyLauncher.MVVM.View
     public partial class Minecraft5View : UserControl
     {
         private string mc5link = "https://www.dropbox.com/s/6b06sm6ttwuljqs/mc5.zip?dl=1";
-        private string verLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC5/version.txt";
-        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC5/size.txt";
+        private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/version.txt";
+        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/size.txt";
 
         // Paths
         private string rootPath;

@@ -8,13 +8,12 @@ using System.Media;
 using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.4";
+        string launcherVersion = "1.2.5";
         public static bool devMode = false;
 
         // Paths and Files
@@ -170,7 +169,7 @@ namespace MCParodyLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Launcher/version.txt"));
+                    Version onlineVersion = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt"));
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {

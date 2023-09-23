@@ -1,3 +1,7 @@
+v1.2.5
+- Changed server-side file locations
+  (Update will be required for this to prevent constant "Update Available" notifications)
+
 v1.2.4
 - Fixed a bug where MCPL wouldn't launch in offline mode on update check fail
 - Added notifications setting

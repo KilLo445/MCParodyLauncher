@@ -28,8 +28,8 @@ namespace MCParodyLauncher.MVVM.View
     public partial class Minecraft3View : UserControl
     {
         private string mc3link = "https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1";
-        private string verLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/version.txt";
-        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC3/size.txt";
+        private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC3/version.txt";
+        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC3/size.txt";
 
         // Paths
         private string rootPath;

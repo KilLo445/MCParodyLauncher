@@ -28,8 +28,8 @@ namespace MCParodyLauncher.MVVM.View
     public partial class Minecraft2View : UserControl
     {
         private string mc2rlink = "https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1";
-        private string verLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/version.txt";
-        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Games/MC2R/size.txt";
+        private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC2R/version.txt";
+        private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC2R/size.txt";
 
         // Paths
         private string rootPath;

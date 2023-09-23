@@ -24,7 +24,7 @@ namespace MCParodyLauncher
         private void GetVersion()
         {
             WebClient webClient = new WebClient();
-            string updateVer = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/mcpl-files/main/Launcher/version.txt");
+            string updateVer = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt");
 
             UpdateVersion.Text = $"Update: v{updateVer}";
         }
