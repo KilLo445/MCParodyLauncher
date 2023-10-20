@@ -27,6 +27,8 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft2View : UserControl
     {
+        public static string GameName = "Minecraft 2";
+
         private string mc2rlink = "https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC2R/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC2R/size.txt";
@@ -48,6 +50,8 @@ namespace MCParodyLauncher.MVVM.View
         public static bool downloadActive = false;
 
         private MC2RStatus _status;
+
+        private readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
         internal MC2RStatus Status
         {
@@ -212,8 +216,11 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void InstallMC2R()
+        private async void InstallMC2R()
         {
+            InstallGame.installConfirmed = false;
+            InstallGame.installCanceled = false;
+
             WebClient webClient = new WebClient();
             string mc2rSize = webClient.DownloadString(sizeLink);
 
@@ -225,30 +232,25 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
                 keyGames.Close();
 
-                MessageBoxResult mc2rInstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 2 Remake at the default path?\n\n{rootPath}\\games", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-                if (mc2rInstallLocationMB == MessageBoxResult.Yes)
-                {
-                    keyMC2R.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 2 Remake");
-                    keyMC2R.Close();
-                    mc2rdir = Path.Combine(rootPath, "games", "Minecraft 2 Remake");
-                    DownloadMC2R();
-                }
-                if (mc2rInstallLocationMB == MessageBoxResult.No)
-                {
-                    MessageBox.Show("Please select where you would like to install Minecraft 2 Remake, a folder called \"Minecraft 2 Remake\" will be created.", "Minecraft 2 Remake", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog mc2rFolderDialog = new WinForms.FolderBrowserDialog();
-                    mc2rFolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc2rFolderDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc2rResult = mc2rFolderDialog.ShowDialog();
+                InstallGame installWindow = new InstallGame("Minecraft 2");
+                installWindow.Show();
+                PlayMC2.IsEnabled = false;
+                downloadActive = true;
 
-                    if (mc2rResult == WinForms.DialogResult.OK)
-                    {
-                        mc2rdir = Path.Combine(mc2rFolderDialog.SelectedPath, "Minecraft 2 Remake");
-                        keyMC2R.SetValue("InstallPath", mc2rdir);
-                        keyMC2R.Close();
-                        DownloadMC2R();
-                    }
+                while (InstallGame.installConfirmed == false)
+                {
+                    if (InstallGame.installCanceled == true) { PlayMC2.IsEnabled = true; downloadActive = false; return; }
+                    await Task.Delay(100);
                 }
+
+                PlayMC2.IsEnabled = true;
+                downloadActive = false;
+
+                mc2rdir = Path.Combine(InstallGame.InstallPath, "Minecraft 2 Remake");
+                keyMC2R.SetValue("InstallPath", mc2rdir);
+                keyMC2R.Close();
+
+                DownloadMC2R();
             }
         }
 
@@ -277,6 +279,8 @@ namespace MCParodyLauncher.MVVM.View
                 Status = MC2RStatus.downloading;
 
                 DLProgress.IsIndeterminate = false;
+                lblProgress.Visibility = Visibility.Visible;
+                stopwatch.Start();
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -289,8 +293,10 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void DownloadMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private async void DownloadMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
             keyMC2R.SetValue("Installed", "1");
             keyMC2R.Close();
@@ -393,6 +399,8 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
+                            lblProgress.Visibility = Visibility.Visible;
+                            stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                             webClient.DownloadFileAsync(new Uri(mc2rlink), mc2rzip);
@@ -425,6 +433,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC2RCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             ExtractZipAsync(mc2rzip, mc2rdir);
         }
 
@@ -681,6 +691,14 @@ namespace MCParodyLauncher.MVVM.View
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            string downloadProgress = e.ProgressPercentage + "%";
+            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+
+            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+
+            lblProgress.Content = progress;
             DLProgress.Value = e.ProgressPercentage;
         }
 

@@ -28,6 +28,8 @@ namespace MCParodyLauncher.MVVM.View
 
     public partial class Minecraft5View : UserControl
     {
+        public static string GameName = "Minecraft 5";
+
         private string mc5link = "https://www.dropbox.com/s/6b06sm6ttwuljqs/mc5.zip?dl=1";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/size.txt";
@@ -49,6 +51,8 @@ namespace MCParodyLauncher.MVVM.View
         public static bool downloadActive = false;
 
         private MC5Status _status;
+
+        private readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
         internal MC5Status Status
         {
@@ -213,8 +217,11 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void InstallMC5()
+        private async void InstallMC5()
         {
+            InstallGame.installConfirmed = false;
+            InstallGame.installCanceled = false;
+
             WebClient webClient = new WebClient();
             string mc5Size = webClient.DownloadString(sizeLink);
 
@@ -226,32 +233,23 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
                 keyGames.Close();
 
-                MessageBoxResult mc5InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 5 at the default path?\n\n{rootPath}\\games", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
-                if (mc5InstallLocationMB == MessageBoxResult.Yes)
+                InstallGame installWindow = new InstallGame("Minecraft 5");
+                installWindow.Show();
+                PlayMC5.IsEnabled = false;
+                downloadActive = true;
+                while (InstallGame.installConfirmed == false)
                 {
-                    keyMC5.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 5");
-                    keyMC5.Close();
-                    mc5dir = Path.Combine(rootPath, "games", "Minecraft 5");
-                    DownloadMC5();
+                    if (InstallGame.installCanceled == true) { PlayMC5.IsEnabled = true; downloadActive = false; return; }
+                    await Task.Delay(100);
                 }
-                if (mc5InstallLocationMB == MessageBoxResult.No)
-                {
-                    MessageBox.Show("Please select where you would like to install Minecraft 5, a folder called \"Minecraft 5\" will be created.", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog mc5FolderDialog = new WinForms.FolderBrowserDialog();
-                    mc5FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc5FolderDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc5Result = mc5FolderDialog.ShowDialog();
+                PlayMC5.IsEnabled = true;
+                downloadActive = false;
 
-                    if (mc5Result == WinForms.DialogResult.OK)
-                    {
-                        mc5dir = Path.Combine(mc5FolderDialog.SelectedPath, "Minecraft 5");
-                        keyMC5.SetValue("InstallPath", mc5dir);
-                        keyMC5.Close();
-                        DownloadMC5();
-                    }
-                }
-
+                mc5dir = Path.Combine(InstallGame.InstallPath, "Minecraft 5");
+                keyMC5.SetValue("InstallPath", mc5dir);
                 keyMC5.Close();
+
+                DownloadMC5();
             }
         }
 
@@ -281,6 +279,8 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
+                lblProgress.Visibility = Visibility.Visible;
+                stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC5CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                 webClient.DownloadFileAsync(new Uri(mc5link), mc5zip);
@@ -294,6 +294,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC5CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
             keyMC5.SetValue("Installed", "1");
             keyMC5.Close();
@@ -396,6 +398,8 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
+                            lblProgress.Visibility = Visibility.Visible;
+                            stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC5CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                             webClient.DownloadFileAsync(new Uri(mc5link), mc5zip);
@@ -428,6 +432,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC5CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             ExtractZipAsync(mc5zip, mc5dir);
         }
 
@@ -685,6 +691,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            string downloadProgress = e.ProgressPercentage + "%";
+            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+
+            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+
+            lblProgress.Content = progress;
+
             DLProgress.Value = e.ProgressPercentage;
         }
 

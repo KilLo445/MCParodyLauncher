@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using Wsh = IWshRuntimeLibrary;
 
 namespace MCParodyLauncher
 {
@@ -19,17 +20,22 @@ namespace MCParodyLauncher
 
             if (Keyboard.IsKeyDown(Key.LeftShift) || File.Exists(Path.Combine(rootPath, "devmode.txt")))
             {
+                cbOffline.Margin = new Thickness(30, 20, 0, 45);
                 cbDev.Visibility = Visibility.Visible;
             }
 
             GetCurrentSettings();
         }
 
-        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void DragWindow_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragMove();
+                try
+                {
+                    DragMove();
+                }
+                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
         }
 
@@ -64,6 +70,14 @@ namespace MCParodyLauncher
             if (notifications == "0") { cbNotifications.IsChecked = false; }
             if (notifications == "1") { cbNotifications.IsChecked = true; }
 
+            // Start with Windows
+            Object obStartup = key.GetValue("Startup", null); string startwin = (obStartup as String);
+            if (startwin == null) { startwin = "0"; key.SetValue("Startup", "0"); }
+            if (startwin == "0") { cbStartup.IsChecked = false; }
+            if (startwin == "1") { cbStartup.IsChecked = true; }
+
+
+
             // Offline Mode
             Object obOfflineMode = key.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
             if (offlinemode == null) { offlinemode = "0"; key.SetValue("OfflineMode", "0"); }
@@ -71,7 +85,10 @@ namespace MCParodyLauncher
             if (offlinemode == "1") { cbOffline.IsChecked = true; }
 
             // Dev Mode
-            if (File.Exists(Path.Combine(rootPath, "devmode.txt"))) { cbDev.IsChecked = true; }
+            Object obDevMode = key.GetValue("Developer", null); string devmode = (obDevMode as String);
+            if (devmode == null) { devmode = "0"; key.SetValue("Developer", "0"); }
+            if (devmode == "0") { cbDev.IsChecked = false; }
+            if (devmode == "1") { cbDev.IsChecked = true; }
 
             key.Close();
         }
@@ -94,6 +111,61 @@ namespace MCParodyLauncher
 
         }
 
+        // Notifications
+
+        private void cbNotifications_Checked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("Notifications", "1");
+            key.Close();
+        }
+
+        private void cbNotifications_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("Notifications", "0");
+            key.Close();
+        }
+
+        // Start with Windows
+
+        private void cbStartup_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!MainWindow.IsAdministrator())
+            {
+                cbStartup.IsChecked = false;
+                MessageBox.Show("Administrator privlages are required to change this setting.", "Administrator privlages required", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            MessageBox.Show("This setting is completely pointless, honestly I just thought it would be funny to add.", "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                Wsh.WshShell shell = new Wsh.WshShell();
+                string shortcutAddress = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup" + @"\Minecraft Parody Launcher.lnk";
+                Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                shortcut.TargetPath = rootPath + "\\MCParodyLauncher.exe";
+                shortcut.Save();
+
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+                key.SetValue("Startup", "1");
+                key.Close();
+            }
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        private void cbStartup_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                File.Delete("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup" + @"\Minecraft Parody Launcher.lnk");
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+                key.SetValue("Startup", "0");
+                key.Close();
+            }
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
         // Offline Mode
 
         private void cbOffline_Checked(object sender, RoutedEventArgs e)
@@ -110,28 +182,21 @@ namespace MCParodyLauncher
             key.Close();
         }
 
-        private void cbNotifications_Checked(object sender, RoutedEventArgs e)
-        {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            key.SetValue("Notifications", "1");
-            key.Close();
-        }
 
-        private void cbNotifications_Unchecked(object sender, RoutedEventArgs e)
-        {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            key.SetValue("Notifications", "0");
-            key.Close();
-        }
+        // Developer Mode
 
         private void cbDev_Checked(object sender, RoutedEventArgs e)
         {
-            File.WriteAllText(Path.Combine(rootPath, "devmode.txt"), "");
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("Developer", "1");
+            key.Close();
         }
 
         private void cbDev_Unchecked(object sender, RoutedEventArgs e)
         {
-            File.Delete(Path.Combine(rootPath, "devmode.txt"));
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("Developer", "0");
+            key.Close();
         }
     }
 }

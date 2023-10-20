@@ -11,7 +11,6 @@
         ResizeMode="CanMinimize"
         Background="Black"
         AllowsTransparency="False"
-        MouseDown="Window_MouseDown"
         Title="Minecraft Parody Launcher" Height="600" Width="920" ShowInTaskbar="True" Visibility="Hidden">
 
     <Window.DataContext>
@@ -39,16 +38,7 @@
 
             <Rectangle Fill="Black" Opacity="0.4"/>
             <TextBlock Visibility="Hidden" Text="MCParodyLauncher" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" FontSize="18" Margin="5,0,0,0" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"/>
-            <Image Source="Images/logo/logo_full.png" Stretch="Uniform" Width="140">
-                <Image.ContextMenu>
-                    <ContextMenu Name="maincm" StaysOpen="true">
-                        <MenuItem Name="cmSettings" Header="Settings"
-                              Click="cmSettings_Click"/>
-                        <MenuItem Name="cmAbout" Header="About"
-                              Click="cmAbout_Click"/>
-                    </ContextMenu>
-                </Image.ContextMenu>
-            </Image>
+            <Image Source="Images/logo/logo_full.png" Stretch="Uniform" Width="140"/>
 
             <StackPanel Grid.Row="1" Background="{StaticResource TransparentBlack}">
                 <RadioButton Name="rbtnHome" Content="Home" Height="50" Foreground="White" FontSize="14" Style="{StaticResource MenuButtonTheme}" IsChecked="True" Command="{Binding HomeViewCommand}"/>
@@ -63,8 +53,10 @@
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
 
             <TextBlock Name="OfflineText" Text="Offline Mode" Foreground="White" Opacity="0.2" FontSize="20" HorizontalAlignment="Center" Margin="0,455,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" Visibility="Hidden" Grid.Row="1"/>
-            <TextBlock Name="VersionText" Text="" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
+            <TextBlock Name="VersionText" Text="" Opacity="0.5" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
 
+            <Rectangle Name="DragWindow" Fill="Transparent" MouseLeftButtonDown="DragWindow_MouseLeftButtonDown" Height="25" Width="920" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            
             <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
             <TextBlock Name="MinimizeButton" Text="_" MouseLeftButtonDown="MinimizeButton_MouseLeftButtonDown" Style="{StaticResource MinimizeButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,-2.5,30,0" Grid.Column="1" Grid.RowSpan="2"/>
         </Grid>

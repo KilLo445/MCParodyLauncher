@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.IO;
+using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -20,12 +22,54 @@ namespace MCParodyLauncher.MVVM.View
 
         private void OpenWebButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            if (!OpenWebButton.ContextMenu.IsOpen)
+            {
+                e.Handled = true;
+
+                var mouseRightClickEvent = new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right)
+                {
+                    RoutedEvent = Mouse.MouseUpEvent,
+                    Source = sender,
+                };
+                InputManager.Current.ProcessInput(mouseRightClickEvent);
+            }
+        }
+
+        private void cmItch_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
             Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/mc") { UseShellExecute = true });
         }
 
-        private void OpenGitHubButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void cmGitHub_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true });
+        }
+
+        private void OpenMoreButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (!OpenMoreButton.ContextMenu.IsOpen)
+            {
+                e.Handled = true;
+
+                var mouseRightClickEvent = new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right)
+                {
+                    RoutedEvent = Mouse.MouseUpEvent,
+                    Source = sender,
+                };
+                InputManager.Current.ProcessInput(mouseRightClickEvent);
+            }
+        }
+
+        private void cmSettings_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Settings settingsWindow = new Settings();
+            settingsWindow.Show();
+        }
+
+        private void cmAbout_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            About aboutWindow = new About();
+            aboutWindow.Show();
         }
     }
 }

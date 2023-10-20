@@ -25,5 +25,10 @@ namespace MCParodyLauncher.MVVM.View
                 MessageBox.Show("Notifications are disabled!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void btnGetOS_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }

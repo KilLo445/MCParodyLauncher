@@ -10,7 +10,6 @@
         ResizeMode="CanMinimize"
         Background="Black"
         AllowsTransparency="False"
-        MouseDown="Window_MouseDown"
         Title="About" Height="400" Width="600">
     <Grid>
         <Image Source="Images/bg/lake.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4" Margin="0,0,0,0"/>
@@ -27,8 +26,10 @@
             Open source<LineBreak />
         </TextBlock>
 
-        <Image Source="Images/logo/decentgames120.png" Width="120" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20"/>
+        <Image Name="DGLogo" Source="Images/logo/decentgames120.png" Width="120" HorizontalAlignment="Center" VerticalAlignment="Bottom" MouseLeftButtonDown="DGLogo_MouseLeftButtonDown" MouseEnter="DGLogo_MouseEnter" MouseLeave="DGLogo_MouseLeave" Margin="0,0,0,20"/>
 
+        <Rectangle Name="DragWindow" Fill="Transparent" MouseLeftButtonDown="DragWindow_MouseLeftButtonDown" Height="25" Width="600" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+        
         <TextBlock Name="CloseButton" Text="X" MouseLeftButtonDown="CloseButton_MouseLeftButtonDown" Style="{StaticResource CloseButton}" FontSize="25" HorizontalAlignment="Right" VerticalAlignment="Top" FontFamily="/Fonts/Poppins/#Poppins" Height="30" Margin="0,0,8,0" Grid.Column="1" Grid.RowSpan="2"/>
     </Grid>
 </Window>

@@ -27,6 +27,8 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft4View : UserControl
     {
+        public static string GameName = "Minecraft 4";
+
         private string mc4link = "https://www.dropbox.com/s/dq5vl127q7gza4r/mc4.zip?dl=1";
         private string mc4olink = "https://www.dropbox.com/s/6xd3c6dtd889ekb/mc4o.zip?dl=1";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC4/version.txt";
@@ -59,6 +61,8 @@ namespace MCParodyLauncher.MVVM.View
         bool forceMC4Uninst = false;
 
         private MC4Status _status;
+
+        private readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
         internal MC4Status Status
         {
@@ -261,8 +265,11 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void InstallMC4()
+        private async void InstallMC4()
         {
+            InstallGame.installConfirmed = false;
+            InstallGame.installCanceled = false;
+
             WebClient webClient = new WebClient();
             string mc4Size = webClient.DownloadString(sizeLink);
 
@@ -274,36 +281,23 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
                 keyGames.Close();
 
-                MessageBoxResult mc4InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 4 at the default path?\n\n{rootPath}\\games", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
-                if (mc4InstallLocationMB == MessageBoxResult.Yes)
+                InstallGame installWindow = new InstallGame("Minecraft 4");
+                installWindow.Show();
+                PlayMC4.IsEnabled = false;
+                downloadActive = true;
+                while (InstallGame.installConfirmed == false)
                 {
-                    keyMC4.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 4");
-                    keyMC4.SetValue("InstallPathOtherside", $"{rootPath}\\games\\Minecraft 4 Otherside");
-                    keyMC4.Close();
-                    mc4dir = Path.Combine(rootPath, "games", "Minecraft 4");
-                    mc4odir = Path.Combine(rootPath, "games", "Minecraft 4 Otherside");
-                    DownloadMC4();
+                    if (InstallGame.installCanceled == true) { PlayMC4.IsEnabled = true; downloadActive = false; return; }
+                    await Task.Delay(100);
                 }
-                if (mc4InstallLocationMB == MessageBoxResult.No)
-                {
-                    MessageBox.Show("Please select where you would like to install Minecraft 4, a folder called \"Minecraft 4\" will be created.", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog mc4FolderDialog = new WinForms.FolderBrowserDialog();
-                    mc4FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc4FolderDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc4Result = mc4FolderDialog.ShowDialog();
-
-                    if (mc4Result == WinForms.DialogResult.OK)
-                    {
-                        mc4dir = Path.Combine(mc4FolderDialog.SelectedPath, "Minecraft 4");
-                        mc4odir = Path.Combine(mc4FolderDialog.SelectedPath, "Minecraft 4 Otherside");
-                        keyMC4.SetValue("InstallPath", mc4dir);
-                        keyMC4.SetValue("InstallPathOtherside", mc4odir);
-                        keyMC4.Close();
-                        DownloadMC4();
-                    }
-                }
-
+                PlayMC4.IsEnabled = true;
+                downloadActive = false;
+                mc4dir = Path.Combine(InstallGame.InstallPath, "Minecraft 4");
+                mc4odir = Path.Combine(InstallGame.InstallPath, "Minecraft 4 Otherside");
+                keyMC4.SetValue("InstallPath", mc4dir);
+                keyMC4.SetValue("InstallPathOtherside", mc4odir);
                 keyMC4.Close();
+                DownloadMC4();
             }
         }
 
@@ -346,6 +340,8 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
+                lblProgress.Visibility = Visibility.Visible;
+                stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                 webClient.DownloadFileAsync(new Uri(mc4link), mc4zip);
@@ -359,6 +355,9 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC4CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
+
             ExtractZipAsync(mc4zip, mc4dir);
 
             mc4DL = true;
@@ -367,6 +366,8 @@ namespace MCParodyLauncher.MVVM.View
 
             DLProgress.IsIndeterminate = false;
             WebClient webClient = new WebClient();
+            lblProgress.Visibility = Visibility.Visible;
+            stopwatch.Start();
             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback2);
             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
             webClient.DownloadFileAsync(new Uri(mc4olink), mc4ozip);
@@ -374,6 +375,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC4CompletedCallback2(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
             keyMC4.SetValue("Installed", "1");
             keyMC4.Close();
@@ -499,6 +502,8 @@ namespace MCParodyLauncher.MVVM.View
 
                                 DLProgress.IsIndeterminate = false;
                                 WebClient webClient = new WebClient();
+                                lblProgress.Visibility = Visibility.Visible;
+                                stopwatch.Start();
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4CompletedCallback);
                                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                                 webClient.DownloadFileAsync(new Uri(mc4link), mc4zip);
@@ -569,6 +574,8 @@ namespace MCParodyLauncher.MVVM.View
 
                                 DLProgress.IsIndeterminate = false;
                                 WebClient webClient = new WebClient();
+                                lblProgress.Visibility = Visibility.Visible;
+                                stopwatch.Start();
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4OCompletedCallback);
                                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                                 webClient.DownloadFileAsync(new Uri(mc4olink), mc4ozip);
@@ -602,6 +609,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC4CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             mc4DL = true;
             mc4oDL = true;
             ExtractZipAsync(mc4zip, mc4dir);
@@ -609,6 +618,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC4OCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             mc4DL = true;
             mc4oDL = true;
             ExtractZipAsync(mc4ozip, mc4odir);
@@ -917,6 +928,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            string downloadProgress = e.ProgressPercentage + "%";
+            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+
+            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+
+            lblProgress.Content = progress;
+
             DLProgress.Value = e.ProgressPercentage;
         }
 

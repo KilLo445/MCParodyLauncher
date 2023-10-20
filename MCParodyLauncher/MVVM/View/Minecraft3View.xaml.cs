@@ -27,6 +27,8 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft3View : UserControl
     {
+        public static string GameName = "Minecraft 3";
+
         private string mc3link = "https://www.dropbox.com/s/k6kqkmgndyed9kg/mc3.zip?dl=1";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC3/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC3/size.txt";
@@ -48,6 +50,8 @@ namespace MCParodyLauncher.MVVM.View
         public static bool downloadActive = false;
 
         private MC3Status _status;
+
+        private readonly System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
         internal MC3Status Status
         {
@@ -212,8 +216,11 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void InstallMC3()
+        private async void InstallMC3()
         {
+            InstallGame.installConfirmed = false;
+            InstallGame.installCanceled = false;
+
             WebClient webClient = new WebClient();
             string mc3Size = webClient.DownloadString(sizeLink);
 
@@ -225,32 +232,24 @@ namespace MCParodyLauncher.MVVM.View
                 RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
                 keyGames.Close();
 
-                MessageBoxResult mc3InstallLocationMB = System.Windows.MessageBox.Show($"Would you like to install Minecraft 3 at the default path?\n\n{rootPath}\\games", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
-                if (mc3InstallLocationMB == MessageBoxResult.Yes)
+                InstallGame installWindow = new InstallGame("Minecraft 3");
+                installWindow.Show();
+                PlayMC3.IsEnabled = false;
+                downloadActive = true;
+                while (InstallGame.installConfirmed == false)
                 {
-                    keyMC3.SetValue("InstallPath", $"{rootPath}\\games\\Minecraft 3");
-                    keyMC3.Close();
-                    mc3dir = Path.Combine(rootPath, "games", "Minecraft 3");
-                    DownloadMC3();
-                }
-                if (mc3InstallLocationMB == MessageBoxResult.No)
-                {
-                    MessageBox.Show("Please select where you would like to install Minecraft 3, a folder called \"Minecraft 3\" will be created.", "Minecraft 3", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog mc3FolderDialog = new WinForms.FolderBrowserDialog();
-                    mc3FolderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    mc3FolderDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc3Result = mc3FolderDialog.ShowDialog();
-
-                    if (mc3Result == WinForms.DialogResult.OK)
-                    {
-                        mc3dir = Path.Combine(mc3FolderDialog.SelectedPath, "Minecraft 3");
-                        keyMC3.SetValue("InstallPath", mc3dir);
-                        keyMC3.Close();
-                        DownloadMC3();
-                    }
+                    if (InstallGame.installCanceled == true) { PlayMC3.IsEnabled = true; downloadActive = false; return; }
+                    await Task.Delay(100);
                 }
 
+                PlayMC3.IsEnabled = true;
+                downloadActive = false;
+
+                mc3dir = Path.Combine(InstallGame.InstallPath, "Minecraft 3");
+                keyMC3.SetValue("InstallPath", mc3dir);
                 keyMC3.Close();
+
+                DownloadMC3();
             }
         }
 
@@ -280,6 +279,8 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
+                lblProgress.Visibility = Visibility.Visible;
+                stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                 webClient.DownloadFileAsync(new Uri(mc3link), mc3zip);
@@ -293,6 +294,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void DownloadMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
             keyMC3.SetValue("Installed", "1");
             keyMC3.Close();
@@ -395,6 +398,8 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
+                            lblProgress.Visibility = Visibility.Visible;
+                            stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                             webClient.DownloadFileAsync(new Uri(mc3link), mc3zip);
@@ -427,6 +432,8 @@ namespace MCParodyLauncher.MVVM.View
 
         private void UpdateMC3CompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
+            stopwatch.Reset();
+            lblProgress.Visibility = Visibility.Hidden;
             ExtractZipAsync(mc3zip, mc3dir);
         }
 
@@ -684,6 +691,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            string downloadProgress = e.ProgressPercentage + "%";
+            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+
+            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+
+            lblProgress.Content = progress;
+
             DLProgress.Value = e.ProgressPercentage;
         }
 

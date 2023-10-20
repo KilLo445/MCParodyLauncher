@@ -9,7 +9,8 @@
     <Grid>
         <TextBlock Visibility="Hidden" Text="Nothing here right now, sorry!" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-        <Button Name="btnToast" Content="Send Toast" Width="100" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Click="btnToast_Click"/>
+        <Button Name="btnToast" Content="Send Toast" Width="100" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Click="btnToast_Click" Margin="0,0,150,0"/>
+        <Button Name="btnGetOS" Content="Get OS" Width="100" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Click="btnGetOS_Click" Margin="150,0,0,0"/>
 
         <ProgressBar Name="DLProgress" Visibility="Visible" IsIndeterminate="True" Style="{StaticResource PBTheme}">
             <ProgressBar.Clip>

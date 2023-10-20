@@ -8,7 +8,6 @@ namespace MCParodyLauncher
 {
     public partial class LaunchMC4 : Window
     {
-        private string rootPath;
         private string mc4dir;
         private string mc4odir;
 
@@ -18,8 +17,18 @@ namespace MCParodyLauncher
         public LaunchMC4()
         {
             InitializeComponent();
+        }
 
-            rootPath = Directory.GetCurrentDirectory();
+        private void DragWindow_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                try
+                {
+                    DragMove();
+                }
+                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+            }
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)

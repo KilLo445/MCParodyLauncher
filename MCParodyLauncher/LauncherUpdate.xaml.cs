@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -11,6 +12,8 @@ namespace MCParodyLauncher
         private string rootPath;
         private string updater;
 
+        string updateVer;
+
         public LauncherUpdate()
         {
             InitializeComponent();
@@ -18,22 +21,28 @@ namespace MCParodyLauncher
             rootPath = Directory.GetCurrentDirectory();
             updater = Path.Combine(rootPath, "updater.exe");
 
-            GetVersion();
-        }
-
-        private void GetVersion()
-        {
             WebClient webClient = new WebClient();
-            string updateVer = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt");
-
+            updateVer = webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt");
             UpdateVersion.Text = $"Update: v{updateVer}";
+
+            if (MainWindow.usNotifications == true)
+            {
+                new ToastContentBuilder()
+                .AddText("Update Available")
+                .AddText("An update for Minecraft Parody Launcher has been found!")
+                .Show();
+            }
         }
 
-        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void DragWindow_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragMove();
+                try
+                {
+                    DragMove();
+                }
+                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
         }
 

@@ -32,6 +32,8 @@
                     <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,640,10"/>
                 </ProgressBar.Clip>
             </ProgressBar>
+
+            <Label Name="lblProgress" Content="" Foreground="White" FontFamily="/Fonts/Roboto/#Roboto" FontWeight="Regular" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,50" Visibility="Hidden"/>
         </Grid>
     </Grid>
 </UserControl>

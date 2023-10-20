@@ -10,6 +10,12 @@
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <Version>$(launcherVersion)</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <IsPublishable>False</IsPublishable>
+    <SignAssembly>False</SignAssembly>
+    <Title>Minecraft Parody Launcher</Title>
+    <Company>decentgames</Company>
+    <Product>$(AssemblyName)</Product>
+    <Description>Minecraft Parody Launcher</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -90,8 +96,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="changelog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Update="updater.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

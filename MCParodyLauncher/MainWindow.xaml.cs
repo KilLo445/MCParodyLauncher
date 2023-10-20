@@ -8,13 +8,21 @@ using System.Media;
 using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
 using System.Threading.Tasks;
+using System.Security.Principal;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.5";
+        string launcherVersion = "1.2.6";
         public static bool devMode = false;
+
+        public static bool IsAdministrator()
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
 
         // Paths and Files
         private string rootPath;
@@ -189,6 +197,7 @@ namespace MCParodyLauncher
                     MessageBoxResult offlineModeB = MessageBox.Show("Error checking for updates, Would you like to launch Minecraft Parody Launcher in offline mode?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (offlineModeB == MessageBoxResult.Yes)
                     {
+                        MessageBox.Show("You can disable offline mode at any time in the settings.", "Offline Mode", MessageBoxButton.OK, MessageBoxImage.Information);
                         RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
                         key.SetValue("OfflineMode", "1");
                         key.Close();
@@ -219,11 +228,15 @@ namespace MCParodyLauncher
             catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
-        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void DragWindow_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragMove();
+                try
+                {
+                    DragMove();
+                }
+                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
         }
 
@@ -247,18 +260,6 @@ namespace MCParodyLauncher
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
-        }
-
-        private void cmSettings_Click(object sender, RoutedEventArgs e)
-        {
-            Settings settingsWindow = new Settings();
-            settingsWindow.Show();
-        }
-
-        private void cmAbout_Click(object sender, RoutedEventArgs e)
-        {
-            About aboutWindow = new About();
-            aboutWindow.Show();
         }
 
         private void VersionText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
