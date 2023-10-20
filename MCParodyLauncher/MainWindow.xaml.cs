@@ -14,7 +14,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.6";
+        string launcherVersion = "1.2.7";
         public static bool devMode = false;
 
         public static bool IsAdministrator()

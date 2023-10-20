@@ -1,3 +1,6 @@
+v1.2.7
+- Fixed a bug where launcher would crash while installing game to default path
+
 v1.2.6
 - Added ability to start with windows (This is compeltely pointless)
 - Added download stats

@@ -24,10 +24,16 @@ namespace MCParodyLauncher
             curGame = currentGame;
 
             rootPath = Directory.GetCurrentDirectory();
-            defaultPath = Path.Combine(rootPath, "games", curGame);
+            
+            if (curGame == "Minecraft 2") { curGame = "Minecraft 2 Remake"; }
+            
+            defaultPath = Path.Combine(rootPath, "games");
+
+            InstallPath = defaultPath;
 
             InstallText.Text = $"Where would you like to install {curGame}?";
-            InstallPathBox.Text = defaultPath;
+            InstallText2.Text = $"A folder named {curGame} will be created.";
+            InstallPathBox.Text = defaultPath + "\\" + curGame;
             InstallPathBox.ToolTip = defaultPath;
         }
 
@@ -41,8 +47,8 @@ namespace MCParodyLauncher
             {
                 InstallPath = installPathDialog.SelectedPath;
 
-                if (curGame == "Minecraft 2") { InstallPathBox.Text = Path.Combine(InstallPath, "Minecraft 2 Remake"); InstallPathBox.ToolTip = Path.Combine(InstallPath, "Minecraft 2 Remake"); }
-                else { InstallPathBox.Text = Path.Combine(InstallPath, curGame); InstallPathBox.ToolTip = Path.Combine(InstallPath, curGame); }
+                InstallPathBox.Text = Path.Combine(InstallPath, curGame);
+                InstallPathBox.ToolTip = Path.Combine(InstallPath, curGame);
             }
         }
 
