@@ -6,5 +6,5 @@ Current list of known issues & bugs
 - [x] Launcher still attempts to install Minecraft 4 and 5 in offline mode
 
 ##
-- [x] = Fixed but not released (Will be released in the next update)  
+- [x] = Fixed, but not released (Will be released in the next update)  
 - [ ] = Known, but not fixed yet
