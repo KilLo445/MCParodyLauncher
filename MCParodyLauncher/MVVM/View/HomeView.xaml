@@ -23,6 +23,10 @@
                 <ContextMenu Name="morecm" StaysOpen="true">
                     <MenuItem Name="cmSettings" Header="Settings"
                         Click="cmSettings_Click"/>
+                    <MenuItem Name="cmResetSettings" Header="Reset Settings"
+                        Click="cmResetSettings_Click"/>
+                    <MenuItem Name="cmUpdate" Header="Check for updates"
+                        Click="cmUpdate_Click"/>
                     <MenuItem Name="cmAbout" Header="About"
                         Click="cmAbout_Click"/>
                 </ContextMenu>

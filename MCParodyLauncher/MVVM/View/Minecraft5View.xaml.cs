@@ -12,6 +12,7 @@ using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
 using Microsoft.Toolkit.Uwp.Notifications;
+using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -143,6 +144,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC5_Click(object sender, RoutedEventArgs e)
         {
+            if (!Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                if (Process.GetProcessesByName("MC5").Length > 0)
+                {
+                    MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             if (Status == MC5Status.downloading)
             {
                 return;
@@ -157,18 +167,18 @@ namespace MCParodyLauncher.MVVM.View
                 if (obMC5Path != null)
                 {
                     mc5dir = (obMC5Path as String);
-                    mc5 = Path.Combine(mc5dir, "Minecraft4.exe");
+                    mc5 = Path.Combine(mc5dir, "MC5.exe");
+
                     if (File.Exists(mc5))
                     {
                         StartMC5();
                         return;
                     }
-
-                }
-                else
-                {
-                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 5.");
-                    return;
+                    else
+                    {
+                        MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 5.");
+                        return;
+                    }
                 }
             }
 
@@ -192,7 +202,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void StartMC5()
+        private async void StartMC5()
         {
             using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5"))
             {
@@ -207,6 +217,29 @@ namespace MCParodyLauncher.MVVM.View
                         try
                         {
                             Process.Start(mc5);
+                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 5");
+                            launchWindow.Show();
+                            await Task.Delay(500);
+                            if (MainWindow.usHideWindow == true)
+                            {
+                                Application.Current.MainWindow.Hide();
+                                bool gameRunning = true;
+                                while (gameRunning == true)
+                                {
+                                    await Task.Delay(50);
+                                    if (Process.GetProcessesByName(LaunchingGame.mc5Proc).Length > 0)
+                                    {
+                                        gameRunning = true;
+                                    }
+                                    else
+                                    {
+                                        gameRunning = false;
+                                    }
+                                }
+                                await Task.Delay(100);
+                                Application.Current.MainWindow.Show();
+                                Application.Current.MainWindow.Activate();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -279,7 +312,7 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
-                lblProgress.Visibility = Visibility.Visible;
+                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                 stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC5CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -398,7 +431,7 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
-                            lblProgress.Visibility = Visibility.Visible;
+                            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                             stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC5CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);

@@ -13,7 +13,7 @@ namespace MCParodyLauncher
             {
                 Status.Text = "Launching in offline mode...";
 
-                if (MainWindow.devMode == true) { Status.Text = "Launching in developer mode..."; }
+                if (MainWindow.devMode == true) { Status.Text = "Launching in developer mode..."; DevText.Visibility = Visibility.Visible; }
             }
 
             Splash();

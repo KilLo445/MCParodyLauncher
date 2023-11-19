@@ -43,7 +43,7 @@ namespace MCParodyLauncher
         {
             cbDev.Visibility = Visibility.Hidden;
 
-            MessageBoxResult restartNow = System.Windows.MessageBox.Show("Any changes made will only apply after restart. Would you like to restart now?", "Restart Required", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult restartNow = System.Windows.MessageBox.Show("Any changes made will only apply after you restart Minecraft Parody Launcher. Would you like to restart now?", "Restart Required", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (restartNow == MessageBoxResult.Yes)
             {
                 var currentExecutablePath = Process.GetCurrentProcess().MainModule.FileName;
@@ -76,6 +76,18 @@ namespace MCParodyLauncher
             if (startwin == "0") { cbStartup.IsChecked = false; }
             if (startwin == "1") { cbStartup.IsChecked = true; }
 
+            // Display download stats
+            Object obDLStats = key.GetValue("DownloadStats", null); string downloadstats = (obDLStats as String);
+            if (downloadstats == null) { downloadstats = "1"; key.SetValue("DownloadStats", "1"); }
+            if (downloadstats == "0") { cbDLStats.IsChecked = false; }
+            if (downloadstats == "1") { cbDLStats.IsChecked = true; }
+
+            // Hide launcher in-game
+            Object obHideLauncher = key.GetValue("HideLauncher", null); string hidelauncher = (obHideLauncher as String);
+            if (hidelauncher == null) { hidelauncher = "1"; key.SetValue("HideLauncher", "1"); }
+            if (hidelauncher == "0") { cbHide.IsChecked = true; }
+            if (hidelauncher == "1") { cbHide.IsChecked = false; }
+
 
 
             // Offline Mode
@@ -93,6 +105,7 @@ namespace MCParodyLauncher
             key.Close();
         }
 
+        // CHECKBOX ACTIONS
 
         // Splash Screen
 
@@ -108,7 +121,6 @@ namespace MCParodyLauncher
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
             key.SetValue("SplashScreen", "0");
             key.Close();
-
         }
 
         // Notifications
@@ -156,6 +168,13 @@ namespace MCParodyLauncher
 
         private void cbStartup_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!MainWindow.IsAdministrator())
+            {
+                cbStartup.IsChecked = true;
+                MessageBox.Show("Administrator privlages are required to change this setting.", "Administrator privlages required", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             try
             {
                 File.Delete("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup" + @"\Minecraft Parody Launcher.lnk");
@@ -164,6 +183,38 @@ namespace MCParodyLauncher
                 key.Close();
             }
             catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        // Display download stats
+
+        private void cbDLStats_Checked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("DownloadStats", "1");
+            key.Close();
+        }
+
+        private void cbDLStats_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("DownloadStats", "0");
+            key.Close();
+        }
+
+        // Hide in-game
+
+        private void cbHide_Checked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("HideLauncher", "0");
+            key.Close();
+        }
+
+        private void cbHide_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
+            key.SetValue("HideLauncher", "1");
+            key.Close();
         }
 
         // Offline Mode

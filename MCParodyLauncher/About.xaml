@@ -14,9 +14,9 @@
     <Grid>
         <Image Source="Images/bg/lake.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4" Margin="0,0,0,0"/>
 
-        <TextBlock Text="About" TextAlignment="Center" TextWrapping="Wrap" Width="500" Height="220" Foreground="White" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0" FontFamily="/Fonts/Poppins/#Poppins"/>
+        <TextBlock Text="About" TextAlignment="Center" TextWrapping="Wrap" Width="500" Height="220" Foreground="White" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Bold"/>
 
-        <TextBlock TextAlignment="Center" TextWrapping="Wrap" Width="500" Height="170" Foreground="White" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" FontFamily="/Fonts/Poppins/#Poppins">
+        <TextBlock TextAlignment="Center" TextWrapping="Wrap" Width="500" Height="170" Foreground="White" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light">
             Minecraft Parody Launcher is a collection of games created by KilLo, roggzerz, and Tuxum.
             <LineBreak />
             <LineBreak />

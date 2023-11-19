@@ -26,9 +26,21 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void btnGetOS_Click(object sender, RoutedEventArgs e)
+        private void btnHideWindow_Click(object sender, RoutedEventArgs e)
         {
-            
+            Application.Current.MainWindow.Hide();
+        }
+
+        private void pbVisibility_Checked(object sender, RoutedEventArgs e)
+        {
+            DLProgress.Visibility = Visibility.Visible;
+            pbVisibility.IsChecked = true;
+        }
+
+        private void pbVisibility_Unchecked(object sender, RoutedEventArgs e)
+        {
+            DLProgress.Visibility = Visibility.Hidden;
+            pbVisibility.IsChecked = false;
         }
     }
 }

@@ -2,7 +2,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace MCParodyLauncher
 {
@@ -45,11 +47,20 @@ namespace MCParodyLauncher
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            this.Close();
         }
 
-        private void PlayMC4()
+        private async void PlayMC4()
         {
+            if (!Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                if (Process.GetProcessesByName("Minecraft4").Length > 0)
+                {
+                    MessageBox.Show("Minecraft 4 is already running.", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
                 if (keyMC4 != null)
@@ -62,8 +73,32 @@ namespace MCParodyLauncher
                         keyMC4.Close();
                         try
                         {
+                            this.Hide();
                             Process.Start(mc4);
-                            Close();
+                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 4");
+                            launchWindow.Show();
+                            await Task.Delay(500);
+                            if (MainWindow.usHideWindow == true)
+                            {
+                                Application.Current.MainWindow.Hide();
+                                bool gameRunning = true;
+                                while (gameRunning == true)
+                                {
+                                    await Task.Delay(50);
+                                    if (Process.GetProcessesByName(LaunchingGame.mc4Proc).Length > 0)
+                                    {
+                                        gameRunning = true;
+                                    }
+                                    else
+                                    {
+                                        gameRunning = false;
+                                    }
+                                }
+                                await Task.Delay(100);
+                                Application.Current.MainWindow.Show();
+                                Application.Current.MainWindow.Activate();
+                            }
+                            this.Close();
                         }
                         catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
                     }
@@ -71,8 +106,17 @@ namespace MCParodyLauncher
             }
         }
 
-        private void PlayMC4O()
+        private async void PlayMC4O()
         {
+            if (!Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                if (Process.GetProcessesByName("Minecraft4Otherside").Length > 0)
+                {
+                    MessageBox.Show("Minecraft 4 Otherside is already running.", "Minecraft 4 Otherside", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             using (RegistryKey keyMC4O = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
                 if (keyMC4O != null)
@@ -85,8 +129,32 @@ namespace MCParodyLauncher
                         keyMC4O.Close();
                         try
                         {
+                            this.Hide();
                             Process.Start(mc4o);
-                            Close();
+                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 4 Otherside");
+                            launchWindow.Show();
+                            await Task.Delay(500);
+                            if (MainWindow.usHideWindow == true)
+                            {
+                                Application.Current.MainWindow.Hide();
+                                bool gameRunning = true;
+                                while (gameRunning == true)
+                                {
+                                    await Task.Delay(50);
+                                    if (Process.GetProcessesByName(LaunchingGame.mc4oProc).Length > 0)
+                                    {
+                                        gameRunning = true;
+                                    }
+                                    else
+                                    {
+                                        gameRunning = false;
+                                    }
+                                }
+                                await Task.Delay(100);
+                                Application.Current.MainWindow.Show();
+                                Application.Current.MainWindow.Activate();
+                            }
+                            this.Close();
                         }
                         catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
                     }

@@ -9,12 +9,15 @@ using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
 using System.Threading.Tasks;
 using System.Security.Principal;
+using WinForms = System.Windows.Forms;
+using System.Drawing;
+using System.Linq;
 
 namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        string launcherVersion = "1.2.7";
+        public static string launcherVersion = "1.2.8";
         public static bool devMode = false;
 
         public static bool IsAdministrator()
@@ -32,17 +35,26 @@ namespace MCParodyLauncher
         private string updater;
 
         // Bools
-        bool updateAvailable;
+        public static bool updateAvailable;
         public static bool offlineMode;
 
         // User Settings
         bool usSplashScreen;
         public static bool usNotifications;
         bool usOfflineMode;
+        public static bool usDownloadStats;
+        public static bool usHideWindow;
+
 
         public MainWindow()
         {
             InitializeComponent();
+
+            if (Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1)
+            {
+                MessageBox.Show("Minecraft Parody Launcher is already running.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
+            }
 
             rootPath = Directory.GetCurrentDirectory();
             tempPath = Path.GetTempPath();
@@ -71,8 +83,33 @@ namespace MCParodyLauncher
             }
 
             DelTemp();
-
             CreateReg();
+            AddToTray();
+        }
+
+        private async void AddToTray()
+        {
+            WinForms.NotifyIcon nIcon = new();
+            nIcon.Icon = new Icon(Application.GetResourceStream(new Uri("pack://application:,,,/Images/Minecraft.ico")).Stream);
+            nIcon.Text = "Minecraft Parody Launcher";
+
+            nIcon.ContextMenuStrip = new();
+            nIcon.ContextMenuStrip.Items.Add("Open", null, NIcon_Open);
+            nIcon.ContextMenuStrip.Items.Add("Exit", null, NIcon_Exit);
+
+            nIcon.Visible = true;
+        }
+
+        private async void NIcon_Open(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+            this.Activate();
+        }
+
+        private async void NIcon_Exit(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
         }
 
         private void CreateReg()
@@ -99,6 +136,39 @@ namespace MCParodyLauncher
         protected override void OnClosing(CancelEventArgs e)
         {
             DelTemp();
+
+
+            if ((Process.GetProcessesByName("Minecraft2Remake").Length > 0) || (Process.GetProcessesByName("Game").Length > 0) || (Process.GetProcessesByName("Minecraft4").Length > 0) || (Process.GetProcessesByName("Minecraft4Otherside").Length > 0) || (Process.GetProcessesByName("MC5").Length > 0))
+            {
+                MessageBoxResult closeGames = MessageBox.Show("It seems like one or more games are running, would you like to close them?", "Games Running", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (closeGames == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        foreach (var process in Process.GetProcessesByName("Minecraft2Remake"))
+                        {
+                            process.Kill();
+                        }
+                        foreach (var process in Process.GetProcessesByName("Game"))
+                        {
+                            process.Kill();
+                        }
+                        foreach (var process in Process.GetProcessesByName("Minecraft4"))
+                        {
+                            process.Kill();
+                        }
+                        foreach (var process in Process.GetProcessesByName("Minecraft4Otherside"))
+                        {
+                            process.Kill();
+                        }
+                        foreach (var process in Process.GetProcessesByName("MC5"))
+                        {
+                            process.Kill();
+                        }
+                    }
+                    catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+                }
+            }
         }
 
         private void DelTemp()
@@ -109,7 +179,7 @@ namespace MCParodyLauncher
             }
         }
 
-        private void DumpVersion()
+        public void DumpVersion()
         {
             File.WriteAllText(versionFile, launcherVersion);
         }
@@ -130,6 +200,18 @@ namespace MCParodyLauncher
             if (notifications == null) { notifications = "1"; keySettings.SetValue("Notifications", "1"); }
             if (notifications == "0") { usNotifications = false; }
             if (notifications == "1") { usNotifications = true; }
+
+            // Display download stats
+            Object obDLStats = keySettings.GetValue("DownloadStats", null); string downloadstats = (obDLStats as String);
+            if (downloadstats == null) { downloadstats = "1"; keySettings.SetValue("DownloadStats", "1"); }
+            if (downloadstats == "0") { usDownloadStats = false; }
+            if (downloadstats == "1") { usDownloadStats = true; }
+
+            // Hide launcher in-game
+            Object obHideLauncher = keySettings.GetValue("HideLauncher", null); string hidelauncher = (obHideLauncher as String);
+            if (hidelauncher == null) { hidelauncher = "1"; keySettings.SetValue("HideLauncher", "1"); }
+            if (hidelauncher == "0") { usHideWindow = false; }
+            if (hidelauncher == "1") { usHideWindow = true; }
 
             // Offline Mode
             Object obOfflineMode = keySettings.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
@@ -159,7 +241,7 @@ namespace MCParodyLauncher
             Application.Current.Shutdown();
         }
 
-        private void CheckForUpdates()
+        public void CheckForUpdates()
         {
             DumpVersion();
 
@@ -215,6 +297,8 @@ namespace MCParodyLauncher
                 updateAvailable = true;
                 InstallUpdate(false, Version.zero);
             }
+
+            if (updateAvailable == true) { VersionText.ToolTip = "Update available."; } else { VersionText.ToolTip = "No update available."; }
         }
 
         private void InstallUpdate(bool isUpdate, Version _onlineVersion)
@@ -260,43 +344,6 @@ namespace MCParodyLauncher
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
-        }
-
-        private void VersionText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (offlineMode == true)
-            {
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Unable to check for updates in offine mode.", "Offline Mode");
-                return;
-            }
-
-            MessageBoxResult checkUpdateLMB = MessageBox.Show("Do you want to check for updates?", "Launcher Update", MessageBoxButton.YesNo);
-            if (checkUpdateLMB == MessageBoxResult.Yes)
-            {
-                CheckForUpdates();
-
-                if (updateAvailable == false)
-                {
-                    MessageBox.Show("No update is available.", "Launcher Update");
-                }
-            }
-        }
-
-        private void VersionText_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (offlineMode == true)
-            {
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Unable to check for updates in offine mode.", "Offline Mode");
-                return;
-            }
-
-            MessageBoxResult checkUpdateRMB = MessageBox.Show("Do you want launch the updater and check for updates?", "Launcher Update", MessageBoxButton.YesNo);
-            if (checkUpdateRMB == MessageBoxResult.Yes)
-            {
-                Process.Start(updater);
-            }
         }
 
         struct Version

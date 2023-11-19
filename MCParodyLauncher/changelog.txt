@@ -1,3 +1,14 @@
+v1.2.8
+- Fixed a bug where Minecraft 5 would still connect to the internet in offline mode
+- Fixed a bug where the launcher would still attempt to install Minecraft 4 and 5 in offline mode
+- Added a "Launching Game" window
+- Launcher now checks if game is running to prevent multiple instances running at once (You can bypass this by holding Left Shift)
+- Launcher now appears in system tray
+- Launcher now hides when in-game
+- Moved check for updates button to "More"
+- Added more settings
+- Other small changes
+
 v1.2.7
 - Fixed a bug where launcher would crash while installing game to default path
 

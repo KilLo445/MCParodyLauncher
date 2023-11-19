@@ -64,7 +64,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\Minecraft.ico" />
+    <Resource Include="Images\Minecraft.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

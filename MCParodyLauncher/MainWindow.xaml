@@ -52,8 +52,8 @@
 
             <ContentControl Grid.Row="1" Grid.Column="1" Margin="10" Content="{Binding CurrentView}"/>
 
-            <TextBlock Name="OfflineText" Text="Offline Mode" Foreground="White" Opacity="0.2" FontSize="20" HorizontalAlignment="Center" Margin="0,455,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" Visibility="Hidden" Grid.Row="1"/>
-            <TextBlock Name="VersionText" Text="" Opacity="0.5" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" MouseLeftButtonDown="VersionText_MouseLeftButtonDown" MouseRightButtonDown="VersionText_MouseRightButtonDown" ToolTip="Click to check for updates." Grid.Row="1"/>
+            <TextBlock Name="OfflineText" Text="Offline Mode" ToolTip="Minecraft Parody Launcher is currently in Offline Mode, you can disable Offline Mode in settings." Foreground="White" Opacity="0.2" FontSize="20" HorizontalAlignment="Center" Margin="0,455,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" Visibility="Hidden" Grid.Row="1"/>
+            <TextBlock Name="VersionText" Text="" Opacity="0.5" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,485,0,17" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light" Grid.Row="1"/>
 
             <Rectangle Name="DragWindow" Fill="Transparent" MouseLeftButtonDown="DragWindow_MouseLeftButtonDown" Height="25" Width="920" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             

@@ -211,6 +211,7 @@ namespace MCParodyLauncher.MVVM.View
                 {
                     mc4dir = (obMC4Path as String);
                     mc4 = Path.Combine(mc4dir, "Minecraft4.exe");
+
                     if (File.Exists(mc4))
                     {
                         try
@@ -223,11 +224,11 @@ namespace MCParodyLauncher.MVVM.View
                         return;
                     }
 
-                }
-                else
-                {
-                    MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 4.");
-                    return;
+                    else
+                    {
+                        MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 4.");
+                        return;
+                    }
                 }
             }
 
@@ -340,7 +341,7 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
-                lblProgress.Visibility = Visibility.Visible;
+                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                 stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -366,7 +367,7 @@ namespace MCParodyLauncher.MVVM.View
 
             DLProgress.IsIndeterminate = false;
             WebClient webClient = new WebClient();
-            lblProgress.Visibility = Visibility.Visible;
+            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
             stopwatch.Start();
             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback2);
             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -502,7 +503,7 @@ namespace MCParodyLauncher.MVVM.View
 
                                 DLProgress.IsIndeterminate = false;
                                 WebClient webClient = new WebClient();
-                                lblProgress.Visibility = Visibility.Visible;
+                                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                                 stopwatch.Start();
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4CompletedCallback);
                                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -574,7 +575,7 @@ namespace MCParodyLauncher.MVVM.View
 
                                 DLProgress.IsIndeterminate = false;
                                 WebClient webClient = new WebClient();
-                                lblProgress.Visibility = Visibility.Visible;
+                                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                                 stopwatch.Start();
                                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4OCompletedCallback);
                                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);

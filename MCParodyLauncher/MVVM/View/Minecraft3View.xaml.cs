@@ -12,6 +12,7 @@ using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
 using Microsoft.Toolkit.Uwp.Notifications;
+using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -142,6 +143,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC3_Click(object sender, RoutedEventArgs e)
         {
+            if (!Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                if (Process.GetProcessesByName("game").Length > 0)
+                {
+                    MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             if (Status == MC3Status.downloading)
             {
                 return;
@@ -191,7 +201,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void StartMC3()
+        private async void StartMC3()
         {
             using (RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3"))
             {
@@ -206,6 +216,29 @@ namespace MCParodyLauncher.MVVM.View
                         try
                         {
                             Process.Start(mc3);
+                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 3");
+                            launchWindow.Show();
+                            await Task.Delay(500);
+                            if (MainWindow.usHideWindow == true)
+                            {
+                                Application.Current.MainWindow.Hide();
+                                bool gameRunning = true;
+                                while (gameRunning == true)
+                                {
+                                    await Task.Delay(50);
+                                    if (Process.GetProcessesByName(LaunchingGame.mc3Proc).Length > 0)
+                                    {
+                                        gameRunning = true;
+                                    }
+                                    else
+                                    {
+                                        gameRunning = false;
+                                    }
+                                }
+                                await Task.Delay(100);
+                                Application.Current.MainWindow.Show();
+                                Application.Current.MainWindow.Activate();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -279,7 +312,7 @@ namespace MCParodyLauncher.MVVM.View
 
                 DLProgress.IsIndeterminate = false;
                 WebClient webClient = new WebClient();
-                lblProgress.Visibility = Visibility.Visible;
+                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                 stopwatch.Start();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC3CompletedCallback);
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -398,7 +431,7 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
-                            lblProgress.Visibility = Visibility.Visible;
+                            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                             stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC3CompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);

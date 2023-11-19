@@ -12,6 +12,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
+using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -27,7 +28,7 @@ namespace MCParodyLauncher.MVVM.View
     }
     public partial class Minecraft2View : UserControl
     {
-        public static string GameName = "Minecraft 2";
+        public static string GameName = "Minecraft 2 Remake";
 
         private string mc2rlink = "https://www.dropbox.com/s/753i22zdihth5fi/mc2r.zip?dl=1";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC2R/version.txt";
@@ -142,6 +143,15 @@ namespace MCParodyLauncher.MVVM.View
 
         private void PlayMC2R_Click(object sender, RoutedEventArgs e)
         {
+            if (!Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                if (Process.GetProcessesByName("Minecraft2Remake").Length > 0)
+                {
+                    MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             if (Status == MC2RStatus.downloading)
             {
                 return;
@@ -191,7 +201,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void StartMC2R()
+        private async void StartMC2R()
         {
             using (RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r"))
             {
@@ -206,6 +216,29 @@ namespace MCParodyLauncher.MVVM.View
                         try
                         {
                             Process.Start(mc2r);
+                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 2");
+                            launchWindow.Show();
+                            await Task.Delay(500);
+                            if (MainWindow.usHideWindow == true)
+                            {
+                                Application.Current.MainWindow.Hide();
+                                bool gameRunning = true;
+                                while (gameRunning == true)
+                                {
+                                    await Task.Delay(50);
+                                    if (Process.GetProcessesByName(LaunchingGame.mc2Proc).Length > 0)
+                                    {
+                                        gameRunning = true;
+                                    }
+                                    else
+                                    {
+                                        gameRunning = false;
+                                    }
+                                }
+                                await Task.Delay(100);
+                                Application.Current.MainWindow.Show();
+                                Application.Current.MainWindow.Activate();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -279,7 +312,7 @@ namespace MCParodyLauncher.MVVM.View
                 Status = MC2RStatus.downloading;
 
                 DLProgress.IsIndeterminate = false;
-                lblProgress.Visibility = Visibility.Visible;
+                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; } 
                 stopwatch.Start();
                 WebClient webClient = new WebClient();
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC2RCompletedCallback);
@@ -399,7 +432,7 @@ namespace MCParodyLauncher.MVVM.View
 
                             DLProgress.IsIndeterminate = false;
                             WebClient webClient = new WebClient();
-                            lblProgress.Visibility = Visibility.Visible;
+                            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
                             stopwatch.Start();
                             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC2RCompletedCallback);
                             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
