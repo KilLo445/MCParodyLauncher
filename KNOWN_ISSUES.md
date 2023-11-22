@@ -10,4 +10,4 @@ No current known issues.
 
 ## Report a bug
 Know of a bug that isn't listed? Please report it!  
-Head over to [issues](https://github.com/KilLo445/MCParodyLauncher/issues) and click `New issue
+Head over to [issues](https://github.com/KilLo445/MCParodyLauncher/issues) and click `New issue`
