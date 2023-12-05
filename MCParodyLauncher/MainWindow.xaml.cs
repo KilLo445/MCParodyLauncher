@@ -2,9 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Windows;
-using System.Media;
 using Microsoft.Win32;
 using MCParodyLauncher.MVVM.View;
 using System.Threading.Tasks;
@@ -17,7 +15,8 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        public static string launcherVersion = "1.2.8";
+        public static string launcherVersion = "1.2.9";
+        public static string onlineVerLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt";
         public static bool devMode = false;
 
         public static bool IsAdministrator()
@@ -32,14 +31,12 @@ namespace MCParodyLauncher
         private string tempPath;
         private string mcplTempPath;
         private string versionFile;
-        private string updater;
 
         // Bools
         public static bool updateAvailable;
         public static bool offlineMode;
 
         // User Settings
-        bool usSplashScreen;
         public static bool usNotifications;
         bool usOfflineMode;
         public static bool usDownloadStats;
@@ -60,7 +57,6 @@ namespace MCParodyLauncher
             tempPath = Path.GetTempPath();
             mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
             versionFile = Path.Combine(rootPath, "version.txt");
-            updater = Path.Combine(rootPath, "updater.exe");
 
             VersionText.Text = $"Launcher v{launcherVersion}";
 
@@ -72,15 +68,7 @@ namespace MCParodyLauncher
 
             if (usOfflineMode == true && devMode == false) { offlineMode = true; this.Title = "Minecraft Parody Launcher (Offline Mode)"; OfflineText.Visibility = Visibility.Visible; }
 
-            if (usSplashScreen == true) { SplashScreen(); }
-            else
-            {
-                this.Visibility = Visibility.Visible; this.ShowInTaskbar = true;
-                if (offlineMode == false)
-                {
-                    CheckForUpdates();
-                }
-            }
+            SplashScreen();
 
             DelTemp();
             CreateReg();
@@ -173,27 +161,18 @@ namespace MCParodyLauncher
 
         private void DelTemp()
         {
-            if (Directory.Exists(mcplTempPath))
+            try
             {
-                Directory.Delete(mcplTempPath, true);
+                if (Directory.Exists(mcplTempPath)) { Directory.Delete(mcplTempPath, true); }
+                if (File.Exists(versionFile)) { File.Delete(versionFile); }
             }
-        }
-
-        public void DumpVersion()
-        {
-            File.WriteAllText(versionFile, launcherVersion);
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         private void GetUserSettings()
         {
             RegistryKey keySettings = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            if (keySettings == null) { RegistryKey keySettings2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); keySettings2.CreateSubKey("settings"); keySettings2.Close(); }
-
-            // Splash Screen
-            Object obSplashScreen = keySettings.GetValue("SplashScreen", null); string splashscreen = (obSplashScreen as String);
-            if (splashscreen == null) { splashscreen = "1"; keySettings.SetValue("SplashScreen", "1"); }
-            if (splashscreen == "0") { usSplashScreen = false; }
-            if (splashscreen == "1") { usSplashScreen = true; }
+            if (keySettings == null) { RegistryKey keySettings2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); keySettings2.CreateSubKey("settings"); keySettings2.Close(); }            
 
             // Notifications
             Object obNotifications = keySettings.GetValue("Notifications", null); string notifications = (obNotifications as String);
@@ -219,6 +198,18 @@ namespace MCParodyLauncher
             if (offlinemode == "0") { usOfflineMode = false; }
             if (offlinemode == "1") { usOfflineMode = true; }
 
+            // Developer Mode
+            Object obDevMode = keySettings.GetValue("Developer", null); string devmode = (obDevMode as String);
+            if (devmode == null) { offlinemode = "0"; keySettings.SetValue("Developer", "0"); }
+            if (devmode == "0") { devMode = false; }
+            if (devmode == "1") { devMode = true; }
+
+            // Delete old keys
+            Object obSplashScreen = keySettings.GetValue("SplashScreen", null); string splashscreen = (obSplashScreen as String);
+            if (splashscreen != null) { keySettings.DeleteValue("SplashScreen"); }
+            Object obStartup = keySettings.GetValue("Startup", null); string startup = (obStartup as String);
+            if (startup != null) { keySettings.DeleteValue("Startup"); }
+
             keySettings.Close();
         }
 
@@ -226,90 +217,7 @@ namespace MCParodyLauncher
         {
             SplashScreen splashWindow = new SplashScreen();
             splashWindow.Show();
-
-            await Task.Delay(2000);
-
-            CheckForUpdates();
-
             return;
-        }
-
-        private void RestartApp()
-        {
-            var currentExecutablePath = Process.GetCurrentProcess().MainModule.FileName;
-            Process.Start(currentExecutablePath);
-            Application.Current.Shutdown();
-        }
-
-        public void CheckForUpdates()
-        {
-            DumpVersion();
-
-            if (offlineMode == true)
-            {
-                this.Visibility = Visibility.Visible;
-                this.ShowInTaskbar = true;
-                return;
-            }
-
-            if (File.Exists(versionFile))
-            {
-                Version localVersion = new Version(File.ReadAllText(versionFile));
-
-                try
-                {
-                    WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt"));
-
-                    if (onlineVersion.IsDifferentThan(localVersion))
-                    {
-                        updateAvailable = true;
-                        InstallUpdate(true, onlineVersion);
-                    }
-                    else
-                    {
-                        this.Visibility = Visibility.Visible;
-                        this.ShowInTaskbar = true;
-                        updateAvailable = false;
-                    }
-                }
-                catch
-                {
-                    SystemSounds.Exclamation.Play();
-                    MessageBoxResult offlineModeB = MessageBox.Show("Error checking for updates, Would you like to launch Minecraft Parody Launcher in offline mode?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (offlineModeB == MessageBoxResult.Yes)
-                    {
-                        MessageBox.Show("You can disable offline mode at any time in the settings.", "Offline Mode", MessageBoxButton.OK, MessageBoxImage.Information);
-                        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-                        key.SetValue("OfflineMode", "1");
-                        key.Close();
-                        RestartApp();
-                    }
-                    if (offlineModeB == MessageBoxResult.No)
-                    {
-                        MessageBox.Show("Minecraft Parody Launcher will now close.");
-                        Application.Current.Shutdown();
-                    }
-                }
-            }
-            else
-            {
-                updateAvailable = true;
-                InstallUpdate(false, Version.zero);
-            }
-
-            if (updateAvailable == true) { VersionText.ToolTip = "Update available."; } else { VersionText.ToolTip = "No update available."; }
-        }
-
-        private void InstallUpdate(bool isUpdate, Version _onlineVersion)
-        {
-            try
-            {
-                LauncherUpdate updateWindow = new LauncherUpdate();
-                updateWindow.Show();
-                updateWindow.Closed += (sender, args) => { this.Visibility = Visibility.Visible; this.ShowInTaskbar = true; };
-            }
-            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         private void DragWindow_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -344,65 +252,6 @@ namespace MCParodyLauncher
         private void MinimizeButton_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
-        }
-
-        struct Version
-        {
-            internal static Version zero = new Version(0, 0, 0);
-
-            private short major;
-            private short minor;
-            private short subMinor;
-
-            internal Version(short _major, short _minor, short _subMinor)
-            {
-                major = _major;
-                minor = _minor;
-                subMinor = _subMinor;
-            }
-            internal Version(string _version)
-            {
-                string[] versionStrings = _version.Split('.');
-                if (versionStrings.Length != 3)
-                {
-                    major = 0;
-                    minor = 0;
-                    subMinor = 0;
-                    return;
-                }
-
-                major = short.Parse(versionStrings[0]);
-                minor = short.Parse(versionStrings[1]);
-                subMinor = short.Parse(versionStrings[2]);
-            }
-
-            internal bool IsDifferentThan(Version _otherVersion)
-            {
-                if (major != _otherVersion.major)
-                {
-                    return true;
-                }
-                else
-                {
-                    if (minor != _otherVersion.minor)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        if (subMinor != _otherVersion.subMinor)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            public override string ToString()
-            {
-                return $"{major}.{minor}.{subMinor}";
-            }
         }
     }
 }

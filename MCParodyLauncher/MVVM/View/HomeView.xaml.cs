@@ -7,6 +7,8 @@ using System.Media;
 using System.Windows;
 using System.Net;
 using Microsoft.Win32;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Threading.Tasks;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -47,6 +49,11 @@ namespace MCParodyLauncher.MVVM.View
         private void cmGitHub_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true });
+        }
+
+        private void cmFAQ_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md") { UseShellExecute = true });
         }
 
         private void OpenMoreButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -96,7 +103,7 @@ namespace MCParodyLauncher.MVVM.View
                 return;
             }
 
-            CheckForUpdateHV();
+            CheckForUpdates();
 
             if (MainWindow.updateAvailable == false)
             {
@@ -111,46 +118,29 @@ namespace MCParodyLauncher.MVVM.View
             aboutWindow.Show();
         }
 
-        private void CheckForUpdateHV()
-        {
-            string rootPath = Directory.GetCurrentDirectory();
-            string versionFile = Path.Combine(rootPath, "version.txt");
-            File.WriteAllText(versionFile, MainWindow.launcherVersion);
-
-            if (File.Exists(versionFile))
-            {
-                Version localVersion = new Version(File.ReadAllText(versionFile));
-
-                try
-                {
-                    WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString("https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt"));
-
-                    if (onlineVersion.IsDifferentThan(localVersion))
-                    {
-                        MainWindow.updateAvailable = true;
-                        InstallUpdate(true, onlineVersion);
-                    }
-                    else
-                    {
-                        MainWindow.updateAvailable = false;
-                    }
-                }
-                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-            }
-            else
-            {
-                MainWindow.updateAvailable = true;
-                InstallUpdate(false, Version.zero);
-            }
-        }
-
-        private void InstallUpdate(bool isUpdate, Version _onlineVersion)
+        private void CheckForUpdates()
         {
             try
             {
-                LauncherUpdate updateWindow = new LauncherUpdate();
-                updateWindow.Show();
+                Version localVersion = new Version(MainWindow.launcherVersion);
+                WebClient webClient = new();
+                Version onlineVersion = new (webClient.DownloadString(MainWindow.onlineVerLink));
+                if (onlineVersion.IsDifferentThan(localVersion))
+                {
+                    MainWindow.updateAvailable = true;
+                    try
+                    {
+                        LauncherUpdate updateWindow = new();
+                        updateWindow.Show();
+                        return;
+                    }
+                    catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+                }
+                else
+                {
+                    MainWindow.updateAvailable = false;
+                    return;
+                }
             }
             catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }

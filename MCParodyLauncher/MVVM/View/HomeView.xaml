@@ -15,6 +15,8 @@
                         Click="cmItch_Click"/>
                     <MenuItem Name="cmGitHub" Header="GitHub"
                         Click="cmGitHub_Click"/>
+                    <MenuItem Name="cmFAQ" Header="FAQ"
+                        Click="cmFAQ_Click"/>
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>

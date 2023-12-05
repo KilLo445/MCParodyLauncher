@@ -20,3 +20,7 @@
 
 7. Why does Windows Defender detect the launcher as a virus?
    - It is a false positive, the most likely reason is the launcher downloading, extracting, and deleting files for the games, or editing the registry to store install locations and other data.
+
+8. I had "Start with Windows" enabled, and now the feature is gone?
+   - It was a very unstable feature, it casued many crashes, and it was completely pointless, I just added it cause it was funny. I highly recommend removing it.
+   To remove the launcher from your Windows startup navagate to `C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup` and delete `Minecraft Parody Launcher.lnk`

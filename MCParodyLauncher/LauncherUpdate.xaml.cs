@@ -48,19 +48,33 @@ namespace MCParodyLauncher
 
         private void YesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists(updater))
+            try
             {
-                WebClient webClient = new WebClient();
-                webClient.DownloadFile(new Uri("https://github.com/KilLo445/MCParodyLauncher-Updater/releases/download/main/updater.exe"), updater);
+                if (File.Exists(updater))
+                {
+                    Process.Start(updater);
+                    Application.Current.Shutdown();
+                }
+                else { MessageBox.Show("updater.exe not found.\n\nReinstalling the program might fix the issue.", "File not found", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
-
-            Process.Start(updater);
-            Application.Current.Shutdown();
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         private void NoButton_Click(object sender, RoutedEventArgs e)
         {
+            Application.Current.MainWindow.Show();
+            Application.Current.MainWindow.Activate();
             this.Close();
+        }
+
+        private void ChangelogButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Changelog changelogWindow = new();
+                changelogWindow.Show();
+            }
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
     }
 }

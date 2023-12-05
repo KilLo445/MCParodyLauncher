@@ -16,28 +16,18 @@
         <TextBlock Text="Settings" TextAlignment="Center" TextWrapping="Wrap" Width="220" Height="80" Foreground="White" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0" FontFamily="/Fonts/Poppins/#Poppins"/>
 
         <Rectangle Fill="Black" Opacity="0.8" Width="250" Height="188" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20"/>
-        
-        <CheckBox Name="cbSplash" Margin="30,0,0,185" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-            Content="Splash Screen" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
-            ToolTip="Enable/Disable splash screen on startup"
-            Checked="cbSplash_Checked" Unchecked="cbSplash_Unchecked"/>
 
-        <CheckBox Name="cbNotifications" Margin="30,20,0,165" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <CheckBox Name="cbNotifications" Margin="30,20,0,185" HorizontalAlignment="Left" VerticalAlignment="Bottom"
             Content="Notifications" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
             ToolTip="Enable/Disable notifications"
             Checked="cbNotifications_Checked" Unchecked="cbNotifications_Unchecked"/>
 
-        <CheckBox Name="cbStartup" Margin="30,20,0,145" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-            Content="Start with Windows" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
-            ToolTip="Start Minecraft Parody Launcher with Windows"
-            Checked="cbStartup_Checked" Unchecked="cbStartup_Unchecked"/>
-
-        <CheckBox Name="cbDLStats" Margin="30,20,0,125" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <CheckBox Name="cbDLStats" Margin="30,20,0,165" HorizontalAlignment="Left" VerticalAlignment="Bottom"
             Content="Display download stats" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
-            ToolTip="Show download statistics while downloading a game"
+            ToolTip="Display download speed (MB/s)"
             Checked="cbDLStats_Checked" Unchecked="cbDLStats_Unchecked"/>
 
-        <CheckBox Name="cbHide" Margin="30,20,0,105" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <CheckBox Name="cbHide" Margin="30,20,0,145" HorizontalAlignment="Left" VerticalAlignment="Bottom"
             Content="Keep launcher open" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
             ToolTip="Keep the launcher open instead of hiding it while you are in-game"
             Checked="cbHide_Checked" Unchecked="cbHide_Unchecked"/>

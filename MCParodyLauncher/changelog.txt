@@ -1,3 +1,10 @@
+v1.2.9
+- Removed ability to start with Windows (If you had this enabled, check the FAQ)
+- Added FAQ button
+- Added "View Changelog" button on update
+- Splash screen is now more than just visual
+- Other small changes
+
 v1.2.8
 - Fixed a bug where Minecraft 5 would still connect to the internet in offline mode
 - Fixed a bug where the launcher would still attempt to install Minecraft 4 and 5 in offline mode

@@ -4,7 +4,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
-using Wsh = IWshRuntimeLibrary;
 
 namespace MCParodyLauncher
 {
@@ -18,7 +17,7 @@ namespace MCParodyLauncher
 
             InitializeComponent();
 
-            if (Keyboard.IsKeyDown(Key.LeftShift) || File.Exists(Path.Combine(rootPath, "devmode.txt")))
+            if (Keyboard.IsKeyDown(Key.LeftShift) || File.Exists(Path.Combine(rootPath, "devmode.txt")) || MainWindow.devMode == true)
             {
                 cbOffline.Margin = new Thickness(30, 20, 0, 45);
                 cbDev.Visibility = Visibility.Visible;
@@ -58,23 +57,11 @@ namespace MCParodyLauncher
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
             if (key == null) { RegistryKey key2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); key2.CreateSubKey("settings"); key2.Close(); }
 
-            // Splash Screen
-            Object obSplashScreen = key.GetValue("SplashScreen", null); string splashscreen = (obSplashScreen as String);
-            if (splashscreen == null) { splashscreen = "1"; key.SetValue("SplashScreen", "1"); }
-            if (splashscreen == "0") { cbSplash.IsChecked = false; }
-            if (splashscreen == "1") { cbSplash.IsChecked = true; }
-
             // Notifications
             Object obNotifications = key.GetValue("Notifications", null); string notifications = (obNotifications as String);
             if (notifications == null) { notifications = "1"; key.SetValue("Notifications", "1"); }
             if (notifications == "0") { cbNotifications.IsChecked = false; }
             if (notifications == "1") { cbNotifications.IsChecked = true; }
-
-            // Start with Windows
-            Object obStartup = key.GetValue("Startup", null); string startwin = (obStartup as String);
-            if (startwin == null) { startwin = "0"; key.SetValue("Startup", "0"); }
-            if (startwin == "0") { cbStartup.IsChecked = false; }
-            if (startwin == "1") { cbStartup.IsChecked = true; }
 
             // Display download stats
             Object obDLStats = key.GetValue("DownloadStats", null); string downloadstats = (obDLStats as String);
@@ -87,8 +74,6 @@ namespace MCParodyLauncher
             if (hidelauncher == null) { hidelauncher = "1"; key.SetValue("HideLauncher", "1"); }
             if (hidelauncher == "0") { cbHide.IsChecked = true; }
             if (hidelauncher == "1") { cbHide.IsChecked = false; }
-
-
 
             // Offline Mode
             Object obOfflineMode = key.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
@@ -107,22 +92,6 @@ namespace MCParodyLauncher
 
         // CHECKBOX ACTIONS
 
-        // Splash Screen
-
-        private void cbSplash_Checked(object sender, RoutedEventArgs e)
-        {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            key.SetValue("SplashScreen", "1");
-            key.Close();
-        }
-
-        private void cbSplash_Unchecked(object sender, RoutedEventArgs e)
-        {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            key.SetValue("SplashScreen", "0");
-            key.Close();
-        }
-
         // Notifications
 
         private void cbNotifications_Checked(object sender, RoutedEventArgs e)
@@ -137,52 +106,6 @@ namespace MCParodyLauncher
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
             key.SetValue("Notifications", "0");
             key.Close();
-        }
-
-        // Start with Windows
-
-        private void cbStartup_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!MainWindow.IsAdministrator())
-            {
-                cbStartup.IsChecked = false;
-                MessageBox.Show("Administrator privlages are required to change this setting.", "Administrator privlages required", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            MessageBox.Show("This setting is completely pointless, honestly I just thought it would be funny to add.", "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Information);
-            try
-            {
-                Wsh.WshShell shell = new Wsh.WshShell();
-                string shortcutAddress = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup" + @"\Minecraft Parody Launcher.lnk";
-                Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                shortcut.TargetPath = rootPath + "\\MCParodyLauncher.exe";
-                shortcut.Save();
-
-                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-                key.SetValue("Startup", "1");
-                key.Close();
-            }
-            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-        }
-
-        private void cbStartup_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!MainWindow.IsAdministrator())
-            {
-                cbStartup.IsChecked = true;
-                MessageBox.Show("Administrator privlages are required to change this setting.", "Administrator privlages required", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            try
-            {
-                File.Delete("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup" + @"\Minecraft Parody Launcher.lnk");
-                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-                key.SetValue("Startup", "0");
-                key.Close();
-            }
-            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         // Display download stats
