@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Theme/DefaultButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/MenuButtonTheme.xaml"/>
                 <ResourceDictionary Source="Theme/ButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/ButtonThemeSquare.xaml"/>
                 <ResourceDictionary Source="Theme/CloseButton.xaml"/>
                 <ResourceDictionary Source="Theme/MinimizeButton.xaml"/>
                 <ResourceDictionary Source="Theme/ProgressBar.xaml"/>

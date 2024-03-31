@@ -274,32 +274,28 @@ namespace MCParodyLauncher.MVVM.View
             WebClient webClient = new WebClient();
             string mc4Size = webClient.DownloadString(sizeLink);
 
-            MessageBoxResult mc4InstallConfirm = System.Windows.MessageBox.Show($"Minecraft 4 requires {mc4Size}Do you want to continue?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
-            if (mc4InstallConfirm == MessageBoxResult.Yes)
-            {
-                RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-                keyGames.CreateSubKey("mc4");
-                RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-                keyGames.Close();
+            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
+            keyGames.CreateSubKey("mc4");
+            RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
+            keyGames.Close();
 
-                InstallGame installWindow = new InstallGame("Minecraft 4");
-                installWindow.Show();
-                PlayMC4.IsEnabled = false;
-                downloadActive = true;
-                while (InstallGame.installConfirmed == false)
-                {
-                    if (InstallGame.installCanceled == true) { PlayMC4.IsEnabled = true; downloadActive = false; return; }
-                    await Task.Delay(100);
-                }
-                PlayMC4.IsEnabled = true;
-                downloadActive = false;
-                mc4dir = Path.Combine(InstallGame.InstallPath, "Minecraft 4");
-                mc4odir = Path.Combine(InstallGame.InstallPath, "Minecraft 4 Otherside");
-                keyMC4.SetValue("InstallPath", mc4dir);
-                keyMC4.SetValue("InstallPathOtherside", mc4odir);
-                keyMC4.Close();
-                DownloadMC4();
+            InstallGame installWindow = new InstallGame("Minecraft 4", mc4Size);
+            installWindow.Show();
+            PlayMC4.IsEnabled = false;
+            downloadActive = true;
+            while (InstallGame.installConfirmed == false)
+            {
+                if (InstallGame.installCanceled == true) { PlayMC4.IsEnabled = true; downloadActive = false; return; }
+                await Task.Delay(100);
             }
+            PlayMC4.IsEnabled = true;
+            downloadActive = false;
+            mc4dir = Path.Combine(InstallGame.InstallPath, "Minecraft 4");
+            mc4odir = Path.Combine(InstallGame.InstallPath, "Minecraft 4 Otherside");
+            keyMC4.SetValue("InstallPath", mc4dir);
+            keyMC4.SetValue("InstallPathOtherside", mc4odir);
+            keyMC4.Close();
+            DownloadMC4();
         }
 
         private void DownloadMC4()

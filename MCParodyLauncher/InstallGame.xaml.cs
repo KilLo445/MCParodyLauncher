@@ -17,20 +17,21 @@ namespace MCParodyLauncher
 
         public string curGame;
 
-        public InstallGame(string currentGame)
+        public InstallGame(string currentGame, string installSize)
         {
             InitializeComponent();
 
             curGame = currentGame;
 
             rootPath = Directory.GetCurrentDirectory();
-            
+
             if (curGame == "Minecraft 2") { curGame = "Minecraft 2 Remake"; }
-            
+
             defaultPath = Path.Combine(rootPath, "games");
 
             InstallPath = defaultPath;
 
+            SizeText.Text = $"Space required: {installSize}";
             InstallText.Text = $"Where would you like to install {curGame}?";
             InstallText2.Text = $"A folder named {curGame} will be created.";
             InstallPathBox.Text = defaultPath + "\\" + curGame;

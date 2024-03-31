@@ -7,8 +7,6 @@ using System.Media;
 using System.Windows;
 using System.Net;
 using Microsoft.Win32;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Threading.Tasks;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -56,6 +54,11 @@ namespace MCParodyLauncher.MVVM.View
             Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md") { UseShellExecute = true });
         }
 
+        private void mc2Uninst_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://killoofficial.wixsite.com/decentgames/mc2-uninstaller") { UseShellExecute = true });
+        }
+
         private void OpenMoreButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (!OpenMoreButton.ContextMenu.IsOpen)
@@ -88,7 +91,12 @@ namespace MCParodyLauncher.MVVM.View
                     key.DeleteSubKey("settings");
                     key.Close();
                     MessageBox.Show("Settings have successfully been reset to default.", "Settings Reset", MessageBoxButton.OK, MessageBoxImage.Information);
-                    MessageBox.Show("Changes will only apply after you restart Minecraft Parody Launcher.", "Restart Required", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBoxResult restartNow = System.Windows.MessageBox.Show("Changes will only apply after you restart Minecraft Parody Launcher, would you like to restart now?", "Restart Required", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (restartNow == MessageBoxResult.Yes)
+                    {
+                        System.Windows.Forms.Application.Restart();
+                        Application.Current.Shutdown();
+                    }
                 }
                 catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
@@ -112,10 +120,32 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
+
+        private void cmUpdateChangelog_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Changelog changelogWindow = new();
+                changelogWindow.Show();
+            }
+            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
         private void cmAbout_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             About aboutWindow = new About();
             aboutWindow.Show();
+        }
+
+        private void cmRestart_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.Application.Restart();
+            Application.Current.Shutdown();
+        }
+
+        private void cmExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
 
         private void CheckForUpdates()

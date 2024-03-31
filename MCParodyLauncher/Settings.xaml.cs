@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -45,8 +44,7 @@ namespace MCParodyLauncher
             MessageBoxResult restartNow = System.Windows.MessageBox.Show("Any changes made will only apply after you restart Minecraft Parody Launcher. Would you like to restart now?", "Restart Required", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (restartNow == MessageBoxResult.Yes)
             {
-                var currentExecutablePath = Process.GetCurrentProcess().MainModule.FileName;
-                Process.Start(currentExecutablePath);
+                System.Windows.Forms.Application.Restart();
                 Application.Current.Shutdown();
             }
             else { this.Close(); }

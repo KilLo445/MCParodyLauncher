@@ -1,3 +1,8 @@
+v1.2.10
+- Added link to MC2 Uninstaller
+- Bug fixes
+- Other small changes
+
 v1.2.9
 - Removed ability to start with Windows (If you had this enabled, check the FAQ)
 - Added FAQ button

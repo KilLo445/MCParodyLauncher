@@ -258,32 +258,28 @@ namespace MCParodyLauncher.MVVM.View
             WebClient webClient = new WebClient();
             string mc5Size = webClient.DownloadString(sizeLink);
 
-            MessageBoxResult mc5InstallConfirm = System.Windows.MessageBox.Show($"Minecraft 5 requires {mc5Size}Do you want to continue?", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
-            if (mc5InstallConfirm == MessageBoxResult.Yes)
+            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
+            keyGames.CreateSubKey("mc5");
+            RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
+            keyGames.Close();
+
+            InstallGame installWindow = new InstallGame("Minecraft 5", mc5Size);
+            installWindow.Show();
+            PlayMC5.IsEnabled = false;
+            downloadActive = true;
+            while (InstallGame.installConfirmed == false)
             {
-                RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-                keyGames.CreateSubKey("mc5");
-                RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
-                keyGames.Close();
-
-                InstallGame installWindow = new InstallGame("Minecraft 5");
-                installWindow.Show();
-                PlayMC5.IsEnabled = false;
-                downloadActive = true;
-                while (InstallGame.installConfirmed == false)
-                {
-                    if (InstallGame.installCanceled == true) { PlayMC5.IsEnabled = true; downloadActive = false; return; }
-                    await Task.Delay(100);
-                }
-                PlayMC5.IsEnabled = true;
-                downloadActive = false;
-
-                mc5dir = Path.Combine(InstallGame.InstallPath, "Minecraft 5");
-                keyMC5.SetValue("InstallPath", mc5dir);
-                keyMC5.Close();
-
-                DownloadMC5();
+                if (InstallGame.installCanceled == true) { PlayMC5.IsEnabled = true; downloadActive = false; return; }
+                await Task.Delay(100);
             }
+            PlayMC5.IsEnabled = true;
+            downloadActive = false;
+
+            mc5dir = Path.Combine(InstallGame.InstallPath, "Minecraft 5");
+            keyMC5.SetValue("InstallPath", mc5dir);
+            keyMC5.Close();
+
+            DownloadMC5();
         }
 
         private void DownloadMC5()

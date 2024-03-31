@@ -15,7 +15,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        public static string launcherVersion = "1.2.9";
+        public static string launcherVersion = "1.2.10";
         public static string onlineVerLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt";
         public static bool devMode = false;
 
@@ -171,8 +171,8 @@ namespace MCParodyLauncher
 
         private void GetUserSettings()
         {
+            RegistryKey keyMCPL = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); keyMCPL.CreateSubKey("settings"); keyMCPL.Close();
             RegistryKey keySettings = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\settings", true);
-            if (keySettings == null) { RegistryKey keySettings2 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher", true); keySettings2.CreateSubKey("settings"); keySettings2.Close(); }            
 
             // Notifications
             Object obNotifications = keySettings.GetValue("Notifications", null); string notifications = (obNotifications as String);

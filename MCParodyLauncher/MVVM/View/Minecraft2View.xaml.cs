@@ -257,34 +257,30 @@ namespace MCParodyLauncher.MVVM.View
             WebClient webClient = new WebClient();
             string mc2rSize = webClient.DownloadString(sizeLink);
 
-            MessageBoxResult mc2rInstallConfirm = System.Windows.MessageBox.Show($"Minecraft 2 Remake requires {mc2rSize}Do you want to continue?", "Minecraft 2 Remake", System.Windows.MessageBoxButton.YesNo);
-            if (mc2rInstallConfirm == MessageBoxResult.Yes)
+            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
+            keyGames.CreateSubKey("mc2r");
+            RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
+            keyGames.Close();
+
+            InstallGame installWindow = new InstallGame("Minecraft 2", mc2rSize);
+            installWindow.Show();
+            PlayMC2.IsEnabled = false;
+            downloadActive = true;
+
+            while (InstallGame.installConfirmed == false)
             {
-                RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-                keyGames.CreateSubKey("mc2r");
-                RegistryKey keyMC2R = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc2r", true);
-                keyGames.Close();
-
-                InstallGame installWindow = new InstallGame("Minecraft 2");
-                installWindow.Show();
-                PlayMC2.IsEnabled = false;
-                downloadActive = true;
-
-                while (InstallGame.installConfirmed == false)
-                {
-                    if (InstallGame.installCanceled == true) { PlayMC2.IsEnabled = true; downloadActive = false; return; }
-                    await Task.Delay(100);
-                }
-
-                PlayMC2.IsEnabled = true;
-                downloadActive = false;
-
-                mc2rdir = Path.Combine(InstallGame.InstallPath, "Minecraft 2 Remake");
-                keyMC2R.SetValue("InstallPath", mc2rdir);
-                keyMC2R.Close();
-
-                DownloadMC2R();
+                if (InstallGame.installCanceled == true) { PlayMC2.IsEnabled = true; downloadActive = false; return; }
+                await Task.Delay(100);
             }
+
+            PlayMC2.IsEnabled = true;
+            downloadActive = false;
+
+            mc2rdir = Path.Combine(InstallGame.InstallPath, "Minecraft 2 Remake");
+            keyMC2R.SetValue("InstallPath", mc2rdir);
+            keyMC2R.Close();
+
+            DownloadMC2R();
         }
 
         private void DownloadMC2R()

@@ -257,33 +257,29 @@ namespace MCParodyLauncher.MVVM.View
             WebClient webClient = new WebClient();
             string mc3Size = webClient.DownloadString(sizeLink);
 
-            MessageBoxResult mc3InstallConfirm = System.Windows.MessageBox.Show($"Minecraft 3 requires {mc3Size}Do you want to continue?", "Minecraft 3", System.Windows.MessageBoxButton.YesNo);
-            if (mc3InstallConfirm == MessageBoxResult.Yes)
+            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
+            keyGames.CreateSubKey("mc3");
+            RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
+            keyGames.Close();
+
+            InstallGame installWindow = new InstallGame("Minecraft 3", mc3Size);
+            installWindow.Show();
+            PlayMC3.IsEnabled = false;
+            downloadActive = true;
+            while (InstallGame.installConfirmed == false)
             {
-                RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-                keyGames.CreateSubKey("mc3");
-                RegistryKey keyMC3 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc3", true);
-                keyGames.Close();
-
-                InstallGame installWindow = new InstallGame("Minecraft 3");
-                installWindow.Show();
-                PlayMC3.IsEnabled = false;
-                downloadActive = true;
-                while (InstallGame.installConfirmed == false)
-                {
-                    if (InstallGame.installCanceled == true) { PlayMC3.IsEnabled = true; downloadActive = false; return; }
-                    await Task.Delay(100);
-                }
-
-                PlayMC3.IsEnabled = true;
-                downloadActive = false;
-
-                mc3dir = Path.Combine(InstallGame.InstallPath, "Minecraft 3");
-                keyMC3.SetValue("InstallPath", mc3dir);
-                keyMC3.Close();
-
-                DownloadMC3();
+                if (InstallGame.installCanceled == true) { PlayMC3.IsEnabled = true; downloadActive = false; return; }
+                await Task.Delay(100);
             }
+
+            PlayMC3.IsEnabled = true;
+            downloadActive = false;
+
+            mc3dir = Path.Combine(InstallGame.InstallPath, "Minecraft 3");
+            keyMC3.SetValue("InstallPath", mc3dir);
+            keyMC3.Close();
+
+            DownloadMC3();
         }
 
         private void DownloadMC3()

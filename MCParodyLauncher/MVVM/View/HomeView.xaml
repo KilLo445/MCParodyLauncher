@@ -17,6 +17,8 @@
                         Click="cmGitHub_Click"/>
                     <MenuItem Name="cmFAQ" Header="FAQ"
                         Click="cmFAQ_Click"/>
+                    <MenuItem Name="mc2Uninst" Header="MC2 Uninstaller"
+                        Click="mc2Uninst_Click"/>
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>
@@ -25,12 +27,18 @@
                 <ContextMenu Name="morecm" StaysOpen="true">
                     <MenuItem Name="cmSettings" Header="Settings"
                         Click="cmSettings_Click"/>
-                    <MenuItem Name="cmResetSettings" Header="Reset Settings"
+                    <MenuItem Name="cmResetSettings" Header="Reset settings"
                         Click="cmResetSettings_Click"/>
                     <MenuItem Name="cmUpdate" Header="Check for updates"
                         Click="cmUpdate_Click"/>
+                    <MenuItem Name="cmUpdateChangelog" Header="Update changelog"
+                        Click="cmUpdateChangelog_Click"/>
                     <MenuItem Name="cmAbout" Header="About"
                         Click="cmAbout_Click"/>
+                    <MenuItem Name="cmRestart" Header="Restart"
+                        Click="cmRestart_Click"/>
+                    <MenuItem Name="cmExit" Header="Exit"
+                        Click="cmExit_Click"/>
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>
