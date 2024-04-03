@@ -7,7 +7,7 @@
    - By default, all games are installed within a "games" folder in the main directory for Minecraft Parody Launcher.
 
 3. Something broke! Help!
-   - If you are having issues with anything, either the launcher or any of the games, please join our [Discord Server](https://discord.gg/E3JpHfvMes) or open an [issue](https://github.com/KilLo445/NFSPatcher/issues)!
+   - If you are having issues with anything, either the launcher or any of the games, please join our [Discord Server](https://discord.gg/E3JpHfvMes) or open an [issue](https://github.com/KilLo445/MCParodyLauncher/issues)!
 
 4. How do I uninstall the games?
    - Right click the "Play" button and select "Uninstall".
