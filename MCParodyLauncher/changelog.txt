@@ -199,7 +199,4 @@ v0.0.2
 - Added more error messages (more detail)
 
 v0.0.1
-- Launcher Funcional
-- Added update checker
-- Minecraft 2 v2.2 Added
-- Minecraft 3 v1.2 Added
+- Initial release
