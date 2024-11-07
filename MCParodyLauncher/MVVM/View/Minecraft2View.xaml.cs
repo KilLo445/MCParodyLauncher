@@ -790,7 +790,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC2Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void StorePage_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://killo445.itch.io/minecraft-2-remake") { UseShellExecute = true });
         }

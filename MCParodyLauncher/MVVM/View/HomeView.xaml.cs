@@ -39,25 +39,16 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void cmItch_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/mc") { UseShellExecute = true });
-        }
+        private void cmWeb_Click(object sender, System.Windows.RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://decentstudios.com") { UseShellExecute = true }); }
 
-        private void cmGitHub_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true });
-        }
+        private void cmItch_Click(object sender, System.Windows.RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/mc") { UseShellExecute = true }); }
+   
+        private void cmGitHub_Click(object sender, System.Windows.RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true }); }
 
-        private void cmFAQ_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md") { UseShellExecute = true });
-        }
+        private void cmFAQ_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md") { UseShellExecute = true }); }
+    
+        private void mc2Uninst_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://files.decentstudios.com/decentgames/mc2/MC2_Uninstaller.zip") { UseShellExecute = true }); }
 
-        private void mc2Uninst_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://killoofficial.wixsite.com/decentgames/mc2-uninstaller") { UseShellExecute = true });
-        }
 
         private void OpenMoreButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {

@@ -996,9 +996,10 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC4Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void StorePage_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-4") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-4-otherside") { UseShellExecute = true });
         }
     }
 }

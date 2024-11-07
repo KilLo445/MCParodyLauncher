@@ -791,7 +791,7 @@ namespace MCParodyLauncher.MVVM.View
             }
         }
 
-        private void MC5Logo_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void StorePage_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-5") { UseShellExecute = true });
         }

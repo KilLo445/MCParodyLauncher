@@ -11,6 +11,8 @@
         <Button Name="OpenWebButton" Width="100" Height="40" Content="Website" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="300,-70,0,0" Click="OpenWebButton_Click">
             <Button.ContextMenu>
                 <ContextMenu Name="webcm" StaysOpen="true">
+                    <MenuItem Name="cmWeb" Header="decentstudios"
+                        Click="cmWeb_Click"/>
                     <MenuItem Name="cmItch" Header="Itch.io"
                         Click="cmItch_Click"/>
                     <MenuItem Name="cmGitHub" Header="GitHub"

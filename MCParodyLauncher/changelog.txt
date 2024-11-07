@@ -1,3 +1,9 @@
+v1.2.11
+- Changed some links to new website
+- Added store page links
+- New logos
+- Other small changes
+
 v1.2.10
 - Added link to MC2 Uninstaller
 - Bug fixes

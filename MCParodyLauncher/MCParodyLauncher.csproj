@@ -27,6 +27,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Images\logo\game\generic\**" />
+    <EmbeddedResource Remove="Images\logo\game\generic\**" />
+    <None Remove="Images\logo\game\generic\**" />
+    <Page Remove="Images\logo\game\generic\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Fonts\Poppins\Poppins-Bold.ttf" />
     <None Remove="Fonts\Poppins\Poppins-Light.ttf" />
     <None Remove="Fonts\Poppins\Poppins-Regular.ttf" />
@@ -37,14 +44,15 @@
     <None Remove="Images\bg\mountain.png" />
     <None Remove="Images\bg\waterfall.png" />
     <None Remove="Images\logo\decentgames120.png" />
-    <None Remove="Images\logo\game\generic\mc2.png" />
-    <None Remove="Images\logo\game\generic\mc3.png" />
     <None Remove="Images\logo\game\icon\mc2_icon_128.png" />
     <None Remove="Images\logo\game\icon\mc3_icon_128.png" />
     <None Remove="Images\logo\game\icon\mc4_icon_128.png" />
     <None Remove="Images\logo\game\icon\mc5_icon_128.png" />
+    <None Remove="Images\logo\game\mc2.png" />
+    <None Remove="Images\logo\game\mc3.png" />
     <None Remove="Images\logo\game\mc4\mc4.png" />
     <None Remove="Images\logo\game\mc4\mc4o.png" />
+    <None Remove="Images\logo\game\mc4\mc4plusotherside.png" />
     <None Remove="Images\logo\game\mc5\mc5.png" />
     <None Remove="Images\logo\logo_full.png" />
     <None Remove="Images\Minecraft.png" />
@@ -64,6 +72,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\logo\game\mc2.png" />
+    <Resource Include="Images\logo\game\mc3.png" />
+    <Resource Include="Images\logo\game\mc4\mc4plusotherside.png" />
     <Resource Include="Images\Minecraft.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
@@ -84,14 +95,10 @@
     <Resource Include="Images\bg\mountain.png" />
     <Resource Include="Images\bg\waterfall.png" />
     <Resource Include="Images\logo\decentgames120.png" />
-    <Resource Include="Images\logo\game\generic\mc2.png" />
-    <Resource Include="Images\logo\game\generic\mc3.png" />
     <Resource Include="Images\logo\game\icon\mc2_icon_128.png" />
     <Resource Include="Images\logo\game\icon\mc3_icon_128.png" />
     <Resource Include="Images\logo\game\icon\mc4_icon_128.png" />
     <Resource Include="Images\logo\game\icon\mc5_icon_128.png" />
-    <Resource Include="Images\logo\game\mc4\mc4.png" />
-    <Resource Include="Images\logo\game\mc4\mc4o.png" />
     <Resource Include="Images\logo\game\mc5\mc5.png" />
     <Resource Include="Images\logo\logo_full.png" />
     <Resource Include="Images\Minecraft.png" />

@@ -7,11 +7,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Image Name="MC3Logo" Source="/Images/logo/game/generic/mc3.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0" MouseLeftButtonDown="MC3Logo_MouseLeftButtonDown"/>
+        <Image Name="MC3Logo" Source="/Images/logo/game/mc3.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0"/>
 
-        <Button Name="PlayMC3" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC3_Click">
+        <Button Name="PlayMC3" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC3_Click" Style="{StaticResource SquareButton}">
             <Button.ContextMenu>
                 <ContextMenu Name="mc3cm" StaysOpen="true">
+                    <MenuItem Name="StorePage" Header="Store Page"
+                              Click="StorePage_Click"/>
                     <MenuItem Name="DesktopShortcut" Header="Add desktop shortcut"
                               Click="DesktopShortcut_Click"/>
                     <MenuItem Name="FileLocation" Header="Browse local files"
