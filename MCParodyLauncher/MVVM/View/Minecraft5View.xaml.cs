@@ -5,13 +5,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Windows;
-using System.Media;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Microsoft.Toolkit.Uwp.Notifications;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
-using Microsoft.Toolkit.Uwp.Notifications;
 using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
@@ -20,35 +19,38 @@ namespace MCParodyLauncher.MVVM.View
     {
         ready,
         noInstall,
+        downloading,
         checkUpdate,
         update,
-        failed,
-        unzip,
-        downloading
+        updating,
+        installing,
+        error
     }
 
     public partial class Minecraft5View : UserControl
     {
-        public static string GameName = "Minecraft 5";
+        public string GameName = "Minecraft 5";
+        public string GameNameS = "MC5";
+        public string GameProcess = "MC5";
 
-        private string mc5link = "https://www.dropbox.com/s/6b06sm6ttwuljqs/mc5.zip?dl=1";
+        private string gameLink = "https://www.dropbox.com/s/6b06sm6ttwuljqs/mc5.zip?dl=1";
+        private string gameStore = "https://decentgamestudio.itch.io/minecraft-5";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC5/size.txt";
 
         // Paths
         private string rootPath;
         private string tempPath;
-        private string mcplTempPath;
         private string gamesPath;
-        private string mc5dir;
+        private string gameDir;
 
         // Files
-        private string mc5;
-        private string mc5ver;
-        private string mc5zip;
+        private string gameZip;
+        private string gameVer;
 
-        // Settings
-        string mc5Installed;
+        // Bools
+        public static bool gameInstalled;
+        public static bool updateAvailable;
         public static bool downloadActive = false;
 
         private MC5Status _status;
@@ -64,28 +66,52 @@ namespace MCParodyLauncher.MVVM.View
                 switch (_status)
                 {
                     case MC5Status.ready:
-                        PlayMC5.Content = "Play";
+                        PlayBTN.Content = "Play";
+                        PlayBTN.IsEnabled = true;
                         downloadActive = false;
+                        gameInstalled = true;
                         break;
                     case MC5Status.noInstall:
-                        PlayMC5.Content = "Download";
+                        PlayBTN.Content = "Download";
+                        PlayBTN.IsEnabled = true;
                         downloadActive = false;
-                        break;
-                    case MC5Status.failed:
-                        PlayMC5.Content = "Error";
-                        downloadActive = false;
+                        gameInstalled = false;
                         break;
                     case MC5Status.downloading:
-                        PlayMC5.Content = "Downloading";
+                        PlayBTN.Content = "Downloading";
+                        PlayBTN.IsEnabled = false;
                         downloadActive = true;
+                        gameInstalled = false;
                         break;
-                    case MC5Status.unzip:
-                        PlayMC5.Content = "Installing";
-                        downloadActive = true;
+                    case MC5Status.checkUpdate:
+                        PlayBTN.Content = "Checking...";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = false;
+                        gameInstalled = true;
                         break;
                     case MC5Status.update:
-                        PlayMC5.Content = "Updating";
+                        PlayBTN.Content = "Update";
+                        PlayBTN.IsEnabled = true;
+                        downloadActive = false;
+                        gameInstalled = true;
+                        break;
+                    case MC5Status.updating:
+                        PlayBTN.Content = "Updating";
+                        PlayBTN.IsEnabled = false;
                         downloadActive = true;
+                        gameInstalled = false;
+                        break;
+                    case MC5Status.installing:
+                        PlayBTN.Content = "Installing";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = true;
+                        gameInstalled = false;
+                        break;
+                    case MC5Status.error:
+                        PlayBTN.Content = "Error";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = false;
+                        gameInstalled = false;
                         break;
                 }
             }
@@ -93,643 +119,359 @@ namespace MCParodyLauncher.MVVM.View
         public Minecraft5View()
         {
             InitializeComponent();
-
             rootPath = Directory.GetCurrentDirectory();
-            tempPath = Path.GetTempPath();
-            mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
-
-            mc5zip = Path.Combine(mcplTempPath, "mc5.zip");
-
-            CheckInst();
+            tempPath = Path.Combine(Path.GetTempPath(), "MCParodyLauncher");
+            gameZip = Path.Combine(tempPath, $"{GameNameS.ToLower()}.zip");
+            CheckInstall();
+            if (gameInstalled == true) { CheckForUpdates(); }
+            if (updateAvailable == true) { UpdateNotif(); }
         }
 
-        private void CheckInst()
+        private void CheckInstall()
         {
-            RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
-            Object obMC5Installed = keyMC5.GetValue("Installed", null);
-
-            if (obMC5Installed != null)
+            try
             {
-                string MC5Installed = (obMC5Installed as String);
-
-                if (MC5Installed != "0")
+                RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                Object obGameInstalled = keyGame.GetValue("Installed", null);
+                if (obGameInstalled != null)
                 {
-                    Object obMC5Path = keyMC5.GetValue("InstallPath");
-                    if (obMC5Path != null)
+                    if (obGameInstalled as String != "0")
                     {
-                        mc5dir = (obMC5Path as String);
-                        keyMC5.Close();
+                        Object obGamePath = keyGame.GetValue("InstallPath");
+                        if (obGamePath != null) { gameDir = (obGamePath as String); }
+                        Status = MC5Status.ready;
                     }
-
-                    keyMC5.Close();
-                    Status = MC5Status.ready;
+                    else { Status = MC5Status.noInstall; }
                 }
-                else
-                {
-                    keyMC5.Close();
-                    Status = MC5Status.noInstall;
-                }
-            }
-            else
-            {
-                keyMC5.Close();
-                Status = MC5Status.noInstall;
-            }
-        }
-
-        private void CreateTemp()
-        {
-            Directory.CreateDirectory(mcplTempPath);
-        }
-
-        private void PlayMC5_Click(object sender, RoutedEventArgs e)
-        {
-            if (!Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                if (Process.GetProcessesByName("MC5").Length > 0)
-                {
-                    MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-            }
-
-            if (Status == MC5Status.downloading)
-            {
+                else { Status = MC5Status.noInstall; }
+                keyGame.Close();
                 return;
             }
-
-            RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
-            Object obMC5Installed = keyMC5.GetValue("Installed", null);
-
-            if (MainWindow.offlineMode == true)
-            {
-                Object obMC5Path = keyMC5.GetValue("InstallPath");
-                if (obMC5Path != null)
-                {
-                    mc5dir = (obMC5Path as String);
-                    mc5 = Path.Combine(mc5dir, "MC5.exe");
-
-                    if (File.Exists(mc5))
-                    {
-                        StartMC5();
-                        return;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 5.");
-                        return;
-                    }
-                }
-            }
-
-            keyMC5.Close();
-            if (obMC5Installed != null)
-            {
-                mc5Installed = (obMC5Installed as String);
-
-                if (mc5Installed == "1")
-                {
-                    CheckForUpdatesMC5();
-                }
-                else
-                {
-                    InstallMC5();
-                }
-            }
-            else
-            {
-                InstallMC5();
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private async void StartMC5()
+        private void GetInstallPath()
         {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5"))
-            {
-                if (keyMC5 != null)
-                {
-                    Object obMC5Path = keyMC5.GetValue("InstallPath");
-                    if (obMC5Path != null)
-                    {
-                        mc5dir = (obMC5Path as String);
-                        mc5 = Path.Combine(mc5dir, "MC5.exe");
-                        keyMC5.Close();
-                        try
-                        {
-                            Process.Start(mc5);
-                            LaunchingGame launchWindow = new LaunchingGame("Minecraft 5");
-                            launchWindow.Show();
-                            await Task.Delay(500);
-                            if (MainWindow.usHideWindow == true)
-                            {
-                                Application.Current.MainWindow.Hide();
-                                bool gameRunning = true;
-                                while (gameRunning == true)
-                                {
-                                    await Task.Delay(50);
-                                    if (Process.GetProcessesByName(LaunchingGame.mc5Proc).Length > 0)
-                                    {
-                                        gameRunning = true;
-                                    }
-                                    else
-                                    {
-                                        gameRunning = false;
-                                    }
-                                }
-                                await Task.Delay(100);
-                                Application.Current.MainWindow.Show();
-                                Application.Current.MainWindow.Activate();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error launching Minecraft 5: {ex}");
-                        }
-                    }
-                }
-            }
-        }
-
-        private async void InstallMC5()
-        {
-            InstallGame.installConfirmed = false;
-            InstallGame.installCanceled = false;
-
-            WebClient webClient = new WebClient();
-            string mc5Size = webClient.DownloadString(sizeLink);
-
-            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-            keyGames.CreateSubKey("mc5");
-            RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
-            keyGames.Close();
-
-            InstallGame installWindow = new InstallGame("Minecraft 5", mc5Size);
-            installWindow.Show();
-            PlayMC5.IsEnabled = false;
-            downloadActive = true;
-            while (InstallGame.installConfirmed == false)
-            {
-                if (InstallGame.installCanceled == true) { PlayMC5.IsEnabled = true; downloadActive = false; return; }
-                await Task.Delay(100);
-            }
-            PlayMC5.IsEnabled = true;
-            downloadActive = false;
-
-            mc5dir = Path.Combine(InstallGame.InstallPath, "Minecraft 5");
-            keyMC5.SetValue("InstallPath", mc5dir);
-            keyMC5.Close();
-
-            DownloadMC5();
-        }
-
-        private void DownloadMC5()
-        {
-            CreateTemp();
-            Directory.CreateDirectory(mc5dir);
-
-            if (File.Exists(mc5zip))
-            {
-                try
-                {
-                    File.Delete(mc5zip);
-                }
-                catch (Exception ex)
-                {
-                    Status = MC5Status.failed;
-                    MessageBox.Show($"Error deleting zip: {ex}");
-                }
-            }
-
-            DLProgress.Visibility = Visibility.Visible;
-
             try
             {
-                Status = MC5Status.downloading;
-
-                DLProgress.IsIndeterminate = false;
-                WebClient webClient = new WebClient();
-                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-                stopwatch.Start();
-                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC5CompletedCallback);
-                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                webClient.DownloadFileAsync(new Uri(mc5link), mc5zip);
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}"))
+                {
+                    if (key != null)
+                    {
+                        Object obPath = key.GetValue("InstallPath");
+                        if (obPath != null)
+                        {
+                            gameDir = (obPath as String);
+                            key.Close();
+                        }
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                Status = MC5Status.failed;
-                MessageBox.Show($"Error downloading Minecraft 5: {ex}");
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private void DownloadMC5CompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-            RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true);
-            keyMC5.SetValue("Installed", "1");
-            keyMC5.Close();
-            ExtractZipAsync(mc5zip, mc5dir);
-        }
-
-        private void CheckForUpdatesMC5()
+        private async Task CheckForUpdates()
         {
             Status = MC5Status.checkUpdate;
-
             try
             {
-                using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5"))
-                {
-                    if (keyMC5 != null)
-                    {
-                        Object obMC5Path = keyMC5.GetValue("InstallPath");
-                        if (obMC5Path != null)
-                        {
-                            mc5dir = (obMC5Path as String);
-                            mc5ver = Path.Combine(mc5dir, "version.txt");
-                            keyMC5.Close();
-                        }
-                    }
-                }
+                await Task.Run(() => GetInstallPath());
+                gameVer = Path.Combine(gameDir, "version.txt");
+                if (!File.Exists(gameVer)) { updateAvailable = false; UpdateNotif(); return; }
+                Version localVer = new Version(File.ReadAllText(gameVer));
+                WebClient webClient = new();
+                Version onlineVer = new Version(await webClient.DownloadStringTaskAsync(verLink));
+                if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; Status = MC5Status.update; }
+                else { updateAvailable = false; Status = MC5Status.ready; }
+                return;
             }
-            catch (Exception ex)
-            {
-                SystemSounds.Exclamation.Play();
-                Status = MC5Status.failed;
-                MessageBox.Show($"Error: {ex}");
-            }
-
-            if (File.Exists(mc5ver))
-            {
-                Version localVersionMC5 = new Version(File.ReadAllText(mc5ver));
-
-                try
-                {
-                    WebClient webClient = new WebClient();
-                    Version onlineVersionMC5 = new Version(webClient.DownloadString(verLink));
-
-                    if (onlineVersionMC5.IsDifferentThan(localVersionMC5))
-                    {
-                        InstallUpdateMC5(true, onlineVersionMC5);
-                    }
-                    else
-                    {
-                        Status = MC5Status.ready;
-                        StartMC5();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Status = MC5Status.failed;
-                    MessageBox.Show($"Error checking for updates: {ex}");
-                }
-            }
-            else
-            {
-                InstallUpdateMC5(false, Version.zero);
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private void InstallUpdateMC5(bool isUpdate, Version _onlineVersionMC5)
+        private void DownloadGame()
         {
             try
             {
-                MessageBoxResult messageBoxResultMC5Update = System.Windows.MessageBox.Show("An update for Minecraft 5 has been found! Would you like to download it?", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
-                if (messageBoxResultMC5Update == MessageBoxResult.Yes)
-                {
-                    Status = MC5Status.update;
-
-                    CreateTemp();
-
-                    try
-                    {
-                        Directory.Delete(mc5dir, true);
-
-                        Directory.CreateDirectory(mc5dir);
-
-                        if (File.Exists(mc5zip))
-                        {
-                            try
-                            {
-                                File.Delete(mc5zip);
-                            }
-                            catch (Exception ex)
-                            {
-                                Status = MC5Status.failed;
-                                MessageBox.Show($"Error deleting zip: {ex}");
-                            }
-                        }
-
-                        DLProgress.Visibility = Visibility.Visible;
-
-                        try
-                        {
-                            Status = MC5Status.downloading;
-
-                            DLProgress.IsIndeterminate = false;
-                            WebClient webClient = new WebClient();
-                            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-                            stopwatch.Start();
-                            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC5CompletedCallback);
-                            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                            webClient.DownloadFileAsync(new Uri(mc5link), mc5zip);
-                        }
-                        catch (Exception ex)
-                        {
-                            Status = MC5Status.failed;
-                            MessageBox.Show($"Error updating Minecraft 5: {ex}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        SystemSounds.Exclamation.Play();
-                        Status = MC5Status.failed;
-                        MessageBox.Show($"Error updating Minecraft 5: {ex}");
-                    }
-                }
-                else
-                {
-                    StartMC5();
-                }
+                ProgressBar.Visibility = Visibility.Visible;
+                ProgressBar.IsIndeterminate = false;
+                CreateTemp();
+                if (Directory.Exists(gameDir)) { Directory.Delete(gameDir, true); }
+                Directory.CreateDirectory(gameDir);
+                if (File.Exists(gameZip)) { File.Delete(gameZip); }
+                WebClient webClient = new WebClient();
+                if (MainWindow.usDownloadStats == true) { DownloadStats.Visibility = Visibility.Visible; }
+                stopwatch.Start();
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameComplete);
+                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                webClient.DownloadFileAsync(new Uri(gameLink), gameZip);
+                return;
             }
-            catch (Exception ex)
-            {
-                SystemSounds.Exclamation.Play();
-                Status = MC5Status.failed;
-                MessageBox.Show($"Error: {ex}");
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private void UpdateMC5CompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private void DownloadGameComplete(object sender, AsyncCompletedEventArgs e)
         {
             stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-            ExtractZipAsync(mc5zip, mc5dir);
+            DownloadStats.Visibility = Visibility.Hidden;
+            ExtractZipAsync(gameZip, gameDir);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+            key.SetValue("Installed", "1");
+            key.Close();
+            return;
+        }
+
+        private void UpdateNotif()
+        {
+            MessageBoxResult updateResult = System.Windows.MessageBox.Show($"An update for {GameName} has been found! Would you like to download it?", $"{GameName}", System.Windows.MessageBoxButton.YesNo);
+            if (updateResult == MessageBoxResult.Yes) { Status = MC5Status.updating; DownloadGame(); }
+            else { Status = MC5Status.ready; return; }
+        }
+
+        private async void PlayBTN_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (Status == MC5Status.noInstall)
+                {
+                    InstallGame.installConfirmed = false;
+                    InstallGame.installCanceled = false;
+                    WebClient webClient = new WebClient();
+                    string gameSize = webClient.DownloadString(sizeLink);
+                    RegistryKey keyGames = Registry.CurrentUser.OpenSubKey($"{MainWindow.regPath}", true);
+                    keyGames.CreateSubKey($"{GameNameS.ToLower()}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGames.Close();
+                    InstallGame installWindow = new InstallGame($"{GameName}", gameSize);
+                    installWindow.Show();
+                    PlayBTN.IsEnabled = false;
+                    downloadActive = true;
+                    while (InstallGame.installConfirmed == false)
+                    {
+                        if (InstallGame.installCanceled == true) { PlayBTN.IsEnabled = true; downloadActive = false; return; }
+                        await Task.Delay(100);
+                    }
+                    downloadActive = false;
+                    gameDir = Path.Combine(InstallGame.InstallPath, $"{GameName}");
+                    keyGame.SetValue("InstallPath", gameDir);
+                    keyGame.Close();
+                    Status = MC5Status.downloading;
+                    DownloadGame();
+                    return;
+                }
+                if (Status == MC5Status.downloading || Status == MC5Status.updating) { return; }
+                if (!Keyboard.IsKeyDown(Key.LeftShift))
+                {
+                    if (Process.GetProcessesByName($"{GameProcess}").Length > 0)
+                    {
+                        MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                GetInstallPath();
+                Process.Start(Path.Combine(gameDir, $"{GameProcess}.exe"));
+                LaunchingGame launchWindow = new LaunchingGame($"{GameName}");
+                launchWindow.Show();
+                await Task.Delay(1500);
+                if (MainWindow.usHideWindow == true)
+                {
+                    Application.Current.MainWindow.Hide();
+                    bool gameRunning = true;
+                    while (gameRunning == true)
+                    {
+                        await Task.Delay(100);
+                        if (Process.GetProcessesByName(LaunchingGame.mc5Proc).Length > 0) { gameRunning = true; }
+                        else { gameRunning = false; }
+                    }
+                    await Task.Delay(150);
+                    Application.Current.MainWindow.Show();
+                    Application.Current.MainWindow.Activate();
+                }
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         private async Task ExtractZipAsync(string zipfile, string output)
         {
             try
             {
-                Status = MC5Status.unzip;
-                DLProgress.IsIndeterminate = true;
+                ProgressBar.Visibility = Visibility.Visible;
+                ProgressBar.IsIndeterminate = true;
+                Status = MC5Status.installing;
                 await Task.Run(() => ZipFile.ExtractToDirectory(zipfile, output));
-                File.Delete(mc5zip);
-                Status = MC5Status.ready;
-                DLProgress.Visibility = Visibility.Hidden;
+                File.Delete(gameZip);
+                ProgressBar.Visibility = Visibility.Hidden;
                 if (MainWindow.usNotifications == true)
                 {
+                    string dlStatus;
+                    if (Status == MC5Status.updating) { dlStatus = "updating"; }
+                    else { dlStatus = "downloading"; }
                     new ToastContentBuilder()
                     .AddText("Download complete!")
-                    .AddText("Minecraft 5 has finished downloading.")
+                    .AddText($"{GameName} has finished {dlStatus}.")
                     .Show();
                 }
+                Status = MC5Status.ready;
                 return;
             }
-            catch (Exception ex)
-            {
-                Status = MC5Status.failed;
-                MessageBox.Show($"Error Updating Minecraft 5: {ex}");
-                return;
-            }
-        }
-
-        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5"))
-            {
-                if (keyMC5 != null)
-                {
-                    Object obMC5Install = keyMC5.GetValue("Installed");
-                    mc5Installed = (obMC5Install as String);
-
-                    if (mc5Installed == "1")
-                    {
-                        object shDesktop = (object)"Desktop";
-                        Wsh.WshShell shell = new Wsh.WshShell();
-                        string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 5.lnk";
-                        Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                        shortcut.TargetPath = mc5dir + "\\MC5.exe";
-                        shortcut.IconLocation = mc5dir + "\\www\\icon\\icon.ico";
-                        shortcut.Save();
-
-                        keyMC5.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Minecraft 5 does not seem to be installed.");
-                        keyMC5.Close();
-                    }
-                }
-            }
-        }
-
-        private void FileLocation_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5"))
-            {
-                if (keyMC5 != null)
-                {
-                    Object obMC5Install = keyMC5.GetValue("Installed");
-                    mc5Installed = (obMC5Install as String);
-
-                    if (mc5Installed == "1")
-                    {
-                        Object obMC5Path = keyMC5.GetValue("InstallPath");
-                        if (obMC5Path != null)
-                        {
-                            mc5dir = (obMC5Path as String);
-                            keyMC5.Close();
-
-                            try
-                            {
-                                Process.Start(new ProcessStartInfo { FileName = mc5dir, UseShellExecute = true });
-                            }
-                            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Minecraft 5 does not seem to be installed.");
-                        keyMC5.Close();
-                    }
-                }
-            }
-        }
-
-        private void SelectLocation_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true))
-            {
-                if (keyMC5 != null)
-                {
-                    MessageBox.Show("Please select the folder that containes \"MC5.exe\".", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
-                    selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    selectInstallDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc5Result = selectInstallDialog.ShowDialog();
-
-                    if (mc5Result == WinForms.DialogResult.OK)
-                    {
-                        string _mc5Result = Path.Combine(selectInstallDialog.SelectedPath, "MC5.exe");
-                        if (!File.Exists(_mc5Result))
-                        {
-                            SystemSounds.Exclamation.Play();
-                            MessageBox.Show("Please select the location with MC5.exe");
-                            return;
-                        }
-
-                        mc5dir = Path.Combine(selectInstallDialog.SelectedPath);
-                        keyMC5.SetValue("InstallPath", mc5dir);
-                        keyMC5.SetValue("Installed", "1");
-                        keyMC5.Close();
-                        Status = MC5Status.ready;
-                        return;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void MoveInstall_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true))
-            {
-                if (keyMC5 != null)
-                {
-                    Object obMC5Install = keyMC5.GetValue("Installed");
-                    mc5Installed = (obMC5Install as String);
-
-                    if (mc5Installed != "1")
-                    {
-                        MessageBox.Show("Minecraft 5 does not seem to be installed.");
-                        keyMC5.Close();
-                        return;
-                    }
-
-                    MessageBox.Show("Please select where you would like to move Minecraft 5 to, a folder called \"Minecraft 5\" will be created.", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
-                    moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    moveInstallDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc5Result = moveInstallDialog.ShowDialog();
-
-                    if (mc5Result == WinForms.DialogResult.OK)
-                    {
-                        string dirOld = mc5dir;
-                        mc5dir = Path.Combine(moveInstallDialog.SelectedPath, "Minecraft 5");
-                        keyMC5.SetValue("InstallPath", mc5dir);
-                        keyMC5.Close();
-
-                        string dirOldChar = dirOld.Substring(0, 1);
-                        string mc5dirChar = mc5dir.Substring(0, 1);
-                        bool sameVolume = dirOldChar.Equals(mc5dirChar);
-
-                        if (sameVolume == true)
-                        {
-                            try
-                            {
-                                Directory.Move(dirOld, mc5dir);
-                                MessageBox.Show("Install has been moved!", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
-                                return;
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error Moving Minecraft 5: {ex}");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(mc5dir);
-
-                                foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories))
-                                {
-                                    Directory.CreateDirectory(dirPath.Replace(dirOld, mc5dir));
-                                }
-                                foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories))
-                                {
-                                    File.Copy(newPath, newPath.Replace(dirOld, mc5dir), true);
-                                }
-                                Directory.Delete(dirOld, true);
-                                MessageBox.Show("Install has been moved!", "Minecraft 5", MessageBoxButton.OK, MessageBoxImage.Information);
-                                return;
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error Moving Minecraft 5: {ex}");
-                                return;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void Uninstall_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC5 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc5", true))
-            {
-                if (keyMC5 != null)
-                {
-                    Object obMC5Install = keyMC5.GetValue("Installed");
-                    mc5Installed = (obMC5Install as String);
-
-                    if (mc5Installed != "1")
-                    {
-                        MessageBox.Show("Minecraft 5 does not seem to be installed.");
-                        keyMC5.Close();
-                        return;
-                    }
-
-                    MessageBoxResult delMC5Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 5?", "Minecraft 5", System.Windows.MessageBoxButton.YesNo);
-                    if (delMC5Box == MessageBoxResult.Yes)
-                    {
-                        Object obMC5Path = keyMC5.GetValue("InstallPath");
-                        if (obMC5Path != null)
-                        {
-                            mc5dir = (obMC5Path as String);
-
-                            try
-                            {
-                                Directory.Delete(mc5dir, true);
-                                keyMC5.SetValue("Installed", "0");
-                                keyMC5.Close();
-                                Status = MC5Status.noInstall;
-                                SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 5 has been successfully uninstalled!", "Minecraft 5");
-                            }
-                            catch (Exception ex)
-                            {
-                                keyMC5.Close();
-                                SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error uninstalling Minecraft 5: {ex}");
-                            }
-                        }
-                    }
-                }
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            string downloadProgress = e.ProgressPercentage + "%";
-            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
-            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
-            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+            try
+            {
+                string downloadProgress = e.ProgressPercentage + "%";
+                string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+                string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+                string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+                string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+                DownloadStats.Content = progress;
+                ProgressBar.Value = e.ProgressPercentage;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
 
-            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+        private void CreateTemp() { Directory.CreateDirectory(tempPath); return; }
 
-            lblProgress.Content = progress;
+        private void ErrorMSG(Exception exception) { Status = MC5Status.error; Dispatcher.BeginInvoke(new Action(() => System.Windows.MessageBox.Show($"{exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)), System.Windows.Threading.DispatcherPriority.Normal); return; }
 
-            DLProgress.Value = e.ProgressPercentage;
+        private void StorePage_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo(gameStore) { UseShellExecute = true }); }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void CheckForUpdatesBTN_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                CheckForUpdates();
+                if (updateAvailable == false) { MessageBox.Show("No updates are available.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information); }
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                object shDesktop = (object)"Desktop";
+                Wsh.WshShell shell = new Wsh.WshShell();
+                string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @$"\{GameName}.lnk";
+                Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                shortcut.TargetPath = gameDir + $"\\{GameProcess}.exe";
+                shortcut.IconLocation = gameDir + "\\www\\icon\\icon.ico";
+                shortcut.Save();
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void FileLocation_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                Process.Start(new ProcessStartInfo { FileName = gameDir, UseShellExecute = true });
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void LocateInstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == true) { MessageBox.Show($"{GameName} is already installled.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                MessageBox.Show($"Please select the folder that containes \"{GameProcess}.exe\".", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
+                selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                selectInstallDialog.ShowNewFolderButton = true;
+                WinForms.DialogResult gameResult = selectInstallDialog.ShowDialog();
+                if (gameResult == WinForms.DialogResult.OK)
+                {
+                    if (!File.Exists(Path.Combine(selectInstallDialog.SelectedPath, $"{GameProcess}.exe"))) { MessageBox.Show("Please select the location with Minecraft2Remake.exe", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                    gameDir = Path.Combine(selectInstallDialog.SelectedPath);
+                    RegistryKey keyGames = Registry.CurrentUser.OpenSubKey($"{MainWindow.regPath}", true);
+                    keyGames.CreateSubKey($"{GameNameS.ToLower()}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGames.SetValue("InstallPath", gameDir);
+                    keyGames.SetValue("Installed", "1");
+                    keyGame.Close();
+                    keyGames.Close();
+                    Status = MC5Status.ready;
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void MoveInstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                MessageBox.Show($"Please select where you would like to move {GameName} to.\n\nA folder called \"{GameName}\" will be created.", "Move Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
+                moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                moveInstallDialog.ShowNewFolderButton = true;
+                WinForms.DialogResult moveResult = moveInstallDialog.ShowDialog();
+                if (moveResult == WinForms.DialogResult.OK)
+                {
+                    string dirOld = gameDir;
+                    gameDir = Path.Combine(moveInstallDialog.SelectedPath, $"{GameName}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGame.SetValue("InstallPath", gameDir);
+                    keyGame.Close();
+                    MessageBox.Show("Minecraft Parody Launcher may freeze during the move.\n\nDo not panic.", "Move Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                    bool sameVolume = dirOld.Substring(0, 1).Equals(gameDir.Substring(0, 1));
+                    if (sameVolume == true)
+                    {
+                        Directory.Move(dirOld, gameDir);
+                        MessageBox.Show("Install has been moved!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(gameDir);
+                        foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories)) { Directory.CreateDirectory(dirPath.Replace(dirOld, gameDir)); }
+                        foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories)) { File.Copy(newPath, newPath.Replace(dirOld, gameDir), true); }
+                        Directory.Delete(dirOld, true);
+                        MessageBox.Show("Install has been moved!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void Uninstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                MessageBoxResult uninstallMSG = System.Windows.MessageBox.Show($"Are you sure you want to uninstall {GameName}?", $"{GameName}", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (uninstallMSG == MessageBoxResult.Yes)
+                {
+                    Directory.Delete(gameDir, true);
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    key.SetValue("Installed", "0");
+                    key.Close();
+                    Status = MC5Status.noInstall;
+                    MessageBox.Show($"{GameName} has been successfully uninstalled!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         struct Version
@@ -789,11 +531,6 @@ namespace MCParodyLauncher.MVVM.View
             {
                 return $"{major}.{minor}.{subMinor}";
             }
-        }
-
-        private void StorePage_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-5") { UseShellExecute = true });
         }
     }
 }

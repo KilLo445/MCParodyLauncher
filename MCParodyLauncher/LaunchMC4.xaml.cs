@@ -69,7 +69,7 @@ namespace MCParodyLauncher
                     if (obMC4Path != null)
                     {
                         mc4dir = (obMC4Path as String);
-                        mc4 = Path.Combine(mc4dir, "Minecraft4.exe");
+                        mc4 = Path.Combine(mc4dir + "\\mc4\\", "Minecraft4.exe");
                         keyMC4.Close();
                         try
                         {
@@ -117,16 +117,16 @@ namespace MCParodyLauncher
                 }
             }
 
-            using (RegistryKey keyMC4O = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
+            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
-                if (keyMC4O != null)
+                if (keyMC4 != null)
                 {
-                    Object obMC4OPath = keyMC4O.GetValue("InstallPathOtherside");
-                    if (obMC4OPath != null)
+                    Object obMC4Path = keyMC4.GetValue("InstallPath");
+                    if (obMC4Path != null)
                     {
-                        mc4odir = (obMC4OPath as String);
-                        mc4o = Path.Combine(mc4odir, "Minecraft4Otherside.exe");
-                        keyMC4O.Close();
+                        mc4odir = (obMC4Path as String);
+                        mc4o = Path.Combine(mc4odir + "\\mc4o\\", "Minecraft4Otherside.exe");
+                        keyMC4.Close();
                         try
                         {
                             this.Hide();

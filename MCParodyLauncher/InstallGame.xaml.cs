@@ -12,9 +12,7 @@ namespace MCParodyLauncher
         public static bool installCanceled = false;
 
         private string rootPath;
-
         private string defaultPath;
-
         public string curGame;
 
         public InstallGame(string currentGame, string installSize)
@@ -24,8 +22,6 @@ namespace MCParodyLauncher
             curGame = currentGame;
 
             rootPath = Directory.GetCurrentDirectory();
-
-            if (curGame == "Minecraft 2") { curGame = "Minecraft 2 Remake"; }
 
             defaultPath = Path.Combine(rootPath, "games");
 

@@ -15,9 +15,11 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        public static string launcherVersion = "1.2.11";
+        public static string launcherVersion = "1.3.0";
         public static string onlineVerLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt";
         public static bool devMode = false;
+
+        public static string regPath = @"Software\decentgames\MinecraftParodyLauncher\games";
 
         public static bool IsAdministrator()
         {
@@ -66,7 +68,7 @@ namespace MCParodyLauncher
             if (devMode == true) { rbtnDev.Visibility = Visibility.Visible; offlineMode = true; }
             if (devMode == false) { rbtnDev.Visibility = Visibility.Hidden; }
 
-            if (usOfflineMode == true && devMode == false) { offlineMode = true; this.Title = "Minecraft Parody Launcher (Offline Mode)"; OfflineText.Visibility = Visibility.Visible; }
+            //if (usOfflineMode == true && devMode == false) { offlineMode = true; this.Title = "Minecraft Parody Launcher (Offline Mode)"; OfflineText.Visibility = Visibility.Visible; }
 
             SplashScreen();
 

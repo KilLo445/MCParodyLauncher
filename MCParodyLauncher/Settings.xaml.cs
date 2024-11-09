@@ -74,10 +74,10 @@ namespace MCParodyLauncher
             if (hidelauncher == "1") { cbHide.IsChecked = false; }
 
             // Offline Mode
-            Object obOfflineMode = key.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
-            if (offlinemode == null) { offlinemode = "0"; key.SetValue("OfflineMode", "0"); }
-            if (offlinemode == "0") { cbOffline.IsChecked = false; }
-            if (offlinemode == "1") { cbOffline.IsChecked = true; }
+            //Object obOfflineMode = key.GetValue("OfflineMode", null); string offlinemode = (obOfflineMode as String);
+            //if (offlinemode == null) { offlinemode = "0"; key.SetValue("OfflineMode", "0"); }
+            //if (offlinemode == "0") { cbOffline.IsChecked = false; }
+            //if (offlinemode == "1") { cbOffline.IsChecked = true; }
 
             // Dev Mode
             Object obDevMode = key.GetValue("Developer", null); string devmode = (obDevMode as String);

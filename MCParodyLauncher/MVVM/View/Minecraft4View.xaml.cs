@@ -5,13 +5,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Windows;
-using System.Media;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Microsoft.Toolkit.Uwp.Notifications;
 using WinForms = System.Windows.Forms;
 using System.Threading.Tasks;
 using Wsh = IWshRuntimeLibrary;
-using Microsoft.Toolkit.Uwp.Notifications;
+using System.Windows.Input;
 
 namespace MCParodyLauncher.MVVM.View
 {
@@ -19,46 +19,40 @@ namespace MCParodyLauncher.MVVM.View
     {
         ready,
         noInstall,
+        downloading,
         checkUpdate,
         update,
-        failed,
-        unzip,
-        downloading
+        updating,
+        installing,
+        error
     }
     public partial class Minecraft4View : UserControl
     {
-        public static string GameName = "Minecraft 4";
+        public string GameName = "Minecraft 4";
+        public string GameNameS = "MC4";
+        public string GameProcess = "Minecraft4";
+        public string GameProcessO = "Minecraft4Otherside";
 
-        private string mc4link = "https://www.dropbox.com/s/dq5vl127q7gza4r/mc4.zip?dl=1";
-        private string mc4olink = "https://www.dropbox.com/s/6xd3c6dtd889ekb/mc4o.zip?dl=1";
+        private string gameLink = "https://www.dropbox.com/scl/fi/p22nxxkjjkktdeebgvo0t/mc4.zip?rlkey=a17asnmdcy3od23q9jtzn4pft&st=arh4pwmd&dl=1";
+        private string gameStore = "https://decentgamestudio.itch.io/minecraft-4";
+        private string gameStoreO = "https://decentgamestudio.itch.io/minecraft-4-otherside";
         private string verLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC4/version.txt";
-        private string verLinkO = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC4O/version.txt";
         private string sizeLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Games/MC4/size.txt";
 
         // Paths
         private string rootPath;
         private string tempPath;
-        private string mcplTempPath;
         private string gamesPath;
-        private string mc4dir;
-        private string mc4odir;
+        private string gameDir;
 
         // Files
-        private string mc4;
-        private string mc4ver;
-        private string mc4zip;
-        private string mc4o;
-        private string mc4over;
-        private string mc4ozip;
+        private string gameZip;
+        private string gameVer;
 
-        // Settings
-        string mc4Installed;
+        // Bools
+        public static bool gameInstalled;
+        public static bool updateAvailable;
         public static bool downloadActive = false;
-        bool mc4UpToDate = true;
-        bool mc4oUpToDate = true;
-        bool mc4DL = false;
-        bool mc4oDL = false;
-        bool forceMC4Uninst = false;
 
         private MC4Status _status;
 
@@ -73,28 +67,52 @@ namespace MCParodyLauncher.MVVM.View
                 switch (_status)
                 {
                     case MC4Status.ready:
-                        PlayMC4.Content = "Play";
+                        PlayBTN.Content = "Play";
+                        PlayBTN.IsEnabled = true;
                         downloadActive = false;
+                        gameInstalled = true;
                         break;
                     case MC4Status.noInstall:
-                        PlayMC4.Content = "Download";
+                        PlayBTN.Content = "Download";
+                        PlayBTN.IsEnabled = true;
                         downloadActive = false;
-                        break;
-                    case MC4Status.failed:
-                        PlayMC4.Content = "Error";
-                        downloadActive = false;
+                        gameInstalled = false;
                         break;
                     case MC4Status.downloading:
-                        PlayMC4.Content = "Downloading";
+                        PlayBTN.Content = "Downloading";
+                        PlayBTN.IsEnabled = false;
                         downloadActive = true;
+                        gameInstalled = false;
                         break;
-                    case MC4Status.unzip:
-                        PlayMC4.Content = "Installing";
-                        downloadActive = true;
+                    case MC4Status.checkUpdate:
+                        PlayBTN.Content = "Checking...";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = false;
+                        gameInstalled = true;
                         break;
                     case MC4Status.update:
-                        PlayMC4.Content = "Updating";
+                        PlayBTN.Content = "Update";
+                        PlayBTN.IsEnabled = true;
+                        downloadActive = false;
+                        gameInstalled = true;
+                        break;
+                    case MC4Status.updating:
+                        PlayBTN.Content = "Updating";
+                        PlayBTN.IsEnabled = false;
                         downloadActive = true;
+                        gameInstalled = false;
+                        break;
+                    case MC4Status.installing:
+                        PlayBTN.Content = "Installing";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = true;
+                        gameInstalled = false;
+                        break;
+                    case MC4Status.error:
+                        PlayBTN.Content = "Error";
+                        PlayBTN.IsEnabled = false;
+                        downloadActive = false;
+                        gameInstalled = false;
                         break;
                 }
             }
@@ -103,838 +121,367 @@ namespace MCParodyLauncher.MVVM.View
         public Minecraft4View()
         {
             InitializeComponent();
-
             rootPath = Directory.GetCurrentDirectory();
-            tempPath = Path.GetTempPath();
-            mcplTempPath = Path.Combine(tempPath, "MCParodyLauncher");
-
-            mc4zip = Path.Combine(mcplTempPath, "mc4.zip");
-            mc4ozip = Path.Combine(mcplTempPath, "mc4o.zip");
-
-            CheckInst();
+            tempPath = Path.Combine(Path.GetTempPath(), "MCParodyLauncher");
+            gameZip = Path.Combine(tempPath, $"{GameNameS.ToLower()}.zip");
+            CheckInstall();
+            if (gameInstalled == true) { CheckForOtherside(); CheckForUpdates(); }
+            if (updateAvailable == true) { UpdateNotif(); }
         }
 
-        private void CheckInst()
+        private void CheckForOtherside()
         {
-            RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-            Object obMC4Installed = keyMC4.GetValue("Installed", null);
-
-            if (obMC4Installed != null)
+            using(RegistryKey keyMC4O = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
             {
-                string MC4Installed = (obMC4Installed as String);
-
-                if (MC4Installed != "0")
+                if (keyMC4O != null)
                 {
-                    Object obMC4Path = keyMC4.GetValue("InstallPath");
-                    Object obMC4oPath = keyMC4.GetValue("InstallPathOtherside");
-                    if (obMC4Path != null)
+                    Object obMC4OPath = keyMC4O.GetValue("InstallPathOtherside");
+                    if (obMC4OPath != null)
                     {
-                        mc4dir = (obMC4Path as String);
-                        if (obMC4oPath != null)
+                        string mc4odir = (obMC4OPath as String);
+                        if (Directory.Exists((obMC4OPath as String)))
                         {
-                            mc4odir = (obMC4oPath as String);
+                            Directory.Delete(mc4odir, true);
+                            GetInstallPath();
+                            gameVer = Path.Combine(gameDir, "version.txt");
+                            File.Delete(gameVer);
+                            System.Windows.Forms.Application.Restart();
+                            Application.Current.Shutdown();
                         }
-                        else
-                        {
-                            forceMC4Uninst = true;
-                        }
-
-                        keyMC4.Close();
                     }
-
-                    keyMC4.Close();
-                    Status = MC4Status.ready;
                 }
-                else
+            }
+        }
+
+        private void CheckInstall()
+        {
+            try
+            {
+                RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                Object obGameInstalled = keyGame.GetValue("Installed", null);
+                if (obGameInstalled != null)
                 {
-                    keyMC4.Close();
-                    Status = MC4Status.noInstall;
-                }
-            }
-            else
-            {
-                keyMC4.Close();
-                Status = MC4Status.noInstall;
-            }
-        }
-
-        private void ForceMC4Uninstall()
-        {
-            if (forceMC4Uninst == true)
-            {
-                RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-                MessageBoxResult mc4oInfo = System.Windows.MessageBox.Show("Hi there!\n\nTo get Minecraft 4: Otherside to install properly, please press OK to uninstall Minecraft 4, then please reinstall both games.", "Minecraft 4: Otherside", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                if (mc4oInfo == MessageBoxResult.OK)
-                {
-                    try
+                    if (obGameInstalled as String != "0")
                     {
-                        if (Directory.Exists(mc4dir)) { Directory.Delete(mc4dir, true); }
-                        if (Directory.Exists(mc4odir)) { Directory.Delete(mc4odir, true); }
-                        keyMC4.SetValue("Installed", "0");
-                        keyMC4.Close();
-                        Status = MC4Status.noInstall;
-                        forceMC4Uninst = false;
-                        SystemSounds.Exclamation.Play();
-                        MessageBox.Show("Minecraft 4 has been successfully uninstalled!", "Minecraft 4");
+                        Object obMC2RPath = keyGame.GetValue("InstallPath");
+                        if (obMC2RPath != null) { gameDir = (obMC2RPath as String); }
+                        Status = MC4Status.ready;
                     }
-                    catch (Exception ex)
-                    {
-                        keyMC4.Close();
-                        SystemSounds.Exclamation.Play();
-                        MessageBox.Show($"Error uninstalling Minecraft 4: {ex}");
-                    }
+                    else { Status = MC4Status.noInstall; }
                 }
-            }
-        }
-
-        private void CreateTemp()
-        {
-            Directory.CreateDirectory(mcplTempPath);
-        }
-
-        private void PlayMC4_Click(object sender, RoutedEventArgs e)
-        {
-            if (Status == MC4Status.downloading)
-            {
+                else { Status = MC4Status.noInstall; }
+                keyGame.Close();
                 return;
             }
-
-            if (forceMC4Uninst == true) { ForceMC4Uninstall(); }
-
-            RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-            Object obMC4Installed = keyMC4.GetValue("Installed", null);
-
-            if (MainWindow.offlineMode == true)
-            {
-                Object obMC4Path = keyMC4.GetValue("InstallPath");
-                if (obMC4Path != null)
-                {
-                    mc4dir = (obMC4Path as String);
-                    mc4 = Path.Combine(mc4dir, "Minecraft4.exe");
-
-                    if (File.Exists(mc4))
-                    {
-                        try
-                        {
-                            LaunchMC4 mc4Window = new LaunchMC4();
-                            mc4Window.Show();
-                            return;
-                        }
-                        catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-                        return;
-                    }
-
-                    else
-                    {
-                        MessageBox.Show("Please launch Minecraft Parody Launcher in online mode to install Minecraft 4.");
-                        return;
-                    }
-                }
-            }
-
-            keyMC4.Close();
-            if (obMC4Installed != null)
-            {
-                mc4Installed = (obMC4Installed as String);
-
-                if (mc4Installed == "1")
-                {
-                    CheckForUpdatesMC4();
-                }
-                else
-                {
-                    InstallMC4();
-                }
-            }
-            else
-            {
-                InstallMC4();
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private void StartMC4()
+        private void GetInstallPath()
         {
-            if (Status == MC4Status.ready)
-            {
-                try
-                {
-                    LaunchMC4 mc4Window = new LaunchMC4();
-                    mc4Window.Show();
-                    return;
-                }
-                catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-            }
-        }
-
-        private async void InstallMC4()
-        {
-            InstallGame.installConfirmed = false;
-            InstallGame.installCanceled = false;
-
-            WebClient webClient = new WebClient();
-            string mc4Size = webClient.DownloadString(sizeLink);
-
-            RegistryKey keyGames = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games", true);
-            keyGames.CreateSubKey("mc4");
-            RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-            keyGames.Close();
-
-            InstallGame installWindow = new InstallGame("Minecraft 4", mc4Size);
-            installWindow.Show();
-            PlayMC4.IsEnabled = false;
-            downloadActive = true;
-            while (InstallGame.installConfirmed == false)
-            {
-                if (InstallGame.installCanceled == true) { PlayMC4.IsEnabled = true; downloadActive = false; return; }
-                await Task.Delay(100);
-            }
-            PlayMC4.IsEnabled = true;
-            downloadActive = false;
-            mc4dir = Path.Combine(InstallGame.InstallPath, "Minecraft 4");
-            mc4odir = Path.Combine(InstallGame.InstallPath, "Minecraft 4 Otherside");
-            keyMC4.SetValue("InstallPath", mc4dir);
-            keyMC4.SetValue("InstallPathOtherside", mc4odir);
-            keyMC4.Close();
-            DownloadMC4();
-        }
-
-        private void DownloadMC4()
-        {
-            CreateTemp();
-            Directory.CreateDirectory(mc4dir);
-            Directory.CreateDirectory(mc4odir);
-
-            if (File.Exists(mc4zip))
-            {
-                try
-                {
-                    File.Delete(mc4zip);
-                }
-                catch (Exception ex)
-                {
-                    Status = MC4Status.failed;
-                    MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            if (File.Exists(mc4ozip))
-            {
-                try
-                {
-                    File.Delete(mc4ozip);
-                }
-                catch (Exception ex)
-                {
-                    Status = MC4Status.failed;
-                    MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-
-            DLProgress.Visibility = Visibility.Visible;
-
             try
             {
-                Status = MC4Status.downloading;
-
-                DLProgress.IsIndeterminate = false;
-                WebClient webClient = new WebClient();
-                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-                stopwatch.Start();
-                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback);
-                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                webClient.DownloadFileAsync(new Uri(mc4link), mc4zip);
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}"))
+                {
+                    if (key != null)
+                    {
+                        Object obPath = key.GetValue("InstallPath");
+                        if (obPath != null)
+                        {
+                            gameDir = (obPath as String);
+                            key.Close();
+                        }
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                Status = MC4Status.failed;
-                MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private void DownloadMC4CompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-
-            ExtractZipAsync(mc4zip, mc4dir);
-
-            mc4DL = true;
-
-            Status = MC4Status.downloading;
-
-            DLProgress.IsIndeterminate = false;
-            WebClient webClient = new WebClient();
-            if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-            stopwatch.Start();
-            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadMC4CompletedCallback2);
-            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-            webClient.DownloadFileAsync(new Uri(mc4olink), mc4ozip);
-        }
-
-        private void DownloadMC4CompletedCallback2(object sender, AsyncCompletedEventArgs e)
-        {
-            stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-            RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true);
-            keyMC4.SetValue("Installed", "1");
-            keyMC4.Close();
-            mc4oDL = true;
-            ExtractZipAsync(mc4ozip, mc4odir);
-        }
-
-        private void CheckForUpdatesMC4()
+        private async Task CheckForUpdates()
         {
             Status = MC4Status.checkUpdate;
-
             try
             {
-                using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
-                {
-                    if (keyMC4 != null)
-                    {
-                        Object obMC4Path = keyMC4.GetValue("InstallPath");
-                        Object obMC4oPath = keyMC4.GetValue("InstallPathOtherside");
-                        if (obMC4Path != null && obMC4oPath != null)
-                        {
-                            mc4dir = (obMC4Path as String);
-                            mc4ver = Path.Combine(mc4dir, "version.txt");
-                            mc4odir = (obMC4oPath as String);
-                            mc4over = Path.Combine(mc4odir, "version.txt");
-                            keyMC4.Close();
-                        }
-                    }
-                }
+                await Task.Run(() => GetInstallPath());
+                gameVer = Path.Combine(gameDir + "\\mc4\\", "version.txt");
+                if (!File.Exists(gameVer)) { updateAvailable = false; UpdateNotif(); return; }
+                Version localVer = new Version(File.ReadAllText(gameVer));
+                WebClient webClient = new();
+                Version onlineVer = new Version(await webClient.DownloadStringTaskAsync(verLink));
+                if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; Status = MC4Status.update; }
+                else { updateAvailable = false; Status = MC4Status.ready; }
+                return;
             }
-            catch (Exception ex)
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void DownloadGame()
+        {
+            try
             {
-                SystemSounds.Exclamation.Play();
-                Status = MC4Status.failed;
-                MessageBox.Show($"Error: {ex}");
+                ProgressBar.Visibility = Visibility.Visible;
+                ProgressBar.IsIndeterminate = false;
+                CreateTemp();
+                if (Directory.Exists(gameDir)) { Directory.Delete(gameDir, true); }
+                Directory.CreateDirectory(gameDir);
+                if (File.Exists(gameZip)) { File.Delete(gameZip); }
+                WebClient webClient = new WebClient();
+                if (MainWindow.usDownloadStats == true) { DownloadStats.Visibility = Visibility.Visible; }
+                stopwatch.Start();
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameComplete);
+                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                webClient.DownloadFileAsync(new Uri(gameLink), gameZip);
+                return;
             }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
 
-            if (File.Exists(mc4ver) && File.Exists(mc4over))
+        private void DownloadGameComplete(object sender, AsyncCompletedEventArgs e)
+        {
+            stopwatch.Reset();
+            DownloadStats.Visibility = Visibility.Hidden;
+            ExtractZipAsync(gameZip, gameDir);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+            key.SetValue("Installed", "1");
+            key.Close();
+            return;
+        }
+
+        private void UpdateNotif()
+        {
+            MessageBoxResult updateResult = System.Windows.MessageBox.Show($"An update for {GameName} has been found! Would you like to download it?", $"{GameName}", System.Windows.MessageBoxButton.YesNo);
+            if (updateResult == MessageBoxResult.Yes) { Status = MC4Status.updating; DownloadGame(); }
+            else { Status = MC4Status.ready; return; }
+        }
+
+        private async void PlayBTN_Click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                Version localVersionMC4 = new Version(File.ReadAllText(mc4ver));
-                Version localVersionMC4o = new Version(File.ReadAllText(mc4over));
-
-                try
+                if (Status == MC4Status.noInstall)
                 {
+                    InstallGame.installConfirmed = false;
+                    InstallGame.installCanceled = false;
                     WebClient webClient = new WebClient();
-                    Version onlineVersionMC4 = new Version(webClient.DownloadString(verLink));
-                    Version onlineVersionMC4o = new Version(webClient.DownloadString(verLinkO));
-
-                    if (onlineVersionMC4.IsDifferentThan(localVersionMC4))
+                    string gameSize = webClient.DownloadString(sizeLink);
+                    RegistryKey keyGames = Registry.CurrentUser.OpenSubKey($"{MainWindow.regPath}", true);
+                    keyGames.CreateSubKey($"{GameNameS.ToLower()}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGames.Close();
+                    InstallGame installWindow = new InstallGame($"{GameName}", gameSize);
+                    installWindow.Show();
+                    PlayBTN.IsEnabled = false;
+                    downloadActive = true;
+                    while (InstallGame.installConfirmed == false)
                     {
-                        mc4UpToDate = false;
+                        if (InstallGame.installCanceled == true) { PlayBTN.IsEnabled = true; downloadActive = false; return; }
+                        await Task.Delay(100);
                     }
-                    if (onlineVersionMC4o.IsDifferentThan(localVersionMC4o))
-                    {
-                        mc4oUpToDate = false;
-                    }
-                    if (mc4UpToDate == false || mc4oUpToDate == false)
-                    {
-                        InstallUpdateMC4();
-                    }
-                    else
-                    {
-                        mc4UpToDate = true;
-                        mc4oUpToDate = true;
-                        Status = MC4Status.ready;
-                        StartMC4();
-                    }
+                    downloadActive = false;
+                    gameDir = Path.Combine(InstallGame.InstallPath, $"{GameName}");
+                    keyGame.SetValue("InstallPath", gameDir);
+                    keyGame.Close();
+                    Status = MC4Status.downloading;
+                    DownloadGame();
+                    return;
                 }
-                catch (Exception ex)
+                if (Status == MC4Status.downloading || Status == MC4Status.updating) { return; }
+                if (!Keyboard.IsKeyDown(Key.LeftShift))
                 {
-                    Status = MC4Status.failed;
-                    MessageBox.Show($"Error checking for updates: {ex}");
+                    if (Process.GetProcessesByName($"{GameProcess}").Length > 0)
+                    {
+                        MessageBox.Show($"{GameName} is already running.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                 }
+                GetInstallPath();
+                LaunchMC4 mc4Window = new LaunchMC4();
+                mc4Window.Show();
+                return;
             }
-            else
-            {
-                mc4UpToDate = false;
-                mc4oUpToDate = false;
-                InstallUpdateMC4();
-            }
-        }
-
-        private void InstallUpdateMC4()
-        {
-            if (mc4UpToDate == false)
-            {
-                try
-                {
-                    MessageBoxResult messageBoxResultMC4Update = System.Windows.MessageBox.Show("An update for Minecraft 4 has been found! Would you like to download it?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
-                    if (messageBoxResultMC4Update == MessageBoxResult.Yes)
-                    {
-                        Status = MC4Status.update;
-
-                        CreateTemp();
-
-                        try
-                        {
-                            if (Directory.Exists(mc4dir))
-                            {
-                                Directory.Delete(mc4dir, true);
-                            }
-
-                            Directory.CreateDirectory(mc4dir);
-
-                            if (File.Exists(mc4zip))
-                            {
-                                try
-                                {
-                                    File.Delete(mc4zip);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Status = MC4Status.failed;
-                                    MessageBox.Show($"Error deleting zip: {ex}");
-                                }
-                            }
-
-                            DLProgress.Visibility = Visibility.Visible;
-
-                            try
-                            {
-                                Status = MC4Status.downloading;
-
-                                DLProgress.IsIndeterminate = false;
-                                WebClient webClient = new WebClient();
-                                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-                                stopwatch.Start();
-                                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4CompletedCallback);
-                                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                                webClient.DownloadFileAsync(new Uri(mc4link), mc4zip);
-                            }
-                            catch (Exception ex)
-                            {
-                                Status = MC4Status.failed;
-                                MessageBox.Show($"Error updating Minecraft 4: {ex}");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            SystemSounds.Exclamation.Play();
-                            Status = MC4Status.failed;
-                            MessageBox.Show($"Error updating Minecraft 4: {ex}");
-                        }
-                    }
-                    else
-                    {
-                        Status = MC4Status.ready;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    SystemSounds.Exclamation.Play();
-                    Status = MC4Status.failed;
-                    MessageBox.Show($"Error: {ex}");
-                }
-            }
-            if (mc4oUpToDate == false)
-            {
-                try
-                {
-                    MessageBoxResult messageBoxResultMC4oUpdate = System.Windows.MessageBox.Show("An update for Minecraft 4: Otherside has been found! Would you like to download it?", "Minecraft 4: Otherside", System.Windows.MessageBoxButton.YesNo);
-                    if (messageBoxResultMC4oUpdate == MessageBoxResult.Yes)
-                    {
-                        Status = MC4Status.update;
-
-                        CreateTemp();
-
-                        try
-                        {
-                            if (Directory.Exists(mc4odir))
-                            {
-                                Directory.Delete(mc4odir, true);
-                            }
-
-                            Directory.CreateDirectory(mc4odir);
-
-                            if (File.Exists(mc4ozip))
-                            {
-                                try
-                                {
-                                    File.Delete(mc4ozip);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Status = MC4Status.failed;
-                                    MessageBox.Show($"Error deleting zip: {ex}");
-                                }
-                            }
-
-                            DLProgress.Visibility = Visibility.Visible;
-
-                            try
-                            {
-                                Status = MC4Status.downloading;
-
-                                DLProgress.IsIndeterminate = false;
-                                WebClient webClient = new WebClient();
-                                if (MainWindow.usDownloadStats == true) { lblProgress.Visibility = Visibility.Visible; }
-                                stopwatch.Start();
-                                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(UpdateMC4OCompletedCallback);
-                                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                                webClient.DownloadFileAsync(new Uri(mc4olink), mc4ozip);
-                            }
-                            catch (Exception ex)
-                            {
-                                Status = MC4Status.failed;
-                                MessageBox.Show($"Error updating Minecraft 4: Otherside : {ex}");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            SystemSounds.Exclamation.Play();
-                            MessageBox.Show($"Error updating Minecraft 4: Otherside: {ex}");
-                        }
-                    }
-                    else
-                    {
-                        Status = MC4Status.ready;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    SystemSounds.Exclamation.Play();
-                    Status = MC4Status.failed;
-                    MessageBox.Show($"Error: {ex}");
-                }
-            }
-            StartMC4();
-        }
-
-        private void UpdateMC4CompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-            mc4DL = true;
-            mc4oDL = true;
-            ExtractZipAsync(mc4zip, mc4dir);
-        }
-
-        private void UpdateMC4OCompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            stopwatch.Reset();
-            lblProgress.Visibility = Visibility.Hidden;
-            mc4DL = true;
-            mc4oDL = true;
-            ExtractZipAsync(mc4ozip, mc4odir);
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         private async Task ExtractZipAsync(string zipfile, string output)
         {
             try
             {
-                Status = MC4Status.unzip;
-                DLProgress.IsIndeterminate = true;
+                ProgressBar.Visibility = Visibility.Visible;
+                ProgressBar.IsIndeterminate = true;
+                Status = MC4Status.installing;
                 await Task.Run(() => ZipFile.ExtractToDirectory(zipfile, output));
-                File.Delete(mc4zip);
-                if (mc4DL == true && mc4oDL == true)
+                File.Delete(gameZip);
+                ProgressBar.Visibility = Visibility.Hidden;
+                if (MainWindow.usNotifications == true)
                 {
-                    Status = MC4Status.ready;
-                    DLProgress.Visibility = Visibility.Hidden;
-                    mc4DL = false;
-                    mc4oDL = false;
-                    if (MainWindow.usNotifications == true)
-                    {
-                        new ToastContentBuilder()
-                        .AddText("Download complete!")
-                        .AddText("Minecraft 4 has finished downloading.")
-                        .Show();
-                    }
+                    string dlStatus;
+                    if (Status == MC4Status.updating) { dlStatus = "updating"; }
+                    else { dlStatus = "downloading"; }
+                    new ToastContentBuilder()
+                    .AddText("Download complete!")
+                    .AddText($"{GameName} has finished {dlStatus}.")
+                    .Show();
                 }
+                Status = MC4Status.ready;
                 return;
             }
-            catch (Exception ex)
-            {
-                Status = MC4Status.failed;
-                MessageBox.Show($"Error Updating Minecraft 4: {ex}");
-                return;
-            }
-        }
-
-        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
-            {
-                if (keyMC4 != null)
-                {
-                    Object obMC4Install = keyMC4.GetValue("Installed");
-                    mc4Installed = (obMC4Install as String);
-
-                    if (mc4Installed == "1")
-                    {
-                        object shDesktop = (object)"Desktop";
-                        Wsh.WshShell shell = new Wsh.WshShell();
-                        string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 4.lnk";
-                        string shortcutAddressO = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Minecraft 4 Otherside.lnk";
-                        Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                        Wsh.IWshShortcut shortcutO = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddressO);
-                        shortcut.TargetPath = mc4dir + "\\Minecraft4.exe";
-                        shortcutO.TargetPath = mc4odir + "\\Minecraft4Otherside.exe";
-                        shortcut.Save();
-                        shortcutO.Save();
-
-                        keyMC4.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC4.Close();
-                    }
-                }
-            }
-        }
-
-        private void FileLocation_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4"))
-            {
-                if (keyMC4 != null)
-                {
-                    Object obMC4Install = keyMC4.GetValue("Installed");
-                    mc4Installed = (obMC4Install as String);
-
-                    if (mc4Installed == "1")
-                    {
-                        Object obMC4Path = keyMC4.GetValue("InstallPath");
-                        Object obMC4oPath = keyMC4.GetValue("InstallPathOtherside");
-                        if (obMC4Path != null && obMC4oPath != null)
-                        {
-                            mc4dir = (obMC4Path as String);
-                            mc4odir = (obMC4oPath as String);
-                            keyMC4.Close();
-
-                            try
-                            {
-                                Process.Start(new ProcessStartInfo { FileName = mc4dir, UseShellExecute = true });
-                                Process.Start(new ProcessStartInfo { FileName = mc4odir, UseShellExecute = true });
-                            }
-                            catch (Exception ex) { MessageBox.Show($"{ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error); }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC4.Close();
-                    }
-                }
-            }
-        }
-
-        private void SelectLocation_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
-            {
-                if (keyMC4 != null)
-                {
-                    MessageBox.Show("Please select the folder that containes \"Minecraft4.exe\".", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
-                    selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    selectInstallDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc4Result = selectInstallDialog.ShowDialog();
-
-                    if (mc4Result == WinForms.DialogResult.OK)
-                    {
-                        string _mc4Result = Path.Combine(selectInstallDialog.SelectedPath, "Minecraft4.exe");
-                        if (!File.Exists(_mc4Result))
-                        {
-                            SystemSounds.Exclamation.Play();
-                            MessageBox.Show("Please select the location with Minecraft4.exe");
-                            return;
-                        }
-
-                        mc4dir = Path.Combine(selectInstallDialog.SelectedPath);
-                        keyMC4.SetValue("InstallPath", mc4dir);
-
-                        WinForms.FolderBrowserDialog _selectInstallDialog = new WinForms.FolderBrowserDialog();
-                        _selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                        _selectInstallDialog.Description = "Please select the folder that containes \"Minecraft4Otherside.exe\".";
-                        _selectInstallDialog.ShowNewFolderButton = true;
-                        WinForms.DialogResult __mc4Result = _selectInstallDialog.ShowDialog();
-
-                        if (__mc4Result == WinForms.DialogResult.OK)
-                        {
-                            string ___mc4Result = Path.Combine(_selectInstallDialog.SelectedPath, "Minecraft4Otherside.exe");
-                            if (!File.Exists(___mc4Result))
-                            {
-                                SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Please select the location with Minecraft4Otherside.exe");
-                                return;
-                            }
-
-                            mc4odir = Path.Combine(_selectInstallDialog.SelectedPath);
-                            keyMC4.SetValue("InstallPathOtherside", mc4odir);
-                            keyMC4.SetValue("Installed", "1");
-                            Status = MC4Status.ready;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void MoveInstall_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
-            {
-                if (keyMC4 != null)
-                {
-                    Object obMC4Install = keyMC4.GetValue("Installed");
-                    mc4Installed = (obMC4Install as String);
-
-                    if (mc4Installed != "1")
-                    {
-                        MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC4.Close();
-                        return;
-                    }
-                    MessageBox.Show("Please select where you would like to move Minecraft 4 and Minecraft 4: Otherside to, a folder called \"Minecraft 4\" and \"Minecraft 4 Otherside\" will be created.", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
-                    WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
-                    moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                    moveInstallDialog.ShowNewFolderButton = true;
-                    WinForms.DialogResult mc4Result = moveInstallDialog.ShowDialog();
-
-                    if (mc4Result == WinForms.DialogResult.OK)
-                    {
-                        string dirOld = mc4dir;
-                        string dirOldo = mc4odir;
-                        mc4dir = Path.Combine(moveInstallDialog.SelectedPath, "Minecraft 4");
-                        mc4odir = Path.Combine(moveInstallDialog.SelectedPath, "Minecraft 4 Otherside");
-                        keyMC4.SetValue("InstallPath", mc4dir);
-                        keyMC4.SetValue("InstallPathOtherside", mc4odir);
-                        keyMC4.Close();
-
-                        string dirOldChar = dirOld.Substring(0, 1);
-                        string mc4dirChar = mc4dir.Substring(0, 1);
-                        string dirOldoChar = dirOldo.Substring(0, 1);
-                        string mc4odirChar = mc4odir.Substring(0, 1);
-                        bool sameVolume = dirOldChar.Equals(mc4dirChar);
-                        bool sameVolumeO = dirOldoChar.Equals(mc4odirChar);
-
-                        if (sameVolume == true && sameVolumeO == true)
-                        {
-                            try
-                            {
-                                Directory.Move(dirOld, mc4dir);
-                                Directory.Move(dirOldo, mc4odir);
-                                MessageBox.Show("Install has been moved!", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
-                                return;
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error Moving Minecraft 4: {ex}");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(mc4dir);
-                                Directory.CreateDirectory(mc4odir);
-
-                                foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories))
-                                {
-                                    Directory.CreateDirectory(dirPath.Replace(dirOld, mc4dir));
-                                }
-                                foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories))
-                                {
-                                    File.Copy(newPath, newPath.Replace(dirOld, mc4dir), true);
-                                }
-                                foreach (string dirPath in Directory.GetDirectories(dirOldo, "*", SearchOption.AllDirectories))
-                                {
-                                    Directory.CreateDirectory(dirPath.Replace(dirOldo, mc4odir));
-                                }
-                                foreach (string newPath in Directory.GetFiles(dirOldo, "*.*", SearchOption.AllDirectories))
-                                {
-                                    File.Copy(newPath, newPath.Replace(dirOldo, mc4odir), true);
-                                }
-                                Directory.Delete(dirOld, true);
-                                Directory.Delete(dirOldo, true);
-                                MessageBox.Show("Install has been moved!", "Minecraft 4", MessageBoxButton.OK, MessageBoxImage.Information);
-                                return;
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error Moving Minecraft 4: {ex}");
-                                return;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void Uninstall_Click(object sender, RoutedEventArgs e)
-        {
-            using (RegistryKey keyMC4 = Registry.CurrentUser.OpenSubKey(@"Software\decentgames\MinecraftParodyLauncher\games\mc4", true))
-            {
-                if (keyMC4 != null)
-                {
-                    Object obMC4Install = keyMC4.GetValue("Installed");
-                    mc4Installed = (obMC4Install as String);
-
-                    if (mc4Installed != "1")
-                    {
-                        MessageBox.Show("Minecraft 4 does not seem to be installed.");
-                        keyMC4.Close();
-                        return;
-                    }
-
-                    MessageBoxResult delMC4Box = System.Windows.MessageBox.Show("Are you sure you want to uninstall Minecraft 4?", "Minecraft 4", System.Windows.MessageBoxButton.YesNo);
-                    if (delMC4Box == MessageBoxResult.Yes)
-                    {
-                        Object obMC4Path = keyMC4.GetValue("InstallPath");
-                        Object obMC4oPath = keyMC4.GetValue("InstallPathOtherside");
-                        if (obMC4Path != null && obMC4oPath != null)
-                        {
-                            mc4dir = (obMC4Path as String);
-                            mc4odir = (obMC4oPath as String);
-
-                            try
-                            {
-                                Directory.Delete(mc4dir, true);
-                                Directory.Delete(mc4odir, true);
-                                keyMC4.SetValue("Installed", "0");
-                                keyMC4.Close();
-                                Status = MC4Status.noInstall;
-                                SystemSounds.Exclamation.Play();
-                                MessageBox.Show("Minecraft 4 has been successfully uninstalled!", "Minecraft 4");
-                            }
-                            catch (Exception ex)
-                            {
-                                keyMC4.Close();
-                                SystemSounds.Exclamation.Play();
-                                MessageBox.Show($"Error uninstalling Minecraft 4: {ex}");
-                            }
-                        }
-                    }
-                }
-            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            string downloadProgress = e.ProgressPercentage + "%";
-            string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
-            string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
-            string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+            try
+            {
+                string downloadProgress = e.ProgressPercentage + "%";
+                string downloadSpeed = string.Format("{0} MB/s", (e.BytesReceived / 1024.0 / 1024.0 / stopwatch.Elapsed.TotalSeconds).ToString("0.00"));
+                string downloadedMBs = Math.Round(e.BytesReceived / 1024.0 / 1024.0) + " MB";
+                string totalMBs = Math.Round(e.TotalBytesToReceive / 1024.0 / 1024.0) + " MB";
+                string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+                DownloadStats.Content = progress;
+                ProgressBar.Value = e.ProgressPercentage;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
 
-            string progress = $"{downloadedMBs} / {totalMBs} ({downloadProgress}) ({downloadSpeed})";
+        private void CreateTemp() { Directory.CreateDirectory(tempPath); return; }
 
-            lblProgress.Content = progress;
+        private void ErrorMSG(Exception exception) { Status = MC4Status.error; Dispatcher.BeginInvoke(new Action(() => System.Windows.MessageBox.Show($"{exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)), System.Windows.Threading.DispatcherPriority.Normal); return; }
 
-            DLProgress.Value = e.ProgressPercentage;
+        private void StorePage_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo(gameStore) { UseShellExecute = true }); Process.Start(new ProcessStartInfo(gameStoreO) { UseShellExecute = true }); }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void CheckForUpdatesBTN_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                CheckForUpdates();
+                if (updateAvailable == false) { MessageBox.Show("No updates are available.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information); }
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void DesktopShortcut_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                object shDesktop = (object)"Desktop";
+                Wsh.WshShell shell = new Wsh.WshShell();
+                string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @$"\{GameName}.lnk";
+                Wsh.IWshShortcut shortcut = (Wsh.IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                shortcut.TargetPath = gameDir + $"\\{GameProcess}.exe";
+                shortcut.Save();
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void FileLocation_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                Process.Start(new ProcessStartInfo { FileName = gameDir, UseShellExecute = true });
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void LocateInstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == true) { MessageBox.Show($"{GameName} is already installled.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                MessageBox.Show($"Please select the folder that containes \"{GameProcess}.exe\".", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
+                selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                selectInstallDialog.ShowNewFolderButton = true;
+                WinForms.DialogResult gameResult = selectInstallDialog.ShowDialog();
+                if (gameResult == WinForms.DialogResult.OK)
+                {
+                    if (!File.Exists(Path.Combine(selectInstallDialog.SelectedPath, $"{GameProcess}.exe"))) { MessageBox.Show("Please select the location with Minecraft2Remake.exe", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                    gameDir = Path.Combine(selectInstallDialog.SelectedPath);
+                    RegistryKey keyGames = Registry.CurrentUser.OpenSubKey($"{MainWindow.regPath}", true);
+                    keyGames.CreateSubKey($"{GameNameS.ToLower()}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGames.SetValue("InstallPath", gameDir);
+                    keyGames.SetValue("Installed", "1");
+                    keyGame.Close();
+                    keyGames.Close();
+                    Status = MC4Status.ready;
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void MoveInstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                MessageBox.Show($"Please select where you would like to move {GameName} to.\n\nA folder called \"{GameName}\" will be created.", "Move Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
+                moveInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                moveInstallDialog.ShowNewFolderButton = true;
+                WinForms.DialogResult moveResult = moveInstallDialog.ShowDialog();
+                if (moveResult == WinForms.DialogResult.OK)
+                {
+                    string dirOld = gameDir;
+                    gameDir = Path.Combine(moveInstallDialog.SelectedPath, $"{GameName}");
+                    RegistryKey keyGame = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    keyGame.SetValue("InstallPath", gameDir);
+                    keyGame.Close();
+                    MessageBox.Show("Minecraft Parody Launcher may freeze during the move.\n\nDo not panic.", "Move Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                    bool sameVolume = dirOld.Substring(0, 1).Equals(gameDir.Substring(0, 1));
+                    if (sameVolume == true)
+                    {
+                        Directory.Move(dirOld, gameDir);
+                        MessageBox.Show("Install has been moved!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(gameDir);
+                        foreach (string dirPath in Directory.GetDirectories(dirOld, "*", SearchOption.AllDirectories)) { Directory.CreateDirectory(dirPath.Replace(dirOld, gameDir)); }
+                        foreach (string newPath in Directory.GetFiles(dirOld, "*.*", SearchOption.AllDirectories)) { File.Copy(newPath, newPath.Replace(dirOld, gameDir), true); }
+                        Directory.Delete(dirOld, true);
+                        MessageBox.Show("Install has been moved!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
+        }
+
+        private void Uninstall_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CheckInstall();
+                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
+                GetInstallPath();
+                MessageBoxResult uninstallMSG = System.Windows.MessageBox.Show($"Are you sure you want to uninstall {GameName}?", $"{GameName}", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (uninstallMSG == MessageBoxResult.Yes)
+                {
+                    Directory.Delete(gameDir, true);
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"{MainWindow.regPath}\{GameNameS.ToLower()}", true);
+                    key.SetValue("Installed", "0");
+                    key.Close();
+                    Status = MC4Status.noInstall;
+                    MessageBox.Show($"{GameName} has been successfully uninstalled!", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+                return;
+            }
+            catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
         struct Version
@@ -994,12 +541,6 @@ namespace MCParodyLauncher.MVVM.View
             {
                 return $"{major}.{minor}.{subMinor}";
             }
-        }
-
-        private void StorePage_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-4") { UseShellExecute = true });
-            Process.Start(new ProcessStartInfo("https://decentgamestudio.itch.io/minecraft-4-otherside") { UseShellExecute = true });
         }
     }
 }

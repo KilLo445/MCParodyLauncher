@@ -50,10 +50,6 @@
     <None Remove="Images\logo\game\icon\mc5_icon_128.png" />
     <None Remove="Images\logo\game\mc2.png" />
     <None Remove="Images\logo\game\mc3.png" />
-    <None Remove="Images\logo\game\mc4\mc4.png" />
-    <None Remove="Images\logo\game\mc4\mc4o.png" />
-    <None Remove="Images\logo\game\mc4\mc4plusotherside.png" />
-    <None Remove="Images\logo\game\mc5\mc5.png" />
     <None Remove="Images\logo\logo_full.png" />
     <None Remove="Images\Minecraft.png" />
   </ItemGroup>
@@ -74,7 +70,7 @@
   <ItemGroup>
     <Resource Include="Images\logo\game\mc2.png" />
     <Resource Include="Images\logo\game\mc3.png" />
-    <Resource Include="Images\logo\game\mc4\mc4plusotherside.png" />
+    <Resource Include="Images\logo\game\mc4.png" />
     <Resource Include="Images\Minecraft.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
@@ -99,7 +95,7 @@
     <Resource Include="Images\logo\game\icon\mc3_icon_128.png" />
     <Resource Include="Images\logo\game\icon\mc4_icon_128.png" />
     <Resource Include="Images\logo\game\icon\mc5_icon_128.png" />
-    <Resource Include="Images\logo\game\mc5\mc5.png" />
+    <Resource Include="Images\logo\game\mc5.png" />
     <Resource Include="Images\logo\logo_full.png" />
     <Resource Include="Images\Minecraft.png" />
   </ItemGroup>

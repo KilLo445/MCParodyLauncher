@@ -7,35 +7,34 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Grid>
-            <Image Name="MC5Logo" Source="/Images/logo/game/mc5/mc5.png" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Margin="0,-300,0,0"/>
-
-            <Button Name="PlayMC5" Width="100" Height="40" Content="" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayMC5_Click" Style="{StaticResource SquareButton}">
+        <Image Name="GameLogo" Source="/Images/logo/game/mc5.png" VerticalAlignment="Top" HorizontalAlignment="Center" Width="500" Margin="0,5,0,0"/>
+            <Button Name="PlayBTN" Width="100" Height="40" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayBTN_Click" Style="{StaticResource SquareButton}">
                 <Button.ContextMenu>
-                    <ContextMenu Name="mc5cm" StaysOpen="true">
-                        <MenuItem Name="StorePage" Header="Store Page"
-                              Click="StorePage_Click"/>
+                    <ContextMenu Name="PlayContext" StaysOpen="true">
+                        <MenuItem Name="StorePage" Header="Store page"
+                      Click="StorePage_Click"/>
+                        <MenuItem Name="CheckForUpdatesBTN" Header="Check for updates"
+                      Click="CheckForUpdatesBTN_Click"/>
                         <MenuItem Name="DesktopShortcut" Header="Add desktop shortcut"
-                              Click="DesktopShortcut_Click"/>
+                      Click="DesktopShortcut_Click"/>
                         <MenuItem Name="FileLocation" Header="Browse local files"
-                              Click="FileLocation_Click"/>
-                        <MenuItem Name="SelectLocation" Header="Locate installed game"
-                              Click="SelectLocation_Click"/>
+                      Click="FileLocation_Click"/>
+                        <MenuItem Name="LocateInstall" Header="Locate installed game"
+                      Click="LocateInstall_Click"/>
                         <MenuItem Name="MoveInstall" Header="Move install folder"
-                              Click="MoveInstall_Click"/>
+                      Click="MoveInstall_Click"/>
                         <MenuItem Name="Uninstall" Header="Uninstall"
-                              Click="Uninstall_Click"/>
+                      Click="Uninstall_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
 
-            <ProgressBar Name="DLProgress" Visibility="Hidden" IsIndeterminate="True" Style="{StaticResource PBTheme}">
+            <ProgressBar Name="ProgressBar" Visibility="Hidden" IsIndeterminate="True" Style="{StaticResource PBTheme}">
                 <ProgressBar.Clip>
                     <RectangleGeometry RadiusX="5" RadiusY="5" Rect="0,0,640,10"/>
                 </ProgressBar.Clip>
             </ProgressBar>
 
-            <Label Name="lblProgress" Content="" Foreground="White" FontFamily="/Fonts/Roboto/#Roboto" FontWeight="Regular" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,50" Visibility="Hidden"/>
-        </Grid>
+            <Label Name="DownloadStats" Content="" Foreground="White" FontFamily="/Fonts/Roboto/#Roboto" FontWeight="Regular" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,50" Visibility="Hidden"/>
     </Grid>
 </UserControl>

@@ -32,7 +32,7 @@
             ToolTip="Keep the launcher open instead of hiding it while you are in-game"
             Checked="cbHide_Checked" Unchecked="cbHide_Unchecked"/>
 
-        <CheckBox Name="cbOffline" Margin="30,20,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+        <CheckBox Name="cbOffline" Margin="30,20,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="Hidden"
             Content="Offline Mode" Foreground="White" FontFamily="/Fonts/Poppins/#Poppins" FontWeight="Light"
             ToolTip="Enable/Disable offline mode"
             Checked="cbOffline_Checked" Unchecked="cbOffline_Unchecked"/>

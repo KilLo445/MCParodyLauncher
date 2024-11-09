@@ -1,3 +1,6 @@
+v1.3.0
+- Huge interal rework
+
 v1.2.11
 - Changed some links to new website
 - Added store page links
