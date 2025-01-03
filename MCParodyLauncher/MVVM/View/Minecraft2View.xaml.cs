@@ -124,7 +124,8 @@ namespace MCParodyLauncher.MVVM.View
             gameZip = Path.Combine(tempPath, $"{GameNameS.ToLower()}.zip");
             CheckInstall();
             if (gameInstalled == true) { CheckForUpdates(); }
-            if (updateAvailable == true) { UpdateNotif(); }
+            if (updateAvailable == true) { Status = MC2RStatus.update; }
+            else { Status = MC2RStatus.ready; }
         }
 
         private void CheckInstall()
@@ -177,12 +178,12 @@ namespace MCParodyLauncher.MVVM.View
             {
                 await Task.Run(() => GetInstallPath());
                 gameVer = Path.Combine(gameDir, "version.txt");
-                if (!File.Exists(gameVer)) { updateAvailable = false; UpdateNotif(); return; }
+                if (!File.Exists(gameVer)) { updateAvailable = true; return; }
                 Version localVer = new Version(File.ReadAllText(gameVer));
                 WebClient webClient = new();
                 Version onlineVer = new Version(await webClient.DownloadStringTaskAsync(verLink));
-                if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; Status = MC2RStatus.update; }
-                else { updateAvailable = false; Status = MC2RStatus.ready; }
+                if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; }
+                else { updateAvailable = false; }
                 return;
             }
             catch (Exception ex) { ErrorMSG(ex); return; }
@@ -220,17 +221,11 @@ namespace MCParodyLauncher.MVVM.View
             return;
         }
 
-        private void UpdateNotif()
-        {
-            MessageBoxResult updateResult = System.Windows.MessageBox.Show($"An update for {GameName} has been found! Would you like to download it?", $"{GameName}", System.Windows.MessageBoxButton.YesNo);
-            if (updateResult == MessageBoxResult.Yes) { Status = MC2RStatus.updating; DownloadGame(); }
-            else { Status = MC2RStatus.ready; return; }
-        }
-
         private async void PlayBTN_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                if (Status == MC2RStatus.update) { Status = MC2RStatus.updating; DownloadGame(); }
                 if (Status == MC2RStatus.noInstall)
                 {
                     InstallGame.installConfirmed = false;
