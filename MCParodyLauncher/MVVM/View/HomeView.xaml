@@ -8,17 +8,21 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel>
         <TextBlock Text="Changelog" Foreground="White" FontSize="28" HorizontalAlignment="Left" Margin="20,10,0,20" FontFamily="/Fonts/Poppins/#Poppins"/>
-        <Button Name="OpenWebButton" Width="100" Height="40" Content="Website" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="300,-70,0,0" Click="OpenWebButton_Click">
+        <Button Name="OpenWebButton" Width="100" Height="40" Content="Help" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="300,-70,0,0" Click="OpenWebButton_Click">
             <Button.ContextMenu>
                 <ContextMenu Name="webcm" StaysOpen="true">
-                    <MenuItem Name="cmWeb" Header="decentstudios"
+                    <MenuItem Name="cmWeb" Header="Website"
                         Click="cmWeb_Click"/>
                     <MenuItem Name="cmItch" Header="Itch.io"
                         Click="cmItch_Click"/>
                     <MenuItem Name="cmGitHub" Header="GitHub"
                         Click="cmGitHub_Click"/>
+                    <MenuItem Name="cmLicense" Header="License"
+                        Click="cmLicense_Click"/>
                     <MenuItem Name="cmFAQ" Header="FAQ"
                         Click="cmFAQ_Click"/>
+                    <MenuItem Name="cmBug" Header="Bug report"
+                        Click="cmBug_Click"/>
                     <MenuItem Name="mc2Uninst" Header="MC2 Uninstaller"
                         Click="mc2Uninst_Click"/>
                 </ContextMenu>

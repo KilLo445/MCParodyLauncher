@@ -15,7 +15,7 @@ namespace MCParodyLauncher
 {
     public partial class MainWindow : Window
     {
-        public static string launcherVersion = "1.3.1";
+        public static string launcherVersion = "1.3.2";
         public static string onlineVerLink = "https://raw.githubusercontent.com/KilLo445/MCParodyLauncher/master/Versions/Launcher/version.txt";
         public static bool devMode = false;
 

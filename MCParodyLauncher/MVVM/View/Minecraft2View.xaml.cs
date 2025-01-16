@@ -123,9 +123,7 @@ namespace MCParodyLauncher.MVVM.View
             tempPath = Path.Combine(Path.GetTempPath(), "MCParodyLauncher");
             gameZip = Path.Combine(tempPath, $"{GameNameS.ToLower()}.zip");
             CheckInstall();
-            if (gameInstalled == true) { CheckForUpdates(); }
-            if (updateAvailable == true) { Status = MC2RStatus.update; }
-            else { Status = MC2RStatus.ready; }
+            if (gameInstalled == true) { CheckForUpdates(false); }
         }
 
         private void CheckInstall()
@@ -171,19 +169,25 @@ namespace MCParodyLauncher.MVVM.View
             catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
-        private async Task CheckForUpdates()
+        private async Task CheckForUpdates(bool manual)
         {
             Status = MC2RStatus.checkUpdate;
             try
             {
                 await Task.Run(() => GetInstallPath());
                 gameVer = Path.Combine(gameDir, "version.txt");
-                if (!File.Exists(gameVer)) { updateAvailable = true; return; }
-                Version localVer = new Version(File.ReadAllText(gameVer));
-                WebClient webClient = new();
-                Version onlineVer = new Version(await webClient.DownloadStringTaskAsync(verLink));
-                if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; }
-                else { updateAvailable = false; }
+                if (!File.Exists(gameVer)) { updateAvailable = true; }
+                else
+                {
+                    Version localVer = new Version(File.ReadAllText(gameVer));
+                    WebClient webClient = new();
+                    Version onlineVer = new Version(await webClient.DownloadStringTaskAsync(verLink));
+                    if (onlineVer.IsDifferentThan(localVer)) { updateAvailable = true; }
+                    else { updateAvailable = false; }
+                }
+                if (manual && !updateAvailable) { MessageBox.Show("No updates are available.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information); }
+                if (updateAvailable) { Status = MC2RStatus.update; }
+                else { Status = MC2RStatus.ready; }
                 return;
             }
             catch (Exception ex) { ErrorMSG(ex); return; }
@@ -330,6 +334,29 @@ namespace MCParodyLauncher.MVVM.View
 
         private void ErrorMSG(Exception exception) { Status = MC2RStatus.error; Dispatcher.BeginInvoke(new Action(() => System.Windows.MessageBox.Show($"{exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)), System.Windows.Threading.DispatcherPriority.Normal); return; }
 
+        private void PlayContext_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            CheckInstall();
+            if (!gameInstalled)
+            {
+                CheckForUpdatesBTN.IsEnabled = false;
+                DesktopShortcut.IsEnabled = false;
+                FileLocation.IsEnabled = false;
+                LocateInstall.IsEnabled = true;
+                MoveInstall.IsEnabled = false;
+                Uninstall.IsEnabled = false;
+            }
+            else
+            {
+                CheckForUpdatesBTN.IsEnabled = true;
+                DesktopShortcut.IsEnabled = true;
+                FileLocation.IsEnabled = true;
+                LocateInstall.IsEnabled = false;
+                MoveInstall.IsEnabled = true;
+                Uninstall.IsEnabled = true;
+            }
+        }
+
         private void StorePage_Click(object sender, RoutedEventArgs e)
         {
             try { Process.Start(new ProcessStartInfo(gameStore) { UseShellExecute = true }); }
@@ -338,13 +365,7 @@ namespace MCParodyLauncher.MVVM.View
 
         private void CheckForUpdatesBTN_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                CheckInstall();
-                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
-                CheckForUpdates();
-                if (updateAvailable == false) { MessageBox.Show("No updates are available.", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information); }
-            }
+            try { CheckForUpdates(true); }
             catch (Exception ex) { ErrorMSG(ex); return; }
         }
 
@@ -352,8 +373,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             try
             {
-                CheckInstall();
-                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
                 GetInstallPath();
                 object shDesktop = (object)"Desktop";
                 Wsh.WshShell shell = new Wsh.WshShell();
@@ -369,8 +388,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             try
             {
-                CheckInstall();
-                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
                 GetInstallPath();
                 Process.Start(new ProcessStartInfo { FileName = gameDir, UseShellExecute = true });
             }
@@ -381,8 +398,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             try
             {
-                CheckInstall();
-                if (gameInstalled == true) { MessageBox.Show($"{GameName} is already installled.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
                 MessageBox.Show($"Please select the folder that containes \"{GameProcess}.exe\".", $"{GameName}", MessageBoxButton.OK, MessageBoxImage.Information);
                 WinForms.FolderBrowserDialog selectInstallDialog = new WinForms.FolderBrowserDialog();
                 selectInstallDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
@@ -410,8 +425,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             try
             {
-                CheckInstall();
-                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
                 GetInstallPath();
                 MessageBox.Show($"Please select where you would like to move {GameName} to.\n\nA folder called \"{GameName}\" will be created.", "Move Install", MessageBoxButton.OK, MessageBoxImage.Information);
                 WinForms.FolderBrowserDialog moveInstallDialog = new WinForms.FolderBrowserDialog();
@@ -450,8 +463,6 @@ namespace MCParodyLauncher.MVVM.View
         {
             try
             {
-                CheckInstall();
-                if (gameInstalled == false) { MessageBox.Show($"{GameName} does not appear to be installed.", "Minecraft Parody Launcher", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
                 GetInstallPath();
                 MessageBoxResult uninstallMSG = System.Windows.MessageBox.Show($"Are you sure you want to uninstall {GameName}?", $"{GameName}", System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (uninstallMSG == MessageBoxResult.Yes)

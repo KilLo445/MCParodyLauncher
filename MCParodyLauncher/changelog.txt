@@ -1,3 +1,9 @@
+v1.3.2
+- Fixed more update related bugs
+- Changed "Website" to "Help"
+- Added bug report button
+- Changes to context menus
+ 
 v1.3.1
 - Fixed games not updating (I'm an idiot)
 

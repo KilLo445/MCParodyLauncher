@@ -45,8 +45,12 @@ namespace MCParodyLauncher.MVVM.View
    
         private void cmGitHub_Click(object sender, System.Windows.RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher") { UseShellExecute = true }); }
 
-        private void cmFAQ_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/FAQ.md") { UseShellExecute = true }); }
-    
+        private void cmLicense_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/LICENSE") { UseShellExecute = true }); }
+
+        private void cmFAQ_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/blob/master/.github/FAQ.md") { UseShellExecute = true }); }
+
+        private void cmBug_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://github.com/KilLo445/MCParodyLauncher/issues/new?assignees=KilLo445&labels=bug&projects=&template=bug_report.md&title=%5BBug%5D+Change+This") { UseShellExecute = true }); }
+
         private void mc2Uninst_Click(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo("https://files.decentstudios.com/decentgames/mc2/MC2_Uninstaller.zip") { UseShellExecute = true }); }
 
 

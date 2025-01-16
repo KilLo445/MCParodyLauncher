@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:MCParodyLauncher.MVVM.View"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid ContextMenuOpening="PlayContext_ContextMenuOpening">
         <Image Name="GameLogo" Source="/Images/logo/game/mc5.png" VerticalAlignment="Top" HorizontalAlignment="Center" Width="500" Margin="0,5,0,0"/>
             <Button Name="PlayBTN" Width="100" Height="40" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,300,0,0" Click="PlayBTN_Click" Style="{StaticResource SquareButton}">
                 <Button.ContextMenu>
